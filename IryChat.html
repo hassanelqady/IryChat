@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl" data-lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XChat — Instagram Automation</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --c1: #05080f;
+  --c2: #00d4ff;
+  --c2-dim: rgba(0,212,255,.12);
+  --c2-glow: rgba(0,212,255,.22);
+  --c2-border: rgba(0,212,255,.18);
+  --glass: rgba(255,255,255,.035);
+  --glass-h: rgba(255,255,255,.065);
+  --gb: rgba(255,255,255,.07);
+  --gs: rgba(255,255,255,.12);
+  --text: #eef2ff;
+  --muted: rgba(238,242,255,.42);
+  --muted2: rgba(238,242,255,.62);
+  --r: 20px; --rs: 12px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Tajawal','Outfit',sans-serif;background:var(--c1);color:var(--text);overflow-x:hidden;}
+[data-lang="en"] .ar{display:none!important;}
+[data-lang="ar"] .en{display:none!important;}
+[data-lang="en"]{font-family:'Outfit',sans-serif;}
+[data-lang="ar"]{font-family:'Tajawal',sans-serif;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--c1);}
+::-webkit-scrollbar-thumb{background:var(--c2);border-radius:99px;}
+
+/* ── BG ── */
+.bg-mesh{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+.blob{position:absolute;border-radius:50%;filter:blur(110px);animation:bd 12s ease-in-out infinite alternate;}
+.b1{width:700px;height:700px;background:rgba(0,212,255,.14);top:-200px;right:-180px;}
+.b2{width:550px;height:550px;background:rgba(0,80,255,.11);bottom:-150px;left:-150px;animation-delay:-5s;}
+.b3{width:400px;height:400px;background:rgba(0,212,255,.06);top:45%;left:38%;animation-delay:-9s;}
+@keyframes bd{0%{transform:translate(0,0) scale(1);}100%{transform:translate(35px,25px) scale(1.08);}}
+.bg-grid{position:fixed;inset:0;z-index:0;pointer-events:none;
+background-image:linear-gradient(rgba(0,212,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.025) 1px,transparent 1px);
+background-size:64px 64px;}
+
+/* ── GLASS UTIL ── */
+.gl{background:var(–glass);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);
+border:1px solid var(–gb);box-shadow:0 8px 32px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);}
+.gl2{background:rgba(255,255,255,.055);backdrop-filter:blur(26px) saturate(200%);-webkit-backdrop-filter:blur(26px) saturate(200%);
+border:1px solid var(–gs);box-shadow:0 12px 40px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.09);}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;width:100%;z-index:900;padding:.85rem 5%;
+display:flex;align-items:center;justify-content:space-between;gap:1rem;
+background:rgba(5,8,15,.75);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);
+border-bottom:1px solid var(–gb);}
+.logo{font-family:‘Outfit’,sans-serif;font-size:1.5rem;font-weight:900;color:var(–c2);
+letter-spacing:-1px;text-shadow:0 0 28px var(–c2-glow);flex-shrink:0;}
+.nav-links{display:flex;gap:1.6rem;list-style:none;align-items:center;}
+.nav-links a{color:var(–muted2);text-decoration:none;font-size:.88rem;font-weight:500;transition:color .2s;}
+.nav-links a:hover{color:var(–c2);}
+.nav-right{display:flex;align-items:center;gap:.75rem;}
+.lang-toggle{display:flex;align-items:center;background:var(–glass);border:1px solid var(–gb);
+border-radius:99px;padding:3px;gap:2px;cursor:pointer;backdrop-filter:blur(12px);}
+.lang-btn{padding:.28rem .75rem;border-radius:99px;font-size:.76rem;font-weight:700;
+border:none;background:transparent;color:var(–muted);cursor:pointer;transition:all .25s;font-family:inherit;}
+.lang-btn.active{background:var(–c2);color:var(–c1);box-shadow:0 0 14px var(–c2-glow);}
+.btn-nav{background:var(–c2);color:var(–c1);border:none;padding:.48rem 1.25rem;border-radius:99px;
+font-family:inherit;font-size:.85rem;font-weight:700;cursor:pointer;
+box-shadow:0 0 22px var(–c2-glow);transition:box-shadow .25s,transform .2s;white-space:nowrap;}
+.btn-nav:hover{box-shadow:0 0 38px var(–c2-glow);transform:translateY(-1px);}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+text-align:center;padding:9rem 5% 5rem;position:relative;z-index:1;}
+.pill{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem 1.2rem;border-radius:99px;
+font-size:.8rem;font-weight:700;margin-bottom:2rem;color:var(–c2);animation:up .55s ease both;}
+.pdot{width:7px;height:7px;border-radius:50%;background:var(–c2);box-shadow:0 0 10px var(–c2);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(1.6)}}
+h1{font-family:‘Outfit’,sans-serif;font-size:clamp(2.8rem,8vw,6.5rem);font-weight:900;
+line-height:1.06;letter-spacing:-3px;margin-bottom:1.5rem;animation:up .6s .1s ease both;}
+[data-lang=“ar”] h1{font-family:‘Tajawal’,sans-serif;letter-spacing:0;}
+.cy{color:var(–c2);text-shadow:0 0 40px var(–c2-glow);}
+.hero-sub{font-size:clamp(.95rem,2.2vw,1.18rem);color:var(–muted2);max-width:560px;
+line-height:1.8;margin-bottom:3rem;animation:up .6s .2s ease both;}
+.hero-btns{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;
+animation:up .6s .3s ease both;margin-bottom:4.5rem;}
+.btn-p{background:var(–c2);color:var(–c1);border:none;padding:.88rem 2.2rem;border-radius:99px;
+font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;
+box-shadow:0 0 30px var(–c2-glow),0 4px 15px rgba(0,0,0,.3);transition:box-shadow .25s,transform .2s;}
+.btn-p:hover{box-shadow:0 0 55px var(–c2-glow);transform:translateY(-3px);}
+.btn-o{background:var(–glass);backdrop-filter:blur(14px);color:var(–text);border:1px solid var(–gs);
+padding:.88rem 2.2rem;border-radius:99px;font-family:inherit;font-size:1rem;font-weight:600;
+cursor:pointer;transition:border-color .25s,background .25s;}
+.btn-o:hover{border-color:var(–c2-border);background:var(–c2-dim);}
+
+/* ── MOCKUP ── */
+.mockup-wrap{width:100%;max-width:700px;position:relative;animation:up .8s .45s ease both;}
+.mockup-wrap::before{content:’’;position:absolute;top:0;left:10%;right:10%;height:1px;
+background:linear-gradient(90deg,transparent,var(–c2),transparent);z-index:2;}
+.mock-bar{padding:.9rem 1.4rem;display:flex;align-items:center;gap:.75rem;
+border-bottom:1px solid var(–gb);}
+.dots{display:flex;gap:5px;margin-left:auto;}
+[dir=“rtl”] .dots{margin-left:0;margin-right:auto;}
+.dot-w{width:10px;height:10px;border-radius:50%;}
+.mavatar{width:36px;height:36px;border-radius:50%;background:var(–c2);
+display:flex;align-items:center;justify-content:center;font-size:1rem;
+box-shadow:0 0 14px var(–c2-glow);}
+.mname{font-size:.88rem;font-weight:700;}
+.mstatus{font-size:.7rem;color:var(–c2);font-weight:600;}
+.chat-body{padding:1.4rem;display:flex;flex-direction:column;gap:.8rem;min-height:220px;
+background:rgba(5,8,15,.5);border-radius:0 0 20px 20px;}
+.msg{max-width:72%;padding:.68rem 1.1rem;border-radius:18px;font-size:.87rem;line-height:1.55;}
+.msg-time{font-size:.63rem;color:var(–muted);margin-top:.3rem;}
+.min{align-self:flex-start;border-bottom-left-radius:4px;}
+[dir=“rtl”] .min{border-bottom-right-radius:18px;border-bottom-left-radius:4px;}
+.mout{align-self:flex-end;background:var(–c2);color:var(–c1);font-weight:600;
+border-bottom-right-radius:4px;box-shadow:0 0 16px var(–c2-glow);}
+[dir=“rtl”] .mout{border-bottom-left-radius:18px;border-bottom-right-radius:4px;}
+.typ{align-self:flex-start;display:flex;gap:4px;align-items:center;
+padding:.68rem 1.1rem;border-radius:18px;border-bottom-left-radius:4px;width:fit-content;}
+.td{width:7px;height:7px;border-radius:50%;background:var(–c2);opacity:.5;animation:td 1.2s infinite;}
+.td:nth-child(2){animation-delay:.2s;}.td:nth-child(3){animation-delay:.4s;}
+@keyframes td{0%,80%,100%{transform:scale(1);opacity:.5}40%{transform:scale(1.4);opacity:1}}
+.fbadges{position:absolute;inset:0;pointer-events:none;}
+.fb{position:absolute;padding:.5rem .95rem;border-radius:12px;font-size:.75rem;font-weight:700;
+display:flex;align-items:center;gap:.45rem;animation:fy 4s ease-in-out infinite alternate;white-space:nowrap;}
+.fb1{top:18%;right:-175px;}.fb2{top:52%;left:-180px;animation-delay:-2s;}.fb3{bottom:12%;right:-165px;animation-delay:-4s;}
+@keyframes fy{0%{transform:translateY(0)}100%{transform:translateY(-12px)}}
+
+/* ── STATS ── */
+.sbar{position:relative;z-index:1;padding:2.5rem 5%;
+border-top:1px solid var(–gb);border-bottom:1px solid var(–gb);
+background:rgba(5,8,15,.6);backdrop-filter:blur(20px);}
+.sbar-in{max-width:920px;margin:0 auto;display:flex;gap:1rem;flex-wrap:wrap;justify-content:space-around;}
+.st{text-align:center;}
+.sn{font-family:‘Outfit’,sans-serif;font-size:2rem;font-weight:900;color:var(–c2);text-shadow:0 0 18px var(–c2-glow);}
+.sl{font-size:.8rem;color:var(–muted);margin-top:.2rem;}
+
+/* ── SECTION ── */
+.sec{position:relative;z-index:1;padding:7rem 5%;}
+.sec-c{text-align:center;}
+.stag{font-size:.72rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(–c2);margin-bottom:.65rem;}
+.sh{font-family:‘Outfit’,sans-serif;font-size:clamp(2rem,4.5vw,3.4rem);font-weight:900;
+letter-spacing:-1.5px;line-height:1.1;margin-bottom:1rem;}
+[data-lang=“ar”] .sh{font-family:‘Tajawal’,sans-serif;letter-spacing:0;}
+.ssub{font-size:.95rem;color:var(–muted2);line-height:1.75;max-width:520px;margin:0 auto;}
+
+/* ── HOW ── */
+.steps-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+gap:1.5rem;max-width:1000px;margin:4rem auto 0;}
+.sc{border-radius:var(–r);padding:2.2rem 1.8rem;text-align:center;
+transition:transform .3s;position:relative;overflow:hidden;}
+.sc::after{content:’’;position:absolute;inset:0;
+background:linear-gradient(135deg,rgba(0,212,255,.04),transparent);opacity:0;transition:opacity .3s;}
+.sc:hover{transform:translateY(-6px);}
+.sc:hover::after{opacity:1;}
+.snum{width:64px;height:64px;border-radius:50%;border:2px solid var(–c2-border);background:var(–c2-dim);
+display:flex;align-items:center;justify-content:center;
+font-family:‘Outfit’,sans-serif;font-size:1.3rem;font-weight:900;color:var(–c2);
+margin:0 auto 1.4rem;box-shadow:0 0 22px var(–c2-glow),inset 0 0 20px rgba(0,212,255,.04);}
+.sc h3{font-size:1.05rem;font-weight:700;margin-bottom:.6rem;}
+.sc p{font-size:.88rem;color:var(–muted2);line-height:1.65;}
+
+/* ── FEATURES ── */
+.feat-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:1.3rem;max-width:1100px;margin:4rem auto 0;}
+.fc{border-radius:var(–r);padding:2rem;transition:transform .3s,border-color .3s;position:relative;overflow:hidden;}
+.fc::after{content:’’;position:absolute;top:0;left:0;right:0;height:1.5px;
+background:linear-gradient(90deg,transparent,var(–c2),transparent);
+transform:scaleX(0);transform-origin:right;transition:transform .4s;}
+.fc:hover{transform:translateY(-5px);border-color:var(–c2-border)!important;}
+.fc:hover::after{transform:scaleX(1);}
+.ficon{width:52px;height:52px;border-radius:14px;background:var(–c2-dim);border:1px solid var(–c2-border);
+display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.3rem;}
+.fc h3{font-size:1rem;font-weight:700;margin-bottom:.55rem;}
+.fc p{font-size:.87rem;color:var(–muted2);line-height:1.65;}
+
+/* ── HIGHLIGHT ── */
+.hl-wrap{max-width:1100px;margin:0 auto;display:flex;gap:5rem;align-items:center;flex-wrap:wrap;}
+.hl-text{flex:1;min-width:280px;}
+.hl-text .sh{margin-bottom:1rem;}
+.hl-text p{font-size:.93rem;color:var(–muted2);line-height:1.8;margin-bottom:2rem;}
+.ck-list{list-style:none;display:flex;flex-direction:column;gap:.8rem;}
+.ck-list li{display:flex;align-items:center;gap:.75rem;font-size:.92rem;font-weight:500;}
+.cki{width:22px;height:22px;border-radius:50%;background:var(–c2-dim);border:1px solid var(–c2-border);
+display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem;color:var(–c2);}
+.hl-cards{flex:1;min-width:280px;display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.hcard{border-radius:var(–rs);padding:1.4rem 1.2rem;transition:transform .3s;}
+.hcard:hover{transform:translateY(-5px);}
+.hci{font-size:1.8rem;margin-bottom:.6rem;}
+.hct{font-size:.82rem;color:var(–muted2);margin-bottom:.3rem;}
+.hcv{font-family:‘Outfit’,sans-serif;font-size:1.6rem;font-weight:900;color:var(–c2);text-shadow:0 0 14px var(–c2-glow);}
+.hcs{font-size:.72rem;color:var(–muted);margin-top:.2rem;}
+
+/* ── PRICING ── */
+.price-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));
+gap:1.3rem;max-width:950px;margin:4rem auto 0;}
+.plan{border-radius:var(–r);padding:2.5rem 2rem;text-align:right;position:relative;transition:transform .3s;}
+.plan:hover{transform:translateY(-5px);}
+.plan.hot{border-color:var(–c2-border)!important;background:rgba(0,212,255,.035)!important;
+box-shadow:0 0 60px rgba(0,212,255,.07),0 8px 32px rgba(0,0,0,.35)!important;}
+.hot-b{position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+background:var(–c2);color:var(–c1);font-size:.72rem;font-weight:700;
+padding:.3rem 1rem;border-radius:99px;white-space:nowrap;box-shadow:0 0 16px var(–c2-glow);}
+.ptag{font-size:.82rem;color:var(–muted);font-weight:600;margin-bottom:.5rem;}
+.pp{font-family:‘Outfit’,sans-serif;font-size:3.2rem;font-weight:900;line-height:1;margin-bottom:.4rem;}
+.pp span{font-size:.95rem;font-weight:400;color:var(–muted);}
+.pd{font-size:.85rem;color:var(–muted2);margin-bottom:2rem;line-height:1.55;}
+.pl{list-style:none;display:flex;flex-direction:column;gap:.75rem;margin-bottom:2rem;}
+.pl li{font-size:.87rem;color:var(–muted2);display:flex;align-items:center;gap:.6rem;}
+.pl li::before{content:‘✓’;color:var(–c2);font-weight:700;flex-shrink:0;}
+.pbtn{width:100%;padding:.88rem;border-radius:99px;font-family:inherit;font-size:.95rem;font-weight:700;
+cursor:pointer;border:none;transition:opacity .2s,transform .2s;}
+.pbtn:hover{opacity:.85;transform:translateY(-1px);}
+.pc{background:var(–c2);color:var(–c1);box-shadow:0 0 20px var(–c2-glow);}
+.pg{background:var(–glass);color:var(–text);border:1px solid var(–gs);}
+
+/* ── TESTIMONIALS ── */
+.tg{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:1.3rem;max-width:1100px;margin:4rem auto 0;}
+.tc{border-radius:var(–r);padding:2rem;text-align:right;transition:transform .3s,border-color .3s;}
+.tc:hover{transform:translateY(-5px);border-color:var(–c2-border)!important;}
+.stars{color:var(–c2);font-size:.9rem;letter-spacing:2px;margin-bottom:1rem;text-shadow:0 0 8px var(–c2-glow);}
+.tct{font-size:.9rem;color:var(–muted2);line-height:1.75;margin-bottom:1.5rem;}
+.ta{display:flex;align-items:center;gap:.8rem;}
+.av{width:42px;height:42px;border-radius:50%;background:var(–c2-dim);border:1px solid var(–c2-border);
+display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;color:var(–c2);flex-shrink:0;}
+.an{font-size:.9rem;font-weight:700;}
+.ar2{font-size:.76rem;color:var(–muted);}
+
+/* ── FAQ ── */
+.faq-in{max-width:740px;margin:0 auto;}
+.faq-hd{text-align:center;margin-bottom:3.5rem;}
+.fi{border-radius:var(–rs);margin-bottom:1rem;overflow:hidden;}
+.fq{width:100%;background:none;border:none;color:var(–text);font-family:inherit;font-size:.95rem;font-weight:700;
+padding:1.2rem 1.6rem;text-align:right;cursor:pointer;
+display:flex;justify-content:space-between;align-items:center;gap:1rem;transition:color .2s;}
+.fq:hover{color:var(–c2);}
+.fqicon{width:27px;height:27px;border-radius:50%;background:var(–gb);color:var(–muted2);
+display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;
+transition:transform .3s,background .2s,color .2s;}
+.fa{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s;
+font-size:.88rem;color:var(–muted2);line-height:1.75;padding:0 1.6rem;}
+.fi.open .fa{max-height:280px;padding:0 1.6rem 1.3rem;}
+.fi.open .fqicon{transform:rotate(45deg);background:var(–c2);color:var(–c1);}
+
+/* ── CTA ── */
+.cta-box{max-width:720px;margin:0 auto;border-radius:32px;padding:5rem 3rem;text-align:center;position:relative;overflow:hidden;}
+.cta-box::before{content:’’;position:absolute;inset:0;border-radius:32px;
+background:linear-gradient(135deg,rgba(0,212,255,.1),rgba(0,80,255,.06));z-index:0;}
+.cta-box>*{position:relative;z-index:1;}
+.cta-box h2{font-family:‘Outfit’,sans-serif;font-size:clamp(1.9rem,4vw,3rem);font-weight:900;
+letter-spacing:-1.5px;margin-bottom:1rem;}
+[data-lang=“ar”] .cta-box h2{font-family:‘Tajawal’,sans-serif;letter-spacing:0;}
+.cta-box p{font-size:1rem;color:var(–muted2);margin-bottom:2.5rem;line-height:1.7;}
+.eform{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.2rem;}
+.einput{background:rgba(255,255,255,.05);border:1px solid var(–gs);backdrop-filter:blur(12px);
+border-radius:99px;padding:.9rem 1.5rem;color:var(–text);font-family:inherit;font-size:.95rem;
+width:300px;outline:none;direction:inherit;transition:border-color .25s,box-shadow .25s;}
+.einput:focus{border-color:var(–c2-border);box-shadow:0 0 0 3px rgba(0,212,255,.1);}
+.einput::placeholder{color:var(–muted);}
+.trust{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap;font-size:.8rem;color:var(–muted);}
+.trust span{display:flex;align-items:center;gap:.3rem;}
+#ok{display:none;margin-top:1.5rem;}
+.ok-in{display:inline-block;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);
+border-radius:14px;padding:1rem 2rem;color:var(–c2);font-weight:700;font-size:.95rem;
+box-shadow:0 0 20px rgba(0,212,255,.1);}
+
+/* ── FOOTER ── */
+footer{position:relative;z-index:1;padding:2.5rem 5%;
+border-top:1px solid var(–gb);background:rgba(5,8,15,.7);backdrop-filter:blur(20px);
+display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+.flinks{display:flex;gap:1.5rem;flex-wrap:wrap;}
+.flinks a{color:var(–muted);font-size:.82rem;text-decoration:none;transition:color .2s;}
+.flinks a:hover{color:var(–c2);}
+.fcopy{font-size:.8rem;color:var(–muted);}
+
+/* ── ANIM ── */
+@keyframes up{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+.nav-links{display:none;}
+h1{letter-spacing:-1px;}
+.fbadges{display:none;}
+.hl-wrap{flex-direction:column;gap:2.5rem;}
+.cta-box{padding:3rem 1.5rem;}
+footer{flex-direction:column;text-align:center;}
+.nav-right{gap:.5rem;}
+}
+</style>
+
+</head>
+<body>
+
+<div class="bg-mesh">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+</div>
+<div class="bg-grid"></div>
+
+<!-- NAV -->
+
+<nav>
+  <div class="logo">XChat</div>
+  <ul class="nav-links">
+    <li><a href="#how"><span class="ar">كيف يعمل</span><span class="en">How It Works</span></a></li>
+    <li><a href="#features"><span class="ar">المميزات</span><span class="en">Features</span></a></li>
+    <li><a href="#pricing"><span class="ar">الأسعار</span><span class="en">Pricing</span></a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="bAr" onclick="setLang('ar')">AR</button>
+      <button class="lang-btn" id="bEn" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="btn-nav" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">
+      <span class="ar">ابدأ مجاناً</span><span class="en">Get Started Free</span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+
+<div class="hero">
+  <div class="pill gl">
+    <span class="pdot"></span>
+    <span class="ar">أتمتة انستجرام الأذكى</span>
+    <span class="en">The Smartest Instagram Automation</span>
+  </div>
+  <h1>
+    <span class="ar">حوّل كل <span class="cy">DM</span><br>لبيع حقيقي</span>
+    <span class="en">Turn Every <span class="cy">DM</span><br>Into a Real Sale</span>
+  </h1>
+  <p class="hero-sub">
+    <span class="ar">XChat يرد على رسايل ومنشنات انستجرام تلقائياً ويحوّل متابعينك لعملاء حقيقيين وإنت نايم.</span>
+    <span class="en">XChat auto-replies to Instagram DMs & mentions — converting your followers into customers while you sleep.</span>
+  </p>
+  <div class="hero-btns">
+    <button class="btn-p" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})">
+      <span class="ar">ابدأ مجاناً — لا كريدت كارد 🚀</span>
+      <span class="en">Start Free — No Credit Card 🚀</span>
+    </button>
+    <button class="btn-o" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">
+      <span class="ar">شوف كيف يشتغل ▶</span>
+      <span class="en">See How It Works ▶</span>
+    </button>
+  </div>
+
+  <!-- MOCKUP -->
+
+  <div class="mockup-wrap">
+    <div class="gl" style="border-radius:24px;overflow:hidden;position:relative;">
+      <div class="mock-bar gl" style="border-radius:0;">
+        <div class="mavatar">📸</div>
+        <div>
+          <div class="mname">XChat — Instagram</div>
+          <div class="mstatus ar">● نشط الآن</div>
+          <div class="mstatus en">● Active now</div>
+        </div>
+        <div class="dots">
+          <div class="dot-w" style="background:#ff5f57"></div>
+          <div class="dot-w" style="background:#ffbd2e"></div>
+          <div class="dot-w" style="background:#28c840"></div>
+        </div>
+      </div>
+      <div class="chat-body" id="chatBox"></div>
+    </div>
+    <div class="fbadges">
+      <div class="fb fb1 gl">📊 <span class="ar">98% معدل الفتح</span><span class="en">98% Open Rate</span></div>
+      <div class="fb fb2 gl">⚡ <span class="ar">رد في ثانية</span><span class="en">1s Response</span></div>
+      <div class="fb fb3 gl">🔥 <span class="ar">×3.4 تحويلات</span><span class="en">×3.4 Conversions</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+
+<div class="sbar">
+  <div class="sbar-in">
+    <div class="st"><div class="sn">+15K</div><div class="sl ar">مستخدم نشط</div><div class="sl en">Active Users</div></div>
+    <div class="st"><div class="sn">98%</div><div class="sl ar">معدل الفتح</div><div class="sl en">Open Rate</div></div>
+    <div class="st"><div class="sn">×3.4</div><div class="sl ar">زيادة التحويلات</div><div class="sl en">More Conversions</div></div>
+    <div class="st"><div class="sn">24/7</div><div class="sl ar">رد تلقائي</div><div class="sl en">Auto Reply</div></div>
+    <div class="st"><div class="sn">&lt;1s</div><div class="sl ar">وقت الرد</div><div class="sl en">Response Time</div></div>
+  </div>
+</div>
+
+<!-- HOW -->
+
+<section class="sec sec-c" id="how">
+  <div class="stag ar">كيف يعمل</div><div class="stag en">How It Works</div>
+  <h2 class="sh"><span class="ar">3 خطوات وبدأت</span><span class="en">3 Steps & You're Live</span></h2>
+  <p class="ssub">
+    <span class="ar">من ربط الحساب لأول بيع تلقائي — في أقل من 10 دقايق</span>
+    <span class="en">From account connection to your first automated sale — in under 10 minutes</span>
+  </p>
+  <div class="steps-g">
+    <div class="sc gl">
+      <div class="snum">01</div>
+      <h3><span class="ar">وصّل انستجرامك</span><span class="en">Connect Instagram</span></h3>
+      <p><span class="ar">ربط حسابك عن طريق Meta API الرسمي — آمن 100% ومتوافق مع سياسات ميتا.</span><span class="en">Connect via the official Meta API — 100% secure & fully compliant with Meta policies.</span></p>
+    </div>
+    <div class="sc gl">
+      <div class="snum">02</div>
+      <h3><span class="ar">صمّم الـ Flow</span><span class="en">Build Your Flow</span></h3>
+      <p><span class="ar">استخدم الـ Visual Builder لتحديد الردود التلقائية على DMs والكومنتات بكلمات مفتاحية.</span><span class="en">Use the Visual Builder to create automated replies for DMs and comments with keywords.</span></p>
+    </div>
+    <div class="sc gl">
+      <div class="snum">03</div>
+      <h3><span class="ar">شغّل وشوف النتيجة</span><span class="en">Launch & See Results</span></h3>
+      <p><span class="ar">XChat يشتغل 24/7 وإنت بتتابع المبيعات والتحويلات على الداشبورد بالريال تايم.</span><span class="en">XChat runs 24/7 while you track sales and conversions on your real-time dashboard.</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+
+<section class="sec sec-c" id="features" style="background:rgba(255,255,255,.015);border-top:1px solid var(--gb);border-bottom:1px solid var(--gb);">
+  <div class="stag ar">المميزات</div><div class="stag en">Features</div>
+  <h2 class="sh"><span class="ar">كل أدوات الأتمتة<br>في مكان واحد</span><span class="en">All Automation Tools<br>In One Place</span></h2>
+  <div class="feat-g">
+    <div class="fc gl"><div class="ficon">💬</div><h3><span class="ar">رد تلقائي على DMs</span><span class="en">Auto DM Replies</span></h3><p><span class="ar">حدد كلمات مفتاحية وXChat يرد فوراً ويكمّل المحادثة لحد ما الشخص يشتري.</span><span class="en">Set keywords and XChat instantly replies, guiding conversations until the sale is done.</span></p></div>
+    <div class="fc gl"><div class="ficon">📝</div><h3><span class="ar">أتمتة الكومنتات</span><span class="en">Comment Automation</span></h3><p><span class="ar">أي حد يكتب "اسعار" في الكومنتات — XChat يبعتله رسالة خاصة في ثواني.</span><span class="en">Anyone who comments "price" gets an instant private message automatically within seconds.</span></p></div>
+    <div class="fc gl"><div class="ficon">📸</div><h3><span class="ar">Story Mentions</span><span class="en">Story Mentions</span></h3><p><span class="ar">أي حد يمنشنك في ستوريه يوصله رد تلقائي يشكره ويعرض عليه حاجة ذات قيمة.</span><span class="en">Anyone who mentions you in their story gets an automatic personalized reply with a value offer.</span></p></div>
+    <div class="fc gl"><div class="ficon">🏷️</div><h3><span class="ar">تقسيم الجمهور</span><span class="en">Audience Segmentation</span></h3><p><span class="ar">صنّف متابعينك بتاجز تلقائية بناءً على تفاعلهم وابعت لكل شريحة رسالتها الصح.</span><span class="en">Auto-tag subscribers by behavior and send each segment the perfectly tailored message.</span></p></div>
+    <div class="fc gl"><div class="ficon">📊</div><h3><span class="ar">Analytics متعمقة</span><span class="en">Deep Analytics</span></h3><p><span class="ar">تابع معدلات الفتح والكليك والتحويل بالريال تايم. اعرف إيه الـ flow الأكثر تحويلاً.</span><span class="en">Track open rates, clicks & conversions in real-time. Know exactly which flow converts best.</span></p></div>
+    <div class="fc gl"><div class="ficon">🔗</div><h3><span class="ar">API + Webhooks</span><span class="en">API + Webhooks</span></h3><p><span class="ar">وصّل XChat بأي نظام خارجي — CRM أو متجرك — عن طريق REST API كامل.</span><span class="en">Connect XChat to any external system — CRM, your store — via a full REST API.</span></p></div>
+  </div>
+</section>
+
+<!-- HIGHLIGHT -->
+
+<section class="sec">
+  <div class="hl-wrap">
+    <div class="hl-text">
+      <div class="stag ar">قوة انستجرام</div><div class="stag en">Instagram Power</div>
+      <h2 class="sh"><span class="ar">كل تفاعل<br><span class="cy">فرصة بيع</span></span><span class="en">Every Interaction<br>A <span class="cy">Sales Chance</span></span></h2>
+      <p><span class="ar">انستجرام مش بس منصة عرض — هو أقوى قناة مبيعات. XChat يحوّل كل DM وكومنت ومنشن لمحادثة بيع حقيقية تلقائياً.</span><span class="en">Instagram isn't just a showcase — it's your most powerful sales channel. XChat turns every DM, comment & mention into a real sales conversation, automatically.</span></p>
+      <ul class="ck-list">
+        <li><span class="cki">✓</span><span class="ar">رد على DMs في أقل من ثانية</span><span class="en">Reply to DMs in under 1 second</span></li>
+        <li><span class="cki">✓</span><span class="ar">أتمتة الكومنتات بكلمات مفتاحية</span><span class="en">Comment automation with keywords</span></li>
+        <li><span class="cki">✓</span><span class="ar">تحويل Story Mentions لعملاء</span><span class="en">Convert Story Mentions to customers</span></li>
+        <li><span class="cki">✓</span><span class="ar">بث جماعي للـ subscribers</span><span class="en">Broadcast messages to all subscribers</span></li>
+        <li><span class="cki">✓</span><span class="ar">متوافق 100% مع سياسات ميتا</span><span class="en">100% compliant with Meta policies</span></li>
+      </ul>
+    </div>
+    <div class="hl-cards">
+      <div class="hcard gl"><div class="hci">💬</div><div class="hct ar">DMs اليوم</div><div class="hct en">Today's DMs</div><div class="hcv">247</div><div class="hcs ar">↑ 89% من أمس</div><div class="hcs en">↑ 89% vs yesterday</div></div>
+      <div class="hcard gl"><div class="hci">🎯</div><div class="hct ar">معدل التحويل</div><div class="hct en">Conversion Rate</div><div class="hcv">34%</div><div class="hcs ar">↑ 12% هذا الأسبوع</div><div class="hcs en">↑ 12% this week</div></div>
+      <div class="hcard gl"><div class="hci">⚡</div><div class="hct ar">ردود تلقائية</div><div class="hct en">Auto Replies</div><div class="hcv">1,840</div><div class="hcs ar">هذا الشهر</div><div class="hcs en">This month</div></div>
+      <div class="hcard gl"><div class="hci">💰</div><div class="hct ar">إيرادات مولّدة</div><div class="hct en">Revenue Generated</div><div class="hcv">$8.2K</div><div class="hcs ar">×3 مقارنة قبل XChat</div><div class="hcs en">×3 vs before XChat</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+
+<section class="sec sec-c" id="pricing" style="background:rgba(255,255,255,.015);border-top:1px solid var(--gb);">
+  <div class="stag ar">الأسعار</div><div class="stag en">Pricing</div>
+  <h2 class="sh"><span class="ar">شفاف من غير مفاجآت</span><span class="en">Transparent, No Surprises</span></h2>
+  <div class="price-g">
+    <div class="plan gl">
+      <div class="ptag ar">مجاني</div><div class="ptag en">Free</div>
+      <div class="pp">$0 <span>/ <span class="ar">شهر</span><span class="en">mo</span></span></div>
+      <div class="pd ar">للتجربة وابدأ من النهارده</div><div class="pd en">Perfect to get started today</div>
+      <ul class="pl">
+        <li><span class="ar">500 محادثة / شهر</span><span class="en">500 conversations / month</span></li>
+        <li><span class="ar">حساب انستجرام واحد</span><span class="en">1 Instagram account</span></li>
+        <li><span class="ar">3 Flows</span><span class="en">3 Flows</span></li>
+        <li><span class="ar">رد تلقائي على DMs</span><span class="en">Auto DM replies</span></li>
+        <li><span class="ar">دعم بالإيميل</span><span class="en">Email support</span></li>
+      </ul>
+      <button class="pbtn pg" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})"><span class="ar">ابدأ مجاناً</span><span class="en">Start Free</span></button>
+    </div>
+    <div class="plan gl hot">
+      <div class="hot-b">⭐ <span class="ar">الأكثر اختياراً</span><span class="en">Most Popular</span></div>
+      <div class="ptag ar">برو</div><div class="ptag en">Pro</div>
+      <div class="pp">$29 <span>/ <span class="ar">شهر</span><span class="en">mo</span></span></div>
+      <div class="pd ar">للبيزنس اللي عايز ينمو فعلاً</div><div class="pd en">For businesses serious about growth</div>
+      <ul class="pl">
+        <li><span class="ar">محادثات غير محدودة</span><span class="en">Unlimited conversations</span></li>
+        <li><span class="ar">3 حسابات انستجرام</span><span class="en">3 Instagram accounts</span></li>
+        <li><span class="ar">Flows غير محدودة</span><span class="en">Unlimited Flows</span></li>
+        <li><span class="ar">أتمتة الكومنتات والـ Stories</span><span class="en">Comment & Story automation</span></li>
+        <li><span class="ar">تقسيم الجمهور</span><span class="en">Audience segmentation</span></li>
+        <li><span class="ar">Analytics متعمقة</span><span class="en">Deep Analytics</span></li>
+        <li><span class="ar">دعم أولوية</span><span class="en">Priority support</span></li>
+      </ul>
+      <button class="pbtn pc" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})"><span class="ar">تجربة 14 يوم مجاناً</span><span class="en">14-Day Free Trial</span></button>
+    </div>
+    <div class="plan gl">
+      <div class="ptag ar">إيجنسي</div><div class="ptag en">Agency</div>
+      <div class="pp">$99 <span>/ <span class="ar">شهر</span><span class="en">mo</span></span></div>
+      <div class="pd ar">للوكالات وأصحاب المشاريع الكبيرة</div><div class="pd en">For agencies & large-scale projects</div>
+      <ul class="pl">
+        <li><span class="ar">لحد 20 حساب عميل</span><span class="en">Up to 20 client accounts</span></li>
+        <li><span class="ar">حسابات انستجرام غير محدودة</span><span class="en">Unlimited Instagram accounts</span></li>
+        <li><span class="ar">White Label كامل</span><span class="en">Full White Label</span></li>
+        <li><span class="ar">Dashboard موحّد</span><span class="en">Unified dashboard</span></li>
+        <li><span class="ar">API + Webhooks</span><span class="en">API + Webhooks</span></li>
+        <li><span class="ar">Account Manager مخصص</span><span class="en">Dedicated Account Manager</span></li>
+      </ul>
+      <button class="pbtn pg" onclick="document.getElementById('cta').scrollIntoView({behavior:'smooth'})"><span class="ar">تكلم معنا</span><span class="en">Talk to Us</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+
+<section class="sec sec-c">
+  <div class="stag ar">شهادات العملاء</div><div class="stag en">Customer Stories</div>
+  <h2 class="sh"><span class="ar">بيقولوا إيه عن XChat</span><span class="en">What People Say</span></h2>
+  <div class="tg">
+    <div class="tc gl">
+      <div class="stars">★★★★★</div>
+      <div class="tct ar">"زاد مبيعاتي 3 أضعاف في شهرين! كل ما حد يكتب 'اسعار' في الكومنتات يوصله رسالة ويشتري. المشروع اتغير خالص."</div>
+      <div class="tct en">"My sales tripled in 2 months! Every time someone comments 'price', they get an auto message and buy. This completely changed my business."</div>
+      <div class="ta"><div class="av">نم</div><div><div class="an ar">نور محمد</div><div class="an en">Nour Mohamed</div><div class="ar2 ar">صاحبة متجر موضة</div><div class="ar2 en">Fashion Store Owner</div></div></div>
+    </div>
+    <div class="tc gl">
+      <div class="stars">★★★★★</div>
+      <div class="tct ar">"كنت بصرف على موظف بيرد على DMs. دلوقتي وفّرت ده كله. الـ ROI واضح من أول أسبوع."</div>
+      <div class="tct en">"I used to pay someone to reply to DMs. Now that budget is saved and ROI was clear from the first week."</div>
+      <div class="ta"><div class="av">عخ</div><div><div class="an ar">علي خالد</div><div class="an en">Ali Khaled</div><div class="ar2 ar">مدير تسويق — إيجنسي</div><div class="ar2 en">Marketing Director — Agency</div></div></div>
+    </div>
+    <div class="tc gl">
+      <div class="stars">★★★★★</div>
+      <div class="tct ar">"في ساعة واحدة عملت flow كامل. البوت بيرد أسرع مني وأذكى. العملاء مش مصدقين إنه بوت!"</div>
+      <div class="tct en">"In one hour I had a complete flow running. The bot replies faster and smarter. Clients can't believe it's automated!"</div>
+      <div class="ta"><div class="av">سع</div><div><div class="an ar">سلمى علي</div><div class="an en">Salma Ali</div><div class="ar2 ar">كوتش تنمية بشرية</div><div class="ar2 en">Life & Business Coach</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+
+<section class="sec" id="faq" style="background:rgba(255,255,255,.015);border-top:1px solid var(--gb);">
+  <div class="faq-in">
+    <div class="faq-hd">
+      <div class="stag ar">أسئلة شائعة</div><div class="stag en">FAQ</div>
+      <h2 class="sh"><span class="ar">عندك سؤال؟</span><span class="en">Have Questions?</span></h2>
+    </div>
+    <div class="fi gl">
+      <button class="fq" onclick="tfaq(this)"><span class="ar">هل XChat معتمد من ميتا وانستجرام؟</span><span class="en">Is XChat approved by Meta & Instagram?</span><span class="fqicon">+</span></button>
+      <div class="fa"><span class="ar">أيوه 100%. بنستخدم Meta Graph API الرسمي ومتوافقون تماماً مع سياسات ميتا. حسابك في أمان.</span><span class="en">Yes, 100%. We use the official Meta Graph API and are fully compliant with Meta & Instagram policies. Your account is completely safe.</span></div>
+    </div>
+    <div class="fi gl">
+      <button class="fq" onclick="tfaq(this)"><span class="ar">هل محتاج خبرة تقنية؟</span><span class="en">Do I need technical skills?</span><span class="fqicon">+</span></button>
+      <div class="fa"><span class="ar">لأ خالص. الواجهة visual drag & drop بالكامل. لو تعرف تبعت DM على انستجرام تقدر تشغّل XChat في أقل من 10 دقايق.</span><span class="en">Not at all. The interface is fully visual drag & drop. If you can send a DM on Instagram, you can run XChat in under 10 minutes.</span></div>
+    </div>
+    <div class="fi gl">
+      <button class="fq" onclick="tfaq(this)"><span class="ar">أقدر أجرب قبل ما أدفع؟</span><span class="en">Can I try before paying?</span><span class="fqicon">+</span></button>
+      <div class="fa"><span class="ar">طبعاً! الخطة المجانية دايماً موجودة. والبرو فيها 14 يوم تجربة مجانية بدون كريدت كارد.</span><span class="en">Absolutely! The free plan is always available. Pro also comes with a 14-day free trial — no credit card required.</span></div>
+    </div>
+    <div class="fi gl">
+      <button class="fq" onclick="tfaq(this)"><span class="ar">هل هيحس المتابع إنه بيكلم بوت؟</span><span class="en">Will followers know they're talking to a bot?</span><span class="fqicon">+</span></button>
+      <div class="fa"><span class="ar">ده بيرجع لإنت. تقدر تعمل ردود طبيعية جداً وبشرية. كتير من عملائنا بيقولوا إن متابعيهم مش بيلاحظوا الفرق.</span><span class="en">That's entirely up to you. You can craft very natural, human-sounding replies. Many users say their followers don't notice the difference.</span></div>
+    </div>
+    <div class="fi gl">
+      <button class="fq" onclick="tfaq(this)"><span class="ar">أقدر ألغي الاشتراك وقت ما أنا عايز؟</span><span class="en">Can I cancel anytime?</span><span class="fqicon">+</span></button>
+      <div class="fa"><span class="ar">أيوه، في أي وقت بضغطة واحدة من الداشبورد. مفيش عقود ومفيش رسوم إلغاء.</span><span class="en">Yes, anytime with one click from your dashboard. No contracts, no cancellation fees whatsoever.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+
+<section class="sec sec-c" id="cta">
+  <div class="cta-box gl2">
+    <h2>
+      <span class="ar">جاهز تحوّل انستجرامك<br>لـ <span class="cy">ماكينة مبيعات</span>؟ 🚀</span>
+      <span class="en">Ready to Turn Instagram Into<br>A <span class="cy">Sales Machine</span>? 🚀</span>
+    </h2>
+    <p>
+      <span class="ar">انضم لأكتر من 15,000 بيزنس بيستخدم XChat. ابدأ مجاناً في أقل من 5 دقايق.</span>
+      <span class="en">Join 15,000+ businesses already using XChat. Get started free in under 5 minutes.</span>
+    </p>
+    <div class="eform">
+      <input type="email" class="einput" id="emailInp" placeholder="إيميلك هنا..."
+        data-ar="إيميلك هنا..." data-en="Your email here...">
+      <button class="btn-p" onclick="doSignup()">
+        <span class="ar">ابدأ مجاناً 🚀</span><span class="en">Start Free 🚀</span>
+      </button>
+    </div>
+    <div class="trust">
+      <span>✅ <span class="ar">لا كريدت كارد</span><span class="en">No Credit Card</span></span>
+      <span>✅ <span class="ar">إعداد في 5 دقايق</span><span class="en">5-Min Setup</span></span>
+      <span>✅ <span class="ar">ألغِ في أي وقت</span><span class="en">Cancel Anytime</span></span>
+    </div>
+    <div id="ok">
+      <div class="ok-in">🎉 <span class="ar">تمام! هيوصلك إيميل التفعيل دلوقتي</span><span class="en">Done! Your activation email is on its way</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+
+<footer>
+  <div class="logo">XChat</div>
+  <div class="flinks">
+    <a href="#"><span class="ar">سياسة الخصوصية</span><span class="en">Privacy Policy</span></a>
+    <a href="#"><span class="ar">الشروط والأحكام</span><span class="en">Terms of Service</span></a>
+    <a href="#"><span class="ar">الدعم الفني</span><span class="en">Support</span></a>
+    <a href="#"><span class="ar">المدونة</span><span class="en">Blog</span></a>
+  </div>
+  <div class="fcopy">© 2025 XChat</div>
+</footer>
+
+<script>
+/* ── LANG ── */
+function setLang(l){
+  const html=document.documentElement;
+  html.setAttribute('data-lang',l);
+  html.setAttribute('lang',l);
+  html.setAttribute('dir',l==='ar'?'rtl':'ltr');
+  document.getElementById('bAr').classList.toggle('active',l==='ar');
+  document.getElementById('bEn').classList.toggle('active',l==='en');
+  const inp=document.getElementById('emailInp');
+  inp.placeholder=inp.getAttribute('data-'+l);
+  chatIdx=0; document.getElementById('chatBox').innerHTML='';
+  if(chatTmr)clearTimeout(chatTmr);
+  setTimeout(runChat,700);
+}
+
+/* ── FAQ ── */
+function tfaq(btn){
+  const it=btn.closest('.fi');
+  const op=it.classList.contains('open');
+  document.querySelectorAll('.fi').forEach(i=>i.classList.remove('open'));
+  if(!op)it.classList.add('open');
+}
+
+/* ── SIGNUP ── */
+function doSignup(){
+  const inp=document.getElementById('emailInp');
+  const v=inp.value.trim();
+  if(!v||!v.includes('@')){
+    inp.style.borderColor='rgba(255,60,80,.7)';
+    inp.style.boxShadow='0 0 0 3px rgba(255,60,80,.12)';
+    setTimeout(()=>{inp.style.borderColor='';inp.style.boxShadow='';},2500);
+    return;
+  }
+  document.getElementById('ok').style.display='block';
+  inp.value='';
+  // 🔌 fetch('/api/signup',{method:'POST',body:JSON.stringify({email:v})})
+}
+
+/* ── CHAT ── */
+const CHATS={
+  ar:[
+    {t:'in', tx:'كم سعر المنتج؟ 😍'},
+    {t:'out',tx:'👋 أهلاً! عندنا عروض حلوة النهارده. تحب أبعتلك الكاتالوج؟'},
+    {t:'in', tx:'أيوه طبعاً!'},
+    {t:'out',tx:'✅ تم! وعندنا خصم 20% هذا الأسبوع فقط 🎁'},
+    {t:'in', tx:'تمام، عايز أطلب'},
+    {t:'out',tx:'🔥 ممتاز! اضغط هنا لإتمام الطلب 👇 xchat.io/order'},
+  ],
+  en:[
+    {t:'in', tx:"What's the price? 😍"},
+    {t:'out',tx:"👋 Hey! We have great offers today. Want me to send the catalog?"},
+    {t:'in', tx:"Yes please!"},
+    {t:'out',tx:"✅ Sent! We also have 20% off this week only 🎁"},
+    {t:'in', tx:"Awesome, I want to order"},
+    {t:'out',tx:"🔥 Great! Click here to complete your order 👇 xchat.io/order"},
+  ]
+};
+
+let chatIdx=0, chatTmr=null;
+
+function runChat(){
+  const l=document.documentElement.getAttribute('data-lang')||'ar';
+  const msgs=CHATS[l];
+  function next(){
+    if(chatIdx>=msgs.length){
+      chatTmr=setTimeout(()=>{
+        chatIdx=0;document.getElementById('chatBox').innerHTML='';
+        setTimeout(next,500);
+      },3500);return;
+    }
+    const m=msgs[chatIdx];
+    const box=document.getElementById('chatBox');
+    if(m.t==='out'){
+      const ty=document.createElement('div');
+      ty.className='typ gl';
+      ty.innerHTML='<div class="td"></div><div class="td"></div><div class="td"></div>';
+      box.appendChild(ty);box.scrollTop=box.scrollHeight;
+      chatTmr=setTimeout(()=>{
+        ty.remove();addMsg(m,box);chatIdx++;
+        chatTmr=setTimeout(next,1700);
+      },1000);
+    }else{
+      addMsg(m,box);chatIdx++;
+      chatTmr=setTimeout(next,900);
+    }
+  }
+  next();
+}
+
+function addMsg(m,box){
+  const d=document.createElement('div');
+  d.className=m.t==='out'?'msg mout':'msg min gl';
+  d.innerHTML=m.tx+'<div class="msg-time">now</div>';
+  box.appendChild(d);box.scrollTop=box.scrollHeight;
+}
+
+setTimeout(runChat,1000);
+
+/* ── REVEAL ── */
+const ro=new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.style.transition='opacity .6s ease,transform .6s ease';
+      e.target.style.opacity='1';e.target.style.transform='translateY(0)';
+    }
+  });
+},{threshold:.08});
+document.querySelectorAll('.fc,.plan,.tc,.sc,.hcard').forEach(el=>{
+  el.style.opacity='0';el.style.transform='translateY(22px)';ro.observe(el);
+});
