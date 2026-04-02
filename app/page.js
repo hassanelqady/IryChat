@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 export default function Home() {
   const [lang, setLang] = useState('ar')
   const [openFaq, setOpenFaq] = useState(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const chatBoxRef = useRef(null)
 
   // Chat Messages
@@ -137,6 +138,7 @@ export default function Home() {
   }
 
   const scrollTo = (id) => {
+    setMobileMenuOpen(false)
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
   }
 
@@ -154,7 +156,7 @@ export default function Home() {
   const currentFaq = faqData[lang] || faqData.ar
   const currentTestimonials = testimonials[lang] || testimonials.ar
 
-  // Animation variants (without affecting styles)
+  // Animation variants
   const fadeUp = {
     hidden: { opacity: 0, y: 40 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] } }
@@ -178,12 +180,15 @@ export default function Home() {
       {/* ========== NAVBAR ========== */}
       <nav className="navbar">
         <Link href="/" className="logo">IryChat</Link>
+        
+        {/* Desktop Navigation */}
         <ul className="nav-links">
           <li><button onClick={() => scrollTo('how')}><span className="ar">كيف يعمل</span><span className="en">How It Works</span></button></li>
           <li><button onClick={() => scrollTo('features')}><span className="ar">المميزات</span><span className="en">Features</span></button></li>
           <li><button onClick={() => scrollTo('pricing')}><span className="ar">الأسعار</span><span className="en">Pricing</span></button></li>
           <li><button onClick={() => scrollTo('faq')}>FAQ</button></li>
         </ul>
+        
         <div className="nav-right">
           <div className="lang-toggle">
             <button className={lang === 'ar' ? 'active' : ''} onClick={() => changeLang('ar')}>AR</button>
@@ -193,8 +198,23 @@ export default function Home() {
             <span className="ar">تسجيل دخول</span>
             <span className="en">Login</span>
           </Link>
+          
+          {/* Hamburger Menu Button */}
+          <button className="hamburger" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+          </button>
         </div>
       </nav>
+
+      {/* Mobile Menu */}
+      <div className={`mobile-menu ${mobileMenuOpen ? 'open' : ''}`}>
+        <button onClick={() => scrollTo('how')}><span className="ar">كيف يعمل</span><span className="en">How It Works</span></button>
+        <button onClick={() => scrollTo('features')}><span className="ar">المميزات</span><span className="en">Features</span></button>
+        <button onClick={() => scrollTo('pricing')}><span className="ar">الأسعار</span><span className="en">Pricing</span></button>
+        <button onClick={() => scrollTo('faq')}>FAQ</button>
+      </div>
 
       {/* ========== HERO SECTION ========== */}
       <div className="hero">
@@ -563,15 +583,14 @@ export default function Home() {
       <footer className="footer">
         <div className="logo">IryChat</div>
         <div className="footer-links">
-          <a href="#"><span className="ar">سياسة الخصوصية</span><span className="en">Privacy Policy</span></a>
-          <a href="#"><span className="ar">الشروط والأحكام</span><span className="en">Terms of Service</span></a>
-          <a href="#"><span className="ar">الدعم الفني</span><span className="en">Support</span></a>
-          <a href="#"><span className="ar">المدونة</span><span className="en">Blog</span></a>
+          <Link href="/privacy">سياسة الخصوصية</Link>
+          <Link href="/terms">الشروط والأحكام</Link>
+          <Link href="/contact">الدعم الفني</Link>
+          <Link href="/blog">المدونة</Link>
         </div>
         <div className="copyright">© 2025 IryChat</div>
       </footer>
 
-      {/* ========== STYLES (نفس CSS الأصلي من ملف globals.css) ========== */}
       <style jsx global>{`
         :root {
           --c1: #05080f;
@@ -854,6 +873,65 @@ export default function Home() {
           box-shadow: 0 0 38px var(--c2-glow);
         }
 
+        /* Hamburger Menu */
+        .hamburger {
+          display: none;
+          flex-direction: column;
+          justify-content: space-between;
+          width: 28px;
+          height: 20px;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+        }
+
+        .hamburger-line {
+          width: 100%;
+          height: 2px;
+          background: var(--text);
+          transition: all 0.3s;
+        }
+
+        .mobile-menu {
+          position: fixed;
+          top: 70px;
+          left: 0;
+          right: 0;
+          background: rgba(5,8,15,0.95);
+          backdrop-filter: blur(20px);
+          border-bottom: 1px solid var(--gb);
+          padding: 1rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          transform: translateY(-150%);
+          transition: transform 0.3s ease;
+          z-index: 899;
+        }
+
+        .mobile-menu.open {
+          transform: translateY(0);
+        }
+
+        .mobile-menu button {
+          background: var(--glass);
+          border: 1px solid var(--gb);
+          border-radius: 12px;
+          padding: 0.8rem;
+          color: var(--text);
+          font-size: 1rem;
+          cursor: pointer;
+          text-align: center;
+          transition: all 0.2s;
+        }
+
+        .mobile-menu button:hover {
+          background: var(--c2-dim);
+          border-color: var(--c2-border);
+          color: var(--c2);
+        }
+
         /* Hero */
         .hero {
           min-height: 100vh;
@@ -1006,7 +1084,9 @@ export default function Home() {
           display: flex;
           flex-direction: column;
           gap: 0.8rem;
-          min-height: 220px;
+          height: 280px;
+          overflow-y: auto;
+          scroll-behavior: smooth;
           background: rgba(5,8,15,0.5);
           border-radius: 0 0 20px 20px;
         }
@@ -1672,13 +1752,186 @@ export default function Home() {
           color: var(--muted);
         }
 
-        /* Responsive */
+        /* منع الزوم التلقائي على الموبايل */
+        input, 
+        textarea, 
+        select {
+          font-size: 16px !important;
+        }
+
         @media (max-width: 768px) {
-          .nav-links { display: none; }
-          .fbadges { display: none; }
-          .highlight-wrap { flex-direction: column; gap: 2.5rem; }
-          .footer { flex-direction: column; text-align: center; }
-          .cta-box { padding: 3rem 1.5rem; }
+          input, 
+          textarea, 
+          select {
+            font-size: 16px !important;
+          }
+        }
+
+        /* ========== RESPONSIVE DESIGN ========== */
+
+        /* Tablet */
+        @media (max-width: 1024px) {
+          .hero {
+            padding: 8rem 5% 4rem;
+          }
+          
+          h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+          }
+          
+          .steps-grid,
+          .features-grid,
+          .pricing-grid,
+          .testimonials-grid {
+            gap: 1rem;
+          }
+          
+          .step-card {
+            padding: 1.5rem;
+          }
+          
+          .highlight-wrap {
+            gap: 2rem;
+          }
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+          .nav-links {
+            display: none;
+          }
+          
+          .hamburger {
+            display: flex;
+          }
+          
+          .hero {
+            padding: 7rem 5% 3rem;
+            min-height: auto;
+          }
+          
+          .hero-btns {
+            margin-bottom: 2rem;
+          }
+          
+          .btn-p, .btn-o {
+            padding: 0.7rem 1.5rem;
+            font-size: 0.85rem;
+          }
+          
+          .fbadges {
+            display: none;
+          }
+          
+          .mockup-wrap {
+            max-width: 100%;
+          }
+          
+          .chat-body {
+            height: 220px;
+          }
+          
+          .stats-grid {
+            gap: 0.8rem;
+          }
+          
+          .stat-number {
+            font-size: 1.5rem;
+          }
+          
+          .stat-label {
+            font-size: 0.7rem;
+          }
+          
+          .section {
+            padding: 4rem 5%;
+          }
+          
+          .section-title {
+            font-size: clamp(1.5rem, 5vw, 2rem);
+          }
+          
+          .steps-grid,
+          .features-grid,
+          .pricing-grid,
+          .testimonials-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .feature-card {
+            text-align: center;
+          }
+          
+          .feature-icon {
+            margin-left: auto;
+            margin-right: auto;
+          }
+          
+          .highlight-section {
+            padding: 4rem 5%;
+          }
+          
+          .highlight-cards {
+            grid-template-columns: 1fr;
+          }
+          
+          .cta-box {
+            padding: 2rem 1.5rem;
+          }
+          
+          .cta-form {
+            flex-direction: column;
+            align-items: center;
+          }
+          
+          .cta-input {
+            width: 100%;
+            max-width: 300px;
+          }
+          
+          .cta-btn {
+            width: 100%;
+            max-width: 300px;
+          }
+          
+          .trust-badges {
+            gap: 0.8rem;
+            font-size: 0.7rem;
+          }
+          
+          .footer {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+          }
+          
+          .footer-links {
+            justify-content: center;
+            gap: 1rem;
+          }
+        }
+
+        /* Small Mobile */
+        @media (max-width: 480px) {
+          .hero h1 {
+            font-size: 2rem;
+          }
+          
+          .hero-sub {
+            font-size: 0.85rem;
+          }
+          
+          .stat-number {
+            font-size: 1.2rem;
+          }
+          
+          .pricing-card {
+            padding: 1.5rem;
+          }
+          
+          .plan-price {
+            font-size: 2.5rem;
+          }
         }
       `}</style>
     </main>

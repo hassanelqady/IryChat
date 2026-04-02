@@ -60,7 +60,6 @@ export default function LoginPage() {
         localStorage.setItem('irychat_flows', JSON.stringify(defaultFlows))
       }
       
-      // التوجيه
       window.location.href = '/dashboard'
     } else {
       setError('البريد الإلكتروني أو كلمة المرور غير صحيحة')
@@ -70,9 +69,11 @@ export default function LoginPage() {
 
   return (
     <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: '#05080f' }}>
+      {/* خلفية متحركة */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
         <div style={{ position: 'absolute', width: '700px', height: '700px', borderRadius: '50%', background: 'rgba(0,212,255,0.14)', filter: 'blur(110px)', top: '-200px', right: '-180px', animation: 'float 12s infinite alternate' }}></div>
         <div style={{ position: 'absolute', width: '550px', height: '550px', borderRadius: '50%', background: 'rgba(0,80,255,0.11)', filter: 'blur(110px)', bottom: '-150px', left: '-150px', animation: 'float 12s infinite alternate', animationDelay: '-5s' }}></div>
+        <div style={{ position: 'absolute', width: '400px', height: '400px', borderRadius: '50%', background: 'rgba(0,212,255,0.06)', filter: 'blur(110px)', top: '45%', left: '38%', animation: 'float 12s infinite alternate', animationDelay: '-9s' }}></div>
       </div>
 
       <motion.div
@@ -88,7 +89,8 @@ export default function LoginPage() {
           zIndex: 1,
           background: 'rgba(5,8,15,0.7)',
           backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255,255,255,0.08)'
+          border: '1px solid rgba(255,255,255,0.08)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.35)'
         }}
       >
         <motion.div variants={fadeUp}>
@@ -100,32 +102,105 @@ export default function LoginPage() {
         <motion.p variants={fadeUp} style={{ color: 'rgba(238,242,255,0.6)', marginBottom: '2rem' }}>مرحباً بعودتك! سجل دخولك للمتابعة</motion.p>
 
         {error && (
-          <div style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', borderRadius: '12px', padding: '0.75rem', marginBottom: '1rem', color: '#ff6b6b' }}>
+          <div style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', borderRadius: '12px', padding: '0.75rem', marginBottom: '1rem', color: '#ff6b6b', fontSize: '0.85rem' }}>
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
           <motion.div variants={fadeUp} style={{ marginBottom: '1rem' }}>
-            <input type="email" placeholder="البريد الإلكتروني" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', padding: '0.9rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#eef2ff' }} />
+            <input 
+              type="email" 
+              placeholder="البريد الإلكتروني" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              required 
+              style={{ 
+                width: '100%', 
+                padding: '0.9rem 1rem', 
+                background: 'rgba(255,255,255,0.05)', 
+                border: '1px solid rgba(255,255,255,0.08)', 
+                borderRadius: '14px', 
+                color: '#eef2ff',
+                fontSize: '0.95rem',
+                outline: 'none',
+                transition: 'all 0.3s'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#00d4ff'}
+              onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+            />
           </motion.div>
 
-          <motion.div variants={fadeUp} style={{ position: 'relative', marginBottom: '1rem' }}>
-            <input type={showPassword ? 'text' : 'password'} placeholder="كلمة المرور" value={password} onChange={(e) => setPassword(e.target.value)} required style={{ width: '100%', padding: '0.9rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#eef2ff' }} />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem' }}>{showPassword ? '🙈' : '👁️'}</button>
+          {/* حقل كلمة المرور - عين على الشمال */}
+          <motion.div variants={fadeUp} style={{ marginBottom: '1rem' }}>
+            <div style={{ position: 'relative' }}>
+              <input 
+                type={showPassword ? 'text' : 'password'} 
+                placeholder="كلمة المرور" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                required 
+                style={{ 
+                  width: '100%', 
+                  padding: '0.9rem 1rem 0.9rem 3rem', 
+                  background: 'rgba(255,255,255,0.05)', 
+                  border: '1px solid rgba(255,255,255,0.08)', 
+                  borderRadius: '14px', 
+                  color: '#eef2ff',
+                  fontSize: '0.95rem',
+                  outline: 'none',
+                  transition: 'all 0.3s'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#00d4ff'}
+                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+              />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)} 
+                style={{ 
+                  position: 'absolute', 
+                  left: '12px', 
+                  top: '50%', 
+                  transform: 'translateY(-50%)', 
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '8px',
+                  width: '34px',
+                  height: '34px',
+                  cursor: 'pointer', 
+                  fontSize: '1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s',
+                  color: '#00d4ff'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = 'rgba(0,212,255,0.15)'
+                  e.target.style.borderColor = '#00d4ff'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'rgba(255,255,255,0.05)'
+                  e.target.style.borderColor = 'rgba(255,255,255,0.1)'
+                }}
+              >
+                {showPassword ? '🔓' : '🔒'}
+              </button>
+            </div>
           </motion.div>
 
           <motion.div variants={fadeUp} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '1rem 0 1.5rem' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-              <input type="checkbox" id="rememberMe" style={{ width: '16px', height: '16px', accentColor: '#00d4ff' }} />
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', color: 'rgba(238,242,255,0.8)', fontSize: '0.85rem' }}>
+              <input type="checkbox" id="rememberMe" style={{ width: '16px', height: '16px', accentColor: '#00d4ff', cursor: 'pointer' }} />
               <span>تذكرني</span>
             </label>
-            <Link href="/forgot-password" style={{ color: '#00d4ff', textDecoration: 'none' }}>نسيت كلمة المرور؟</Link>
+            <Link href="/forgot-password" style={{ color: '#00d4ff', textDecoration: 'none', fontSize: '0.85rem' }}>نسيت كلمة المرور؟</Link>
           </motion.div>
 
           <motion.button
             variants={fadeUp}
             whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             type="submit"
             disabled={loading}
             style={{
@@ -139,7 +214,8 @@ export default function LoginPage() {
               fontWeight: 700,
               cursor: 'pointer',
               marginBottom: '1rem',
-              opacity: loading ? 0.7 : 1
+              opacity: loading ? 0.7 : 1,
+              transition: 'all 0.3s'
             }}
           >
             {loading ? 'جاري...' : 'دخول'}
@@ -147,11 +223,10 @@ export default function LoginPage() {
         </form>
 
         <motion.div variants={fadeUp}>
-          <Link href="/signup" style={{ color: '#00d4ff', textDecoration: 'none' }}>إنشاء حساب جديد</Link>
+          <Link href="/signup" style={{ color: '#00d4ff', textDecoration: 'none', fontSize: '0.9rem' }}>إنشاء حساب جديد</Link>
         </motion.div>
-        <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '0.7rem', color: 'rgba(238,242,255,0.4)' }}>
-          للاختبار: test@irychat.com / 123456
-        </div>
+        
+        {/* تم إزالة نص الاختبار */}
       </motion.div>
 
       <style jsx>{`

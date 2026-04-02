@@ -75,16 +75,12 @@ export default function ContactPage() {
           </form>
         </motion.div>
 
-        <motion.div initial="hidden" animate="visible" variants={staggerContainer} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginTop: '2rem', textAlign: 'center' }}>
+        {/* معلومات الاتصال - بريد وساعات العمل فقط */}
+        <motion.div initial="hidden" animate="visible" variants={staggerContainer} style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem', marginTop: '2rem', textAlign: 'center' }}>
           <motion.div variants={fadeUp} style={{ padding: '1rem', background: 'rgba(255,255,255,0.035)', borderRadius: '16px' }}>
             <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📧</div>
             <div style={{ fontWeight: 600 }}>البريد الإلكتروني</div>
-            <div style={{ fontSize: '0.85rem', color: 'rgba(238,242,255,0.6)' }}>support@irychat.com</div>
-          </motion.div>
-          <motion.div variants={fadeUp} style={{ padding: '1rem', background: 'rgba(255,255,255,0.035)', borderRadius: '16px' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📱</div>
-            <div style={{ fontWeight: 600 }}>الهاتف</div>
-            <div style={{ fontSize: '0.85rem', color: 'rgba(238,242,255,0.6)' }}>+966 5 1234 5678</div>
+            <div style={{ fontSize: '0.85rem', color: 'rgba(238,242,255,0.6)' }}>irychatflow@gmail.com</div>
           </motion.div>
           <motion.div variants={fadeUp} style={{ padding: '1rem', background: 'rgba(255,255,255,0.035)', borderRadius: '16px' }}>
             <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🕒</div>

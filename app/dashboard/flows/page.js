@@ -90,19 +90,62 @@ export default function FlowsPage() {
       </div>
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', backgroundImage: 'linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px)', backgroundSize: '64px 64px' }}></div>
 
-      {/* Navbar */}
-      <motion.nav initial={{ y: -100 }} animate={{ y: 0 }} transition={{ duration: 0.5 }} style={{ position: 'fixed', top: 0, width: '100%', zIndex: 100, padding: '0.85rem 5%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(5,8,15,0.75)', backdropFilter: 'blur(30px)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+      {/* Navbar - تم تعديله ليصبح احترافي */}
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5 }}
+        style={{
+          position: 'fixed', top: 0, width: '100%', zIndex: 100,
+          padding: '0.85rem 5%', display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', background: 'rgba(5,8,15,0.75)',
+          backdropFilter: 'blur(30px)', borderBottom: '1px solid rgba(0,212,255,0.15)'
+        }}
+      >
         <Link href="/" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.5rem', fontWeight: 900, color: '#00d4ff', textDecoration: 'none' }}>IryChat</Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <Link href="/dashboard" style={{ color: '#eef2ff', textDecoration: 'none' }}>الرئيسية</Link>
-          <Link href="/dashboard/analytics" style={{ color: '#eef2ff', textDecoration: 'none' }}>التحليلات</Link>
-          <Link href="/dashboard/settings" style={{ color: '#eef2ff', textDecoration: 'none' }}>الإعدادات</Link>
-          <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} style={{ color: '#eef2ff' }}>مرحباً, {user?.name || 'مستخدم'}</motion.span>
-          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleLogout} style={{ background: 'rgba(255,255,255,0.1)', padding: '0.48rem 1.25rem', borderRadius: '99px', color: '#eef2ff', cursor: 'pointer' }}>تسجيل خروج</motion.button>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          {/* روابط النافبار */}
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <Link href="/dashboard" style={{ color: '#eef2ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', transition: 'all 0.3s', fontSize: '0.9rem' }} onMouseEnter={(e) => e.target.style.background = 'rgba(0,212,255,0.1)'} onMouseLeave={(e) => e.target.style.background = 'transparent'}>
+              الرئيسية
+            </Link>
+            <Link href="/dashboard/analytics" style={{ color: '#eef2ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', transition: 'all 0.3s', fontSize: '0.9rem' }} onMouseEnter={(e) => e.target.style.background = 'rgba(0,212,255,0.1)'} onMouseLeave={(e) => e.target.style.background = 'transparent'}>
+              التحليلات
+            </Link>
+            <Link href="/dashboard/settings" style={{ color: '#eef2ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', transition: 'all 0.3s', fontSize: '0.9rem' }} onMouseEnter={(e) => e.target.style.background = 'rgba(0,212,255,0.1)'} onMouseLeave={(e) => e.target.style.background = 'transparent'}>
+              الإعدادات
+            </Link>
+          </div>
+          
+          {/* قسم الترحيب والخروج */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(0,212,255,0.05)', padding: '0.3rem 0.8rem 0.3rem 1rem', borderRadius: '99px', border: '1px solid rgba(0,212,255,0.15)' }}>
+            <span style={{ color: '#00d4ff', fontSize: '0.9rem' }}>مرحباً, {user?.name || 'مستخدم'}</span>
+            <div style={{ width: '1px', height: '20px', background: 'rgba(0,212,255,0.2)' }}></div>
+            <motion.button 
+              whileHover={{ scale: 1.05 }} 
+              whileTap={{ scale: 0.95 }} 
+              onClick={handleLogout} 
+              style={{ 
+                background: 'transparent', 
+                padding: '0.4rem 1rem', 
+                borderRadius: '99px', 
+                color: '#eef2ff', 
+                cursor: 'pointer',
+                border: '1px solid rgba(255,255,255,0.1)',
+                fontSize: '0.8rem',
+                transition: 'all 0.3s'
+              }}
+              onMouseEnter={(e) => e.target.style.background = 'rgba(255,80,80,0.2)'}
+              onMouseLeave={(e) => e.target.style.background = 'transparent'}
+            >
+              تسجيل خروج
+            </motion.button>
+          </div>
         </div>
       </motion.nav>
 
-      {/* Main Content */}
+      {/* Main Content - باقي الكود كما هو بدون تغيير */}
       <div style={{ padding: '7rem 5% 5rem', position: 'relative', zIndex: 1 }}>
         {/* Header */}
         <motion.div initial="hidden" animate="visible" variants={fadeUp} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
