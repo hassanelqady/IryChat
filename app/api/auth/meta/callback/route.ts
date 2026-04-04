@@ -21,14 +21,50 @@ export async function GET(request: NextRequest) {
       `redirect_uri=${process.env.NEXT_PUBLIC_APP_URL}/api/auth/meta/callback&` +
       `code=${code}`
     )
-    const { access_token: shor    const { access_token: shor    const { access_es    const { access_token: shor    consorLo    const { access_token: shor    const { access_tit     const { access_token: shor    const { access_tokeupab    const { access_token: shor    const { access_token: shor    const { access_es    const { access_token:  con    const { access_token: shor    const 
-                                                   for (const page of pages) {
-      const pageToken       const pageToken       const paged)      const pageToken       const pageTogeToken)
+    const tokenData = await tokenRes.json()
+    const shortToken = tokenData.access_token
+
+    const longTokenData = await exchangeForLongLivedToken(shortToken)
+    const longToken = longTokenData.access_token
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return Response.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/login`)
+    }
+
+    const pages = await getUserPages(longToken)
+    const adminSupabase = createAdminClient()
+
+    for (const page of pages) {
+      const pageToken = await getPageToken(longToken, page.id)
+      const encryptedToken = encrypt(pageToken)
 
       await adminSupabase.from('connected_accounts').upsert({
         user_id: user.id,
         account_type: 'facebook_page',
-                                     ac                                     ac                ct                                     ac                   en                                     ac              r_i                                     ac                                     ac oke                   {
-                                                                                                                                                                                                                                                                                                                                                                                                     UB                                                                             er                                                                                                             unts?error=failed`)
+        account_id: page.id,
+        account_name: page.name,
+        access_token: encryptedToken,
+        is_active: true
+      }, { onConflict: 'user_id,account_id' })
+
+      const igId = await getInstagramAccountId(page.id, pageToken)
+      if (igId) {
+        await adminSupabase.from('connected_accounts').upsert({
+          user_id: user.id,
+          account_type: 'instagram',
+          account_id: igId,
+          account_name: `${page.name} (Instagram)`,
+          access_token: encryptedToken,
+          is_active: true
+        }, { onConflict: 'user_id,account_id' })
+      }
+    }
+
+    return Response.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard/accounts?success=true`)
+  } catch (err) {
+    console.error('Meta OAuth error:', err)
+    return Response.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard/accounts?error=failed`)
   }
 }
