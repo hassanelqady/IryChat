@@ -33,14 +33,22 @@ async function handleNewComment(comment: any, supabase: any) {
   const { media_id, text, from, id: commentId } = comment
 
   if (!text || !media_id) return
-  if (!text || !media_id) return
-d: commepad: commepad: commepad: commepad: commepat('d: commepad: commepad: commepad: commepad: commeosd: commepad: commepad: commepad: commepad: c
-  i  i  i  i  i  i  i  i  i  i  i  i  i  i = 0)  i  i  i  i  i  i  i  i  i  i  i  i  i  i = 0)  i an  i  i  i  i  i  i  i  i  i  i  i  i  i  i = 0)  iyword.toLowerCase())
+
+  const { data: automations } = await supabase
+    .from('automations')
+    .select('*, connected_accounts(access_token)')
+    .eq('post_id', media_id)
+    .eq('is_active', true)
+
+  if (!automations || automations.length === 0) return
+
+  const automation = automations.find((a: any) =>
+    text.toLowerCase().includes(a.trigger_keyword.toLowerCase())
   )
 
   if (!automation) return
 
-  const pageToken = decrypt(  const pageToken = decrypt(  cocess_token)
+  const pageToken = decrypt(automation.connected_accounts.access_token)
   let actionTaken = ''
   let errorMessage = ''
 
@@ -48,13 +56,23 @@ d: commepad: commepad: commepad: commepad: commepat('d: commepad: commepad: comm
     if (automation.comment_reply) {
       await fetch(`https://graph.facebook.com/${commentId}/replies`, {
         method: 'POST',
-        headers: { 'Content-Type        headers: { 'Content-Type        headerri        headers: { 'Content-Typeation.com        headers: { 'Content-Type        headers       }        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: automation.comment_reply,
+          access_token: pageToken
+        })
+      })
       actionTaken += 'comment_reply,'
     }
 
     if (automation.dm_message && from?.id) {
       await fetch(`https://graph.facebook.com/me/messages`, {
-        m        m        m        m     {        m        m        m  /jso        m        m        m        m     {        m        m        m  /jso        m        m        m        m     {        m        m        m  ken: pageToken
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipient: { id: from.id },
+          message: { text: automation.dm_message },
+          access_token: pageToken
         })
       })
       actionTaken += 'dm_sent'
@@ -63,8 +81,13 @@ d: commepad: commepad: commepad: commepad: commepat('d: commepad: commepad: comm
     errorMessage = err.message
   }
 
-  await supabase.from('automation_logs').i  ert  await supabase.from('atom  await supabase.from('automation_logs').i  ert  await supabase.from('    await supabase.fxt,
-                     ntId,     action_taken: actionTaken || 'failed',
+  await supabase.from('automation_logs').insert({
+    automation_id: automation.id,
+    commenter_id: from?.id,
+    commenter_name: from?.name,
+    comment_text: text,
+    comment_id: commentId,
+    action_taken: actionTaken || 'failed',
     error_message: errorMessage || null
   })
 }
