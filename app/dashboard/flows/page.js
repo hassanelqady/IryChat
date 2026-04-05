@@ -5,12 +5,15 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
+import { useLanguage } from '@/context/LanguageContext'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 export default function AutomationsPage() {
   const router = useRouter()
   const [automations, setAutomations] = useState([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState(null)
+  const { t } = useLanguage()
 
   const fadeUp = {
     hidden: { opacity: 0, y: 30 },
@@ -47,7 +50,7 @@ export default function AutomationsPage() {
   }
 
   const deleteAutomation = async (id) => {
-    if (!confirm('هل أنت متأكد من الحذف؟')) return
+    if (!confirm(t('delete') + '?')) return
     const supabase = createClient()
     await supabase.from('automations').delete().eq('id', id)
     setAutomations(automations.filter(a => a.id !== id))
@@ -55,7 +58,7 @@ export default function AutomationsPage() {
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#05080f' }}>
-      <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.5 }} style={{ color: '#00d4ff' }}>جاري التحميل...</motion.div>
+      <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.5 }} style={{ color: '#00d4ff' }}>{t('loading')}</motion.div>
     </div>
   )
 
@@ -71,44 +74,42 @@ export default function AutomationsPage() {
         style={{ position: 'fixed', top: 0, width: '100%', zIndex: 100, padding: '0.85rem 5%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(5,8,15,0.75)', backdropFilter: 'blur(30px)', borderBottom: '1px solid rgba(0,212,255,0.15)' }}>
         <Link href="/" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.5rem', fontWeight: 900, color: '#00d4ff', textDecoration: 'none' }}>IryChat</Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <Link href="/dashboard" style={{ color: '#eef2ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', fontSize: '0.9rem' }}>الرئيسية</Link>
-          <Link href="/dashboard/accounts" style={{ color: '#eef2ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', fontSize: '0.9rem' }}>الحسابات</Link>
-          <Link href="/dashboard/flows" style={{ color: '#00d4ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', fontSize: '0.9rem', background: 'rgba(0,212,255,0.1)' }}>الأتمتة</Link>
+          <Link href="/dashboard" style={{ color: '#eef2ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', fontSize: '0.9rem' }}>{t('dashboard')}</Link>
+          <Link href="/dashboard/accounts" style={{ color: '#eef2ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', fontSize: '0.9rem' }}>{t('accounts')}</Link>
+          <Link href="/dashboard/flows" style={{ color: '#00d4ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', fontSize: '0.9rem', background: 'rgba(0,212,255,0.1)' }}>{t('automations')}</Link>
+          <LanguageSwitcher />
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(0,212,255,0.05)', padding: '0.3rem 0.8rem 0.3rem 1rem', borderRadius: '99px', border: '1px solid rgba(0,212,255,0.15)' }}>
             <span style={{ color: '#00d4ff', fontSize: '0.85rem' }}>{user?.email?.split('@')[0]}</span>
-            <button onClick={handleLogout} style={{ background: 'transparent', padding: '0.3rem 0.8rem', borderRadius: '99px', color: '#eef2ff', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.8rem' }}>خروج</button>
+            <button onClick={handleLogout} style={{ background: 'transparent', padding: '0.3rem 0.8rem', borderRadius: '99px', color: '#eef2ff', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.8rem' }}>{t('logout')}</button>
           </div>
         </div>
       </motion.nav>
 
       <div style={{ padding: '7rem 5% 5rem', position: 'relative', zIndex: 1 }}>
-        {/* Header */}
         <motion.div initial="hidden" animate="visible" variants={fadeUp} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h1 style={{ fontSize: '2rem', fontWeight: 700, background: 'linear-gradient(135deg, #fff, #00d4ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.3rem' }}>الأتمتة</h1>
-            <p style={{ color: 'rgba(238,242,255,0.6)' }}>ردود تلقائية على التعليقات والرسائل</p>
+            <h1 style={{ fontSize: '2rem', fontWeight: 700, background: 'linear-gradient(135deg, #fff, #00d4ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.3rem' }}>{t('automationsTitle')}</h1>
+            <p style={{ color: 'rgba(238,242,255,0.6)' }}>{t('automationsDesc')}</p>
           </div>
           <Link href="/dashboard/automations/new"
             style={{ background: '#00d4ff', color: '#05080f', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '99px', fontWeight: 700, cursor: 'pointer', textDecoration: 'none', fontSize: '0.95rem' }}>
-            + إنشاء أتمتة جديدة
+            {t('newAutomationBtn')}
           </Link>
         </motion.div>
 
-        {/* Empty State */}
         {automations.length === 0 && (
           <motion.div initial="hidden" animate="visible" variants={fadeUp}
             style={{ textAlign: 'center', padding: '4rem 2rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '24px' }}>
             <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🤖</div>
-            <h3 style={{ color: '#fff', fontSize: '1.3rem', marginBottom: '0.5rem' }}>لا توجد أتمتة بعد</h3>
-            <p style={{ color: 'rgba(238,242,255,0.5)', marginBottom: '1.5rem' }}>أنشئ أول أتمتة للرد التلقائي على التعليقات وإرسال DM</p>
+            <h3 style={{ color: '#fff', fontSize: '1.3rem', marginBottom: '0.5rem' }}>{t('noAutomations')}</h3>
+            <p style={{ color: 'rgba(238,242,255,0.5)', marginBottom: '1.5rem' }}>{t('noAutomationsDesc')}</p>
             <Link href="/dashboard/automations/new"
               style={{ background: '#00d4ff', color: '#05080f', padding: '0.75rem 2rem', borderRadius: '99px', fontWeight: 700, textDecoration: 'none', fontSize: '0.95rem' }}>
-              + إنشاء أتمتة جديدة
+              {t('newAutomationBtn')}
             </Link>
           </motion.div>
         )}
 
-        {/* Automations List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {automations.map((automation, i) => (
             <motion.div key={automation.id}
@@ -120,29 +121,27 @@ export default function AutomationsPage() {
                   <div>
                     <div style={{ color: '#fff', fontWeight: 600, marginBottom: '0.2rem' }}>{automation.name}</div>
                     <div style={{ color: 'rgba(238,242,255,0.5)', fontSize: '0.8rem' }}>
-                      كلمة: <span style={{ color: '#00d4ff' }}>{automation.trigger_keyword}</span>
-                      {automation.connected_accounts && (
-                        <span> · {automation.connected_accounts.account_name}</span>
-                      )}
+                      {t('keyword')}: <span style={{ color: '#00d4ff' }}>{automation.trigger_keyword}</span>
+                      {automation.connected_accounts && <span> · {automation.connected_accounts.account_name}</span>}
                     </div>
                   </div>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <span style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem', borderRadius: '99px', background: automation.is_active ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.07)', color: automation.is_active ? '#4ade80' : 'rgba(238,242,255,0.4)', border: `1px solid ${automation.is_active ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}` }}>
-                    {automation.is_active ? '● نشط' : '○ متوقف'}
+                    {automation.is_active ? t('active') : t('inactive')}
                   </span>
                   <button onClick={() => toggleStatus(automation.id, automation.is_active)}
                     style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#eef2ff', padding: '0.35rem 0.9rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem' }}>
-                    {automation.is_active ? 'إيقاف' : 'تشغيل'}
+                    {automation.is_active ? t('stop') : t('start')}
                   </button>
                   <Link href={`/dashboard/automations/${automation.id}/edit`}
-                    style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.25)', color: '#00d4ff', padding: '0.35rem 0.9rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem', textDecoration: 'none' }}>
-                    تعديل
+                    style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.25)', color: '#00d4ff', padding: '0.35rem 0.9rem', borderRadius: '8px', fontSize: '0.8rem', textDecoration: 'none' }}>
+                    {t('edit')}
                   </Link>
                   <button onClick={() => deleteAutomation(automation.id)}
                     style={{ background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.25)', color: '#ff6b6b', padding: '0.35rem 0.9rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem' }}>
-                    حذف
+                    {t('delete')}
                   </button>
                 </div>
               </div>
@@ -150,13 +149,6 @@ export default function AutomationsPage() {
           ))}
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes float {
-          0% { transform: translate(0,0) scale(1); }
-          100% { transform: translate(35px,25px) scale(1.08); }
-        }
-      `}</style>
     </main>
   )
 }
