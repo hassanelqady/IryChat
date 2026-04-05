@@ -55,8 +55,7 @@ export default function SignupPage() {
       return
     }
 
-    setSuccess(true)
-    setLoading(false)
+    router.push('/dashboard')
   }
 
   if (success) return (
