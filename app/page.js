@@ -1,10 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { useLanguage } from '@/context/LanguageContext'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
-// ── Animation Variants ──────────────────────────────────────
 const fadeUp = {
   hidden:  { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] } },
@@ -15,7 +17,6 @@ const staggerContainer = {
   visible: { opacity: 1, transition: { staggerChildren: 0.15 } },
 }
 
-// ── Static Data ──────────────────────────────────────────────
 const CHAT_MESSAGES = {
   ar: [
     { type: 'in',  text: 'كم سعر المنتج؟ 😍' },
@@ -54,98 +55,63 @@ const FAQ_DATA = {
 
 const TESTIMONIALS = {
   ar: [
-    { name: 'نور محمد',  role: 'صاحبة متجر موضة',          stars: 5, text: '"زاد مبيعاتي 3 أضعاف في شهرين! كل ما حد يكتب \'اسعار\' في الكومنتات يوصله رسالة ويشتري."' },
-    { name: 'علي خالد',  role: 'مدير تسويق — إيجنسي',      stars: 5, text: '"كنت بصرف على موظف بيرد على DMs. دلوقتي وفّرت ده كله. الـ ROI واضح من أول أسبوع."' },
-    { name: 'سلمى علي',  role: 'كوتش تنمية بشرية',         stars: 5, text: '"في ساعة واحدة عملت flow كامل. البوت بيرد أسرع مني وأذكى. العملاء مش مصدقين إنه بوت!"' },
+    { name: 'نور محمد',  role: 'صاحبة متجر موضة',     stars: 5, text: '"زاد مبيعاتي 3 أضعاف في شهرين! كل ما حد يكتب \'اسعار\' في الكومنتات يوصله رسالة ويشتري."' },
+    { name: 'علي خالد',  role: 'مدير تسويق — إيجنسي', stars: 5, text: '"كنت بصرف على موظف بيرد على DMs. دلوقتي وفّرت ده كله. الـ ROI واضح من أول أسبوع."' },
+    { name: 'سلمى علي',  role: 'كوتش تنمية بشرية',    stars: 5, text: '"في ساعة واحدة عملت flow كامل. البوت بيرد أسرع مني وأذكى. العملاء مش مصدقين إنه بوت!"' },
   ],
   en: [
-    { name: 'Nour Mohamed', role: 'Fashion Store Owner',          stars: 5, text: '"My sales tripled in 2 months! Every time someone comments \'price\', they get an auto message and buy."' },
-    { name: 'Ali Khaled',   role: 'Marketing Director — Agency',  stars: 5, text: '"I used to pay someone to reply to DMs. Now that budget is saved and ROI was clear from the first week."' },
-    { name: 'Salma Ali',    role: 'Life & Business Coach',        stars: 5, text: "\"In one hour I had a complete flow running. The bot replies faster and smarter. Clients can't believe it's automated!\"" },
+    { name: 'Nour Mohamed', role: 'Fashion Store Owner',         stars: 5, text: '"My sales tripled in 2 months! Every time someone comments \'price\', they get an auto message and buy."' },
+    { name: 'Ali Khaled',   role: 'Marketing Director — Agency', stars: 5, text: '"I used to pay someone to reply to DMs. Now that budget is saved and ROI was clear from the first week."' },
+    { name: 'Salma Ali',    role: 'Life & Business Coach',       stars: 5, text: "\"In one hour I had a complete flow running. The bot replies faster and smarter. Clients can't believe it's automated!\"" },
   ],
 }
 
-// ── Helpers ──────────────────────────────────────────────────
-function setDocLang(lang) {
-  document.documentElement.setAttribute('data-lang', lang)
-  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'
-}
-
-// ── Sub-components ───────────────────────────────────────────
 function StarRating({ count }) {
-  return (
-    <div className="stars">
-      {'★'.repeat(count)}{'☆'.repeat(5 - count)}
-    </div>
-  )
+  return <div className="stars">{'★'.repeat(count)}{'☆'.repeat(5 - count)}</div>
 }
 
-function StatItem({ number, labelAr, labelEn }) {
+function StatItem({ number, labelAr, labelEn, lang }) {
   return (
     <div className="stat">
       <div className="stat-number">{number}</div>
-      <div className="stat-label">
-        <span className="ar">{labelAr}</span>
-        <span className="en">{labelEn}</span>
-      </div>
+      <div className="stat-label">{lang === 'ar' ? labelAr : labelEn}</div>
     </div>
   )
 }
 
-function HighlightCard({ icon, titleAr, titleEn, value, subAr, subEn }) {
+function HighlightCard({ icon, titleAr, titleEn, value, subAr, subEn, lang }) {
   return (
     <motion.div variants={fadeUp} className="hcard gl">
       <div className="hci">{icon}</div>
-      <div className="hct"><span className="ar">{titleAr}</span><span className="en">{titleEn}</span></div>
+      <div className="hct">{lang === 'ar' ? titleAr : titleEn}</div>
       <div className="hcv">{value}</div>
-      <div className="hcs"><span className="ar">{subAr}</span><span className="en">{subEn}</span></div>
+      <div className="hcs">{lang === 'ar' ? subAr : subEn}</div>
     </motion.div>
   )
 }
 
-// ── Main Component ───────────────────────────────────────────
 export default function Home() {
-  const [lang, setLang]               = useState('ar')
-  const [openFaq, setOpenFaq]         = useState(null)
+  const { lang } = useLanguage()
+  const [openFaq, setOpenFaq] = useState(null)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const chatBoxRef                    = useRef(null)
+  const chatBoxRef = useRef(null)
 
-  // ── Language init ──
-  useEffect(() => {
-    const saved = localStorage.getItem('lang') || 'ar'
-    setLang(saved)
-    setDocLang(saved)
-  }, [])
-
-  const changeLang = (newLang) => {
-    setLang(newLang)
-    localStorage.setItem('lang', newLang)
-    setDocLang(newLang)
-  }
-
-  // ── Scroll helper ──
   const scrollTo = (id) => {
     setMobileMenuOpen(false)
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  // ── Signup handler ──
   const handleSignup = (e) => {
     e.preventDefault()
     const email = e.target.email.value
     if (email?.includes('@')) {
-      alert(lang === 'ar'
-        ? 'شكراً! سيصلك رابط التفعيل على بريدك الإلكتروني'
-        : 'Thanks! You will receive an activation link via email')
+      alert(lang === 'ar' ? 'شكراً! سيصلك رابط التفعيل على بريدك الإلكتروني' : 'Thanks! You will receive an activation link via email')
       e.target.reset()
     } else {
-      alert(lang === 'ar'
-        ? 'الرجاء إدخال بريد إلكتروني صحيح'
-        : 'Please enter a valid email')
+      alert(lang === 'ar' ? 'الرجاء إدخال بريد إلكتروني صحيح' : 'Please enter a valid email')
     }
   }
 
-  // ── Chat animation ──
   useEffect(() => {
     let chatIndex = 0
     const timeouts = []
@@ -169,16 +135,13 @@ export default function Home() {
         }, 3500))
         return
       }
-
       const msg = messages[chatIndex]
-
       if (msg.type === 'out') {
         const typing = document.createElement('div')
         typing.className = 'typ gl'
         typing.innerHTML = '<div class="td"></div><div class="td"></div><div class="td"></div>'
         chatBoxRef.current?.appendChild(typing)
         chatBoxRef.current?.scrollTo(0, chatBoxRef.current.scrollHeight)
-
         timeouts.push(setTimeout(() => {
           typing.remove()
           addMessage(msg)
@@ -192,101 +155,77 @@ export default function Home() {
       }
     }
 
+    if (chatBoxRef.current) chatBoxRef.current.innerHTML = ''
     next()
     return () => timeouts.forEach(clearTimeout)
   }, [lang])
 
-  // ── Derived data ──
-  const currentFaq          = FAQ_DATA[lang]    ?? FAQ_DATA.ar
+  const currentFaq = FAQ_DATA[lang] ?? FAQ_DATA.ar
   const currentTestimonials = TESTIMONIALS[lang] ?? TESTIMONIALS.ar
 
   return (
     <main>
-
-      {/* ── Background ── */}
       <div className="bg-mesh">
-        <div className="blob b1" />
-        <div className="blob b2" />
-        <div className="blob b3" />
+        <div className="blob b1" /><div className="blob b2" /><div className="blob b3" />
       </div>
       <div className="bg-grid" />
 
-      {/* ── Navbar ── */}
+      {/* Navbar */}
       <nav className="navbar">
         <Link href="/" className="logo">IryChat</Link>
-
         <ul className="nav-links">
-          <li><button onClick={() => scrollTo('how')}><span className="ar">كيف يعمل</span><span className="en">How It Works</span></button></li>
-          <li><button onClick={() => scrollTo('features')}><span className="ar">المميزات</span><span className="en">Features</span></button></li>
-          <li><button onClick={() => scrollTo('pricing')}><span className="ar">الأسعار</span><span className="en">Pricing</span></button></li>
+          <li><button onClick={() => scrollTo('how')}>{lang === 'ar' ? 'كيف يعمل' : 'How It Works'}</button></li>
+          <li><button onClick={() => scrollTo('features')}>{lang === 'ar' ? 'المميزات' : 'Features'}</button></li>
+          <li><button onClick={() => scrollTo('pricing')}>{lang === 'ar' ? 'الأسعار' : 'Pricing'}</button></li>
           <li><button onClick={() => scrollTo('faq')}>FAQ</button></li>
         </ul>
-
         <div className="nav-right">
-          <div className="lang-toggle">
-            <button className={lang === 'ar' ? 'active' : ''} onClick={() => changeLang('ar')}>AR</button>
-            <button className={lang === 'en' ? 'active' : ''} onClick={() => changeLang('en')}>EN</button>
-          </div>
-          <Link href="/login" className="btn-login">
-            <span className="ar">تسجيل دخول</span>
-            <span className="en">Login</span>
-          </Link>
+          <LanguageSwitcher />
+          <Link href="/login" className="btn-login">{lang === 'ar' ? 'تسجيل دخول' : 'Login'}</Link>
           <button className="hamburger" onClick={() => setMobileMenuOpen(o => !o)}>
-            <span className="hamburger-line" />
-            <span className="hamburger-line" />
-            <span className="hamburger-line" />
+            <span className="hamburger-line" /><span className="hamburger-line" /><span className="hamburger-line" />
           </button>
         </div>
       </nav>
 
-      {/* ── Mobile Menu ── */}
+      {/* Mobile Menu */}
       <div className={`mobile-menu ${mobileMenuOpen ? 'open' : ''}`}>
-        <button onClick={() => scrollTo('how')}><span className="ar">كيف يعمل</span><span className="en">How It Works</span></button>
-        <button onClick={() => scrollTo('features')}><span className="ar">المميزات</span><span className="en">Features</span></button>
-        <button onClick={() => scrollTo('pricing')}><span className="ar">الأسعار</span><span className="en">Pricing</span></button>
+        <button onClick={() => scrollTo('how')}>{lang === 'ar' ? 'كيف يعمل' : 'How It Works'}</button>
+        <button onClick={() => scrollTo('features')}>{lang === 'ar' ? 'المميزات' : 'Features'}</button>
+        <button onClick={() => scrollTo('pricing')}>{lang === 'ar' ? 'الأسعار' : 'Pricing'}</button>
         <button onClick={() => scrollTo('faq')}>FAQ</button>
       </div>
 
-      {/* ── Hero ── */}
+      {/* Hero */}
       <div className="hero">
         <div className="pill gl">
           <span className="pdot" />
-          <span className="ar">أذكى حلول الأتمتة</span>
-          <span className="en">The Smartest Automation Solution</span>
+          {lang === 'ar' ? 'أذكى حلول الأتمتة' : 'The Smartest Automation Solution'}
         </div>
-
         <h1>
-          <span className="ar">استفد إلى أقصى حد من كل <span className="cy">محادثة</span></span>
-          <span className="en">Make the most out of every <span className="cy">conversation</span></span>
+          {lang === 'ar'
+            ? <span>استفد إلى أقصى حد من كل <span className="cy">محادثة</span></span>
+            : <span>Make the most out of every <span className="cy">conversation</span></span>}
         </h1>
-
         <p className="hero-sub">
-          <span className="ar">قم بزيادة مبيعاتك، وعزز تفاعلك، ووسع جمهورك من خلال أتمتة قوية لمنصات إنستجرام وواتساب وتيك توك وماسنجر.</span>
-          <span className="en">Sell more, engage better, and grow your audience with powerful automations for Instagram, WhatsApp, TikTok, and Messenger.</span>
+          {lang === 'ar'
+            ? 'قم بزيادة مبيعاتك، وعزز تفاعلك، ووسع جمهورك من خلال أتمتة قوية لمنصات إنستجرام وواتساب وتيك توك وماسنجر.'
+            : 'Sell more, engage better, and grow your audience with powerful automations for Instagram, WhatsApp, TikTok, and Messenger.'}
         </p>
-
         <div className="hero-btns">
-          <Link href="/login" className="btn-p">
-            <span className="ar">ابدأ</span>
-            <span className="en">GET STARTED</span>
-          </Link>
+          <Link href="/login" className="btn-p">{lang === 'ar' ? 'ابدأ' : 'GET STARTED'}</Link>
           <button className="btn-o" onClick={() => scrollTo('how')}>
-            <span className="ar">اكتشف آلية العمل ▶</span>
-            <span className="en">Discover How It Works ▶</span>
+            {lang === 'ar' ? 'اكتشف آلية العمل ▶' : 'Discover How It Works ▶'}
           </button>
         </div>
 
-        {/* Chat Mockup */}
         <div className="mockup-wrap">
           <div className="gl" style={{ borderRadius: '24px', overflow: 'hidden' }}>
             <div className="mock-bar gl">
               <div className="mavatar">📸</div>
               <div>
                 <div className="mname">IryChat — Instagram</div>
-                <div className="mstatus">
-                  <span className="ar">● نشط الآن</span>
-                  <span className="en">● Active now</span>
-                </div>
+                <div className="mstatus">{lang === 'ar' ? '● نشط الآن' : '● Active now'}</div>
               </div>
               <div className="dots">
                 <div className="dot-w" style={{ background: '#ff5f57' }} />
@@ -296,194 +235,135 @@ export default function Home() {
             </div>
             <div className="chat-body" ref={chatBoxRef} />
           </div>
-
           <div className="fbadges">
-            <div className="fb fb1 gl">📊 <span className="ar">98% معدل الفتح</span><span className="en">98% Open Rate</span></div>
-            <div className="fb fb2 gl">⚡ <span className="ar">رد في ثانية</span><span className="en">1s Response</span></div>
-            <div className="fb fb3 gl">🔥 <span className="ar">×3.4 تحويلات</span><span className="en">×3.4 Conversions</span></div>
+            <div className="fb fb1 gl">📊 {lang === 'ar' ? '98% معدل الفتح' : '98% Open Rate'}</div>
+            <div className="fb fb2 gl">⚡ {lang === 'ar' ? 'رد في ثانية' : '1s Response'}</div>
+            <div className="fb fb3 gl">🔥 {lang === 'ar' ? '×3.4 تحويلات' : '×3.4 Conversions'}</div>
           </div>
         </div>
       </div>
 
-      {/* ── Stats ── */}
-      <motion.div
-        initial="hidden" whileInView="visible"
-        viewport={{ once: false, amount: 0.2 }}
-        variants={staggerContainer}
-        className="stats-section"
-      >
+      {/* Stats */}
+      <motion.div initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={staggerContainer} className="stats-section">
         <div className="stats-grid">
-          <StatItem number="+15K" labelAr="مستخدم نشط"     labelEn="Active Users"     />
-          <StatItem number="98%"  labelAr="معدل الفتح"      labelEn="Open Rate"        />
-          <StatItem number="×3.4" labelAr="زيادة التحويلات" labelEn="More Conversions" />
-          <StatItem number="24/7" labelAr="رد تلقائي"       labelEn="Auto Reply"       />
-          <StatItem number="<1s"  labelAr="وقت الرد"        labelEn="Response Time"    />
+          <StatItem number="+15K" labelAr="مستخدم نشط"     labelEn="Active Users"     lang={lang} />
+          <StatItem number="98%"  labelAr="معدل الفتح"      labelEn="Open Rate"        lang={lang} />
+          <StatItem number="×3.4" labelAr="زيادة التحويلات" labelEn="More Conversions" lang={lang} />
+          <StatItem number="24/7" labelAr="رد تلقائي"       labelEn="Auto Reply"       lang={lang} />
+          <StatItem number="<1s"  labelAr="وقت الرد"        labelEn="Response Time"    lang={lang} />
         </div>
       </motion.div>
 
-      {/* ── How It Works ── */}
+      {/* How It Works */}
       <section id="how" className="section">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={fadeUp}>
-          <div className="stag"><span className="ar">اكتشف آلية العمل</span><span className="en">Discover How It Works</span></div>
-          <h2 className="section-title"><span className="ar">ابدأ في 3 خطوات</span><span className="en">Get Started in 3 Steps</span></h2>
-          <p className="section-sub"><span className="ar">من ربط الحساب لأول بيع تلقائي — في أقل من 10 دقايق</span><span className="en">From account connection to your first automated sale — in under 10 minutes</span></p>
+          <div className="stag">{lang === 'ar' ? 'اكتشف آلية العمل' : 'Discover How It Works'}</div>
+          <h2 className="section-title">{lang === 'ar' ? 'ابدأ في 3 خطوات' : 'Get Started in 3 Steps'}</h2>
+          <p className="section-sub">{lang === 'ar' ? 'من ربط الحساب لأول بيع تلقائي — في أقل من 10 دقايق' : 'From account connection to your first automated sale — in under 10 minutes'}</p>
         </motion.div>
-
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={staggerContainer} className="steps-grid">
           {[
-            { num: '01', titleAr: 'وصّل انستجرامك',      titleEn: 'Connect Instagram',     descAr: 'ربط حسابك عن طريق Meta API الرسمي — آمن 100% ومتوافق مع سياسات ميتا.',                                          descEn: 'Connect via the official Meta API — 100% secure & fully compliant with Meta policies.' },
-            { num: '02', titleAr: 'صمّم الـ Flow',        titleEn: 'Build Your Flow',       descAr: 'استخدم الـ Visual Builder لتحديد الردود التلقائية على DMs والكومنتات بكلمات مفتاحية.',                           descEn: 'Use the Visual Builder to create automated replies for DMs and comments with keywords.' },
-            { num: '03', titleAr: 'شغّل وشوف النتيجة',   titleEn: 'Launch & See Results',  descAr: 'IryChat يشتغل 24/7 وإنت بتتابع المبيعات والتحويلات على الداشبورد بالريال تايم.',                                  descEn: 'IryChat runs 24/7 while you track sales and conversions on your real-time dashboard.' },
+            { num: '01', ar: ['وصّل انستجرامك', 'ربط حسابك عن طريق Meta API الرسمي — آمن 100% ومتوافق مع سياسات ميتا.'], en: ['Connect Instagram', 'Connect via the official Meta API — 100% secure & fully compliant with Meta policies.'] },
+            { num: '02', ar: ['صمّم الـ Flow', 'استخدم الـ Visual Builder لتحديد الردود التلقائية على DMs والكومنتات بكلمات مفتاحية.'], en: ['Build Your Flow', 'Use the Visual Builder to create automated replies for DMs and comments with keywords.'] },
+            { num: '03', ar: ['شغّل وشوف النتيجة', 'IryChat يشتغل 24/7 وإنت بتتابع المبيعات والتحويلات على الداشبورد بالريال تايم.'], en: ['Launch & See Results', 'IryChat runs 24/7 while you track sales and conversions on your real-time dashboard.'] },
           ].map((step) => (
             <motion.div key={step.num} variants={fadeUp} className="step-card gl">
               <div className="step-number">{step.num}</div>
-              <h3><span className="ar">{step.titleAr}</span><span className="en">{step.titleEn}</span></h3>
-              <p><span className="ar">{step.descAr}</span><span className="en">{step.descEn}</span></p>
+              <h3>{lang === 'ar' ? step.ar[0] : step.en[0]}</h3>
+              <p>{lang === 'ar' ? step.ar[1] : step.en[1]}</p>
             </motion.div>
           ))}
         </motion.div>
       </section>
 
-      {/* ── Features ── */}
+      {/* Features */}
       <section id="features" className="section features-section">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={fadeUp}>
-          <div className="stag"><span className="ar">المميزات</span><span className="en">Features</span></div>
-          <h2 className="section-title">
-            <span className="ar">كل أدوات الأتمتة<br />في مكان واحد</span>
-            <span className="en">All Automation Tools<br />In One Place</span>
-          </h2>
+          <div className="stag">{lang === 'ar' ? 'المميزات' : 'Features'}</div>
+          <h2 className="section-title">{lang === 'ar' ? 'كل أدوات الأتمتة في مكان واحد' : 'All Automation Tools In One Place'}</h2>
         </motion.div>
-
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={staggerContainer} className="features-grid">
           {[
-            { icon: '💬', titleAr: 'رد تلقائي على DMs',   titleEn: 'Auto DM Replies',         descAr: 'حدد كلمات مفتاحية وIryChat يرد فوراً ويكمّل المحادثة لحد ما الشخص يشتري.',                        descEn: 'Set keywords and IryChat instantly replies, guiding conversations until the sale is done.' },
-            { icon: '📝', titleAr: 'أتمتة الكومنتات',     titleEn: 'Comment Automation',      descAr: 'أي حد يكتب "اسعار" في الكومنتات — IryChat يبعتله رسالة خاصة في ثواني.',                           descEn: 'Anyone who comments "price" gets an instant private message automatically within seconds.' },
-            { icon: '📸', titleAr: 'Story Mentions',       titleEn: 'Story Mentions',          descAr: 'أي حد يمنشنك في ستوريه يوصله رد تلقائي يشكره ويعرض عليه حاجة ذات قيمة.',                          descEn: 'Anyone who mentions you in their story gets an automatic personalized reply with a value offer.' },
-            { icon: '🏷️', titleAr: 'تقسيم الجمهور',      titleEn: 'Audience Segmentation',   descAr: 'صنّف متابعينك بتاجز تلقائية بناءً على تفاعلهم وابعت لكل شريحة رسالتها الصح.',                    descEn: 'Auto-tag subscribers by behavior and send each segment the perfectly tailored message.' },
-            { icon: '📊', titleAr: 'Analytics متعمقة',    titleEn: 'Deep Analytics',          descAr: 'تابع معدلات الفتح والكليك والتحويل بالريال تايم. اعرف إيه الـ flow الأكثر تحويلاً.',               descEn: 'Track open rates, clicks & conversions in real-time. Know exactly which flow converts best.' },
-            { icon: '🔗', titleAr: 'API + Webhooks',       titleEn: 'API + Webhooks',          descAr: 'وصّل IryChat بأي نظام خارجي — CRM أو متجرك — عن طريق REST API كامل.',                             descEn: 'Connect IryChat to any external system — CRM, your store — via a full REST API.' },
+            { icon: '💬', ar: ['رد تلقائي على DMs', 'حدد كلمات مفتاحية وIryChat يرد فوراً ويكمّل المحادثة لحد ما الشخص يشتري.'], en: ['Auto DM Replies', 'Set keywords and IryChat instantly replies, guiding conversations until the sale is done.'] },
+            { icon: '📝', ar: ['أتمتة الكومنتات', 'أي حد يكتب "اسعار" في الكومنتات — IryChat يبعتله رسالة خاصة في ثواني.'], en: ['Comment Automation', 'Anyone who comments "price" gets an instant private message automatically within seconds.'] },
+            { icon: '📸', ar: ['Story Mentions', 'أي حد يمنشنك في ستوريه يوصله رد تلقائي يشكره ويعرض عليه حاجة ذات قيمة.'], en: ['Story Mentions', 'Anyone who mentions you in their story gets an automatic personalized reply with a value offer.'] },
+            { icon: '🏷️', ar: ['تقسيم الجمهور', 'صنّف متابعينك بتاجز تلقائية بناءً على تفاعلهم وابعت لكل شريحة رسالتها الصح.'], en: ['Audience Segmentation', 'Auto-tag subscribers by behavior and send each segment the perfectly tailored message.'] },
+            { icon: '📊', ar: ['Analytics متعمقة', 'تابع معدلات الفتح والكليك والتحويل بالريال تايم. اعرف إيه الـ flow الأكثر تحويلاً.'], en: ['Deep Analytics', 'Track open rates, clicks & conversions in real-time. Know exactly which flow converts best.'] },
+            { icon: '🔗', ar: ['API + Webhooks', 'وصّل IryChat بأي نظام خارجي — CRM أو متجرك — عن طريق REST API كامل.'], en: ['API + Webhooks', 'Connect IryChat to any external system — CRM, your store — via a full REST API.'] },
           ].map((f) => (
-            <motion.div key={f.titleEn} variants={fadeUp} className="feature-card gl">
+            <motion.div key={f.en[0]} variants={fadeUp} className="feature-card gl">
               <div className="feature-icon">{f.icon}</div>
-              <h3><span className="ar">{f.titleAr}</span><span className="en">{f.titleEn}</span></h3>
-              <p><span className="ar">{f.descAr}</span><span className="en">{f.descEn}</span></p>
+              <h3>{lang === 'ar' ? f.ar[0] : f.en[0]}</h3>
+              <p>{lang === 'ar' ? f.ar[1] : f.en[1]}</p>
             </motion.div>
           ))}
         </motion.div>
       </section>
 
-      {/* ── Highlight ── */}
-      <motion.section
-        initial="hidden" whileInView="visible"
-        viewport={{ once: false, amount: 0.2 }}
-        variants={staggerContainer}
-        className="highlight-section"
-      >
+      {/* Highlight */}
+      <motion.section initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={staggerContainer} className="highlight-section">
         <div className="highlight-wrap">
           <div className="highlight-text">
             <motion.div variants={fadeUp}>
-              <div className="stag"><span className="ar">قوة انستجرام</span><span className="en">Instagram Power</span></div>
+              <div className="stag">{lang === 'ar' ? 'قوة انستجرام' : 'Instagram Power'}</div>
               <h2 className="section-title">
-                <span className="ar">كل تفاعل<br /><span className="cy">فرصة بيع</span></span>
-                <span className="en">Every Interaction<br />A <span className="cy">Sales Chance</span></span>
+                {lang === 'ar' ? <span>كل تفاعل<br /><span className="cy">فرصة بيع</span></span> : <span>Every Interaction<br />A <span className="cy">Sales Chance</span></span>}
               </h2>
-              <p>
-                <span className="ar">انستجرام مش بس منصة عرض — هو أقوى قناة مبيعات. IryChat يحوّل كل DM وكومنت ومنشن لمحادثة بيع حقيقية تلقائياً.</span>
-                <span className="en">Instagram isn't just a showcase — it's your most powerful sales channel. IryChat turns every DM, comment & mention into a real sales conversation, automatically.</span>
-              </p>
+              <p>{lang === 'ar' ? 'انستجرام مش بس منصة عرض — هو أقوى قناة مبيعات. IryChat يحوّل كل DM وكومنت ومنشن لمحادثة بيع حقيقية تلقائياً.' : "Instagram isn't just a showcase — it's your most powerful sales channel. IryChat turns every DM, comment & mention into a real sales conversation, automatically."}</p>
               <ul className="check-list">
                 {[
-                  { ar: 'رد على DMs في أقل من ثانية',         en: 'Reply to DMs in under 1 second' },
-                  { ar: 'أتمتة الكومنتات بكلمات مفتاحية',    en: 'Comment automation with keywords' },
-                  { ar: 'تحويل Story Mentions لعملاء',         en: 'Convert Story Mentions to customers' },
-                  { ar: 'بث جماعي للـ subscribers',            en: 'Broadcast messages to all subscribers' },
-                  { ar: 'متوافق 100% مع سياسات ميتا',         en: '100% compliant with Meta policies' },
+                  { ar: 'رد على DMs في أقل من ثانية', en: 'Reply to DMs in under 1 second' },
+                  { ar: 'أتمتة الكومنتات بكلمات مفتاحية', en: 'Comment automation with keywords' },
+                  { ar: 'تحويل Story Mentions لعملاء', en: 'Convert Story Mentions to customers' },
+                  { ar: 'بث جماعي للـ subscribers', en: 'Broadcast messages to all subscribers' },
+                  { ar: 'متوافق 100% مع سياسات ميتا', en: '100% compliant with Meta policies' },
                 ].map((item) => (
-                  <li key={item.en}>
-                    <span className="check-icon">✓</span>
-                    <span className="ar">{item.ar}</span>
-                    <span className="en">{item.en}</span>
-                  </li>
+                  <li key={item.en}><span className="check-icon">✓</span>{lang === 'ar' ? item.ar : item.en}</li>
                 ))}
               </ul>
             </motion.div>
           </div>
-
           <div className="highlight-cards">
-            <HighlightCard icon="💬" titleAr="DMs اليوم"      titleEn="Today's DMs"       value="247"   subAr="↑ 89% من أمس"          subEn="↑ 89% vs yesterday" />
-            <HighlightCard icon="🎯" titleAr="معدل التحويل"   titleEn="Conversion Rate"   value="34%"   subAr="↑ 12% هذا الأسبوع"     subEn="↑ 12% this week" />
-            <HighlightCard icon="⚡" titleAr="ردود تلقائية"   titleEn="Auto Replies"      value="1,840" subAr="هذا الشهر"              subEn="This month" />
-            <HighlightCard icon="💰" titleAr="إيرادات مولّدة" titleEn="Revenue Generated" value="$8.2K" subAr="×3 مقارنة قبل IryChat"  subEn="×3 vs before IryChat" />
+            <HighlightCard icon="💬" titleAr="DMs اليوم"      titleEn="Today's DMs"       value="247"   subAr="↑ 89% من أمس"         subEn="↑ 89% vs yesterday" lang={lang} />
+            <HighlightCard icon="🎯" titleAr="معدل التحويل"   titleEn="Conversion Rate"   value="34%"   subAr="↑ 12% هذا الأسبوع"    subEn="↑ 12% this week"    lang={lang} />
+            <HighlightCard icon="⚡" titleAr="ردود تلقائية"   titleEn="Auto Replies"      value="1,840" subAr="هذا الشهر"             subEn="This month"          lang={lang} />
+            <HighlightCard icon="💰" titleAr="إيرادات مولّدة" titleEn="Revenue Generated" value="$8.2K" subAr="×3 مقارنة قبل IryChat" subEn="×3 vs before IryChat" lang={lang} />
           </div>
         </div>
       </motion.section>
 
-      {/* ── Pricing ── */}
+      {/* Pricing */}
       <section id="pricing" className="section pricing-section">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={fadeUp}>
-          <div className="stag"><span className="ar">الأسعار</span><span className="en">Pricing</span></div>
-          <h2 className="section-title"><span className="ar">شفاف من غير مفاجآت</span><span className="en">Transparent, No Surprises</span></h2>
+          <div className="stag">{lang === 'ar' ? 'الأسعار' : 'Pricing'}</div>
+          <h2 className="section-title">{lang === 'ar' ? 'شفاف من غير مفاجآت' : 'Transparent, No Surprises'}</h2>
         </motion.div>
-
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={staggerContainer} className="pricing-grid">
-          {/* Free */}
-          <motion.div variants={fadeUp} className="pricing-card gl">
-            <div className="plan-name"><span className="ar">مجاني</span><span className="en">Free</span></div>
-            <div className="plan-price">$0 <span>/<span className="ar">شهر</span><span className="en">mo</span></span></div>
-            <div className="plan-desc"><span className="ar">للتجربة وابدأ من النهارده</span><span className="en">Perfect to get started</span></div>
-            <ul className="plan-features">
-              <li><span className="ar">500 محادثة / شهر</span><span className="en">500 conversations / month</span></li>
-              <li><span className="ar">حساب انستجرام واحد</span><span className="en">1 Instagram account</span></li>
-              <li><span className="ar">3 Flows</span><span className="en">3 Flows</span></li>
-              <li><span className="ar">رد تلقائي على DMs</span><span className="en">Auto DM replies</span></li>
-              <li><span className="ar">دعم بالإيميل</span><span className="en">Email support</span></li>
-            </ul>
-            <Link href="/login" className="plan-btn"><span className="ar">ابدأ مجاناً</span><span className="en">Start Free</span></Link>
-          </motion.div>
-
-          {/* Pro */}
-          <motion.div variants={fadeUp} className="pricing-card gl popular">
-            <div className="popular-badge"><span className="ar">الأكثر اختياراً</span><span className="en">Most Popular</span></div>
-            <div className="plan-name"><span className="ar">برو</span><span className="en">Pro</span></div>
-            <div className="plan-price">$29 <span>/<span className="ar">شهر</span><span className="en">mo</span></span></div>
-            <div className="plan-desc"><span className="ar">للبيزنس اللي عايز ينمو فعلاً</span><span className="en">For businesses serious about growth</span></div>
-            <ul className="plan-features">
-              <li><span className="ar">محادثات غير محدودة</span><span className="en">Unlimited conversations</span></li>
-              <li><span className="ar">3 حسابات انستجرام</span><span className="en">3 Instagram accounts</span></li>
-              <li><span className="ar">Flows غير محدودة</span><span className="en">Unlimited Flows</span></li>
-              <li><span className="ar">أتمتة الكومنتات والـ Stories</span><span className="en">Comment & Story automation</span></li>
-              <li><span className="ar">تقسيم الجمهور</span><span className="en">Audience segmentation</span></li>
-              <li><span className="ar">Analytics متعمقة</span><span className="en">Deep Analytics</span></li>
-              <li><span className="ar">دعم أولوية</span><span className="en">Priority support</span></li>
-            </ul>
-            <Link href="/login" className="plan-btn"><span className="ar">تجربة 14 يوم مجاناً</span><span className="en">14-Day Free Trial</span></Link>
-          </motion.div>
-
-          {/* Agency */}
-          <motion.div variants={fadeUp} className="pricing-card gl">
-            <div className="plan-name"><span className="ar">إيجنسي</span><span className="en">Agency</span></div>
-            <div className="plan-price">$99 <span>/<span className="ar">شهر</span><span className="en">mo</span></span></div>
-            <div className="plan-desc"><span className="ar">للوكالات وأصحاب المشاريع الكبيرة</span><span className="en">For agencies & large-scale projects</span></div>
-            <ul className="plan-features">
-              <li><span className="ar">لحد 20 حساب عميل</span><span className="en">Up to 20 client accounts</span></li>
-              <li><span className="ar">حسابات انستجرام غير محدودة</span><span className="en">Unlimited Instagram accounts</span></li>
-              <li><span className="ar">White Label كامل</span><span className="en">Full White Label</span></li>
-              <li><span className="ar">Dashboard موحّد</span><span className="en">Unified dashboard</span></li>
-              <li><span className="ar">API + Webhooks</span><span className="en">API + Webhooks</span></li>
-              <li><span className="ar">Account Manager مخصص</span><span className="en">Dedicated Account Manager</span></li>
-            </ul>
-            <Link href="/login" className="plan-btn"><span className="ar">تكلم معنا</span><span className="en">Talk to Us</span></Link>
-          </motion.div>
+          {[
+            { name: { ar: 'مجاني', en: 'Free' }, price: '$0', desc: { ar: 'للتجربة وابدأ من النهارده', en: 'Perfect to get started' }, features: { ar: ['500 محادثة / شهر', 'حساب انستجرام واحد', '3 Flows', 'رد تلقائي على DMs', 'دعم بالإيميل'], en: ['500 conversations / month', '1 Instagram account', '3 Flows', 'Auto DM replies', 'Email support'] }, btn: { ar: 'ابدأ مجاناً', en: 'Start Free' }, popular: false },
+            { name: { ar: 'برو', en: 'Pro' }, price: '$29', desc: { ar: 'للبيزنس اللي عايز ينمو فعلاً', en: 'For businesses serious about growth' }, features: { ar: ['محادثات غير محدودة', '3 حسابات انستجرام', 'Flows غير محدودة', 'أتمتة الكومنتات والـ Stories', 'تقسيم الجمهور', 'Analytics متعمقة', 'دعم أولوية'], en: ['Unlimited conversations', '3 Instagram accounts', 'Unlimited Flows', 'Comment & Story automation', 'Audience segmentation', 'Deep Analytics', 'Priority support'] }, btn: { ar: 'تجربة 14 يوم مجاناً', en: '14-Day Free Trial' }, popular: true },
+            { name: { ar: 'إيجنسي', en: 'Agency' }, price: '$99', desc: { ar: 'للوكالات وأصحاب المشاريع الكبيرة', en: 'For agencies & large-scale projects' }, features: { ar: ['لحد 20 حساب عميل', 'حسابات انستجرام غير محدودة', 'White Label كامل', 'Dashboard موحّد', 'API + Webhooks', 'Account Manager مخصص'], en: ['Up to 20 client accounts', 'Unlimited Instagram accounts', 'Full White Label', 'Unified dashboard', 'API + Webhooks', 'Dedicated Account Manager'] }, btn: { ar: 'تكلم معنا', en: 'Talk to Us' }, popular: false },
+          ].map((plan) => (
+            <motion.div key={plan.name.en} variants={fadeUp} className={`pricing-card gl ${plan.popular ? 'popular' : ''}`}>
+              {plan.popular && <div className="popular-badge">{lang === 'ar' ? 'الأكثر اختياراً' : 'Most Popular'}</div>}
+              <div className="plan-name">{lang === 'ar' ? plan.name.ar : plan.name.en}</div>
+              <div className="plan-price">{plan.price} <span>/{lang === 'ar' ? 'شهر' : 'mo'}</span></div>
+              <div className="plan-desc">{lang === 'ar' ? plan.desc.ar : plan.desc.en}</div>
+              <ul className="plan-features">
+                {(lang === 'ar' ? plan.features.ar : plan.features.en).map((f, i) => <li key={i}>{f}</li>)}
+              </ul>
+              <Link href="/login" className="plan-btn">{lang === 'ar' ? plan.btn.ar : plan.btn.en}</Link>
+            </motion.div>
+          ))}
         </motion.div>
       </section>
 
-      {/* ── Testimonials ── */}
+      {/* Testimonials */}
       <section id="testimonials" className="section">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={fadeUp}>
-          <div className="stag"><span className="ar">شهادات العملاء</span><span className="en">Customer Stories</span></div>
-          <h2 className="section-title"><span className="ar">بيقولوا إيه عن IryChat</span><span className="en">What People Say</span></h2>
+          <div className="stag">{lang === 'ar' ? 'شهادات العملاء' : 'Customer Stories'}</div>
+          <h2 className="section-title">{lang === 'ar' ? 'بيقولوا إيه عن IryChat' : 'What People Say'}</h2>
         </motion.div>
-
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={staggerContainer} className="testimonials-grid">
           {currentTestimonials.map((t, i) => (
             <motion.div key={i} variants={fadeUp} className="testimonial-card gl">
@@ -491,23 +371,19 @@ export default function Home() {
               <div className="testimonial-text">{t.text}</div>
               <div className="testimonial-author">
                 <div className="author-avatar">{t.name.charAt(0)}</div>
-                <div>
-                  <div className="author-name">{t.name}</div>
-                  <div className="author-role">{t.role}</div>
-                </div>
+                <div><div className="author-name">{t.name}</div><div className="author-role">{t.role}</div></div>
               </div>
             </motion.div>
           ))}
         </motion.div>
       </section>
 
-      {/* ── FAQ ── */}
+      {/* FAQ */}
       <section id="faq" className="section">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={fadeUp}>
-          <div className="stag"><span className="ar">أسئلة شائعة</span><span className="en">FAQ</span></div>
-          <h2 className="section-title"><span className="ar">عندك سؤال؟</span><span className="en">Have Questions?</span></h2>
+          <div className="stag">{lang === 'ar' ? 'أسئلة شائعة' : 'FAQ'}</div>
+          <h2 className="section-title">{lang === 'ar' ? 'عندك سؤال؟' : 'Have Questions?'}</h2>
         </motion.div>
-
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={staggerContainer} className="faq-grid">
           {currentFaq.map((item, i) => (
             <motion.div key={i} variants={fadeUp} className={`faq-item gl ${openFaq === i ? 'open' : ''}`}>
@@ -521,55 +397,38 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* ── CTA ── */}
-      <motion.section
-        initial="hidden" whileInView="visible"
-        viewport={{ once: false, amount: 0.2 }}
-        variants={fadeUp}
-        className="cta-section"
-      >
+      {/* CTA */}
+      <motion.section initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={fadeUp} className="cta-section">
         <div className="cta-box gl2">
           <h2>
-            <span className="ar">جاهز تحوّل انستجرامك<br />لـ <span className="cy">ماكينة مبيعات</span>؟ 🚀</span>
-            <span className="en">Ready to Turn Instagram Into<br />A <span className="cy">Sales Machine</span>? 🚀</span>
+            {lang === 'ar'
+              ? <span>جاهز تحوّل انستجرامك<br />لـ <span className="cy">ماكينة مبيعات</span>؟ 🚀</span>
+              : <span>Ready to Turn Instagram Into<br />A <span className="cy">Sales Machine</span>? 🚀</span>}
           </h2>
-          <p>
-            <span className="ar">انضم لأكتر من 15,000 بيزنس بيستخدم IryChat. ابدأ مجاناً في أقل من 5 دقايق.</span>
-            <span className="en">Join 15,000+ businesses already using IryChat. Get started free in under 5 minutes.</span>
-          </p>
+          <p>{lang === 'ar' ? 'انضم لأكتر من 15,000 بيزنس بيستخدم IryChat. ابدأ مجاناً في أقل من 5 دقايق.' : 'Join 15,000+ businesses already using IryChat. Get started free in under 5 minutes.'}</p>
           <form onSubmit={handleSignup} className="cta-form">
-            <input
-              type="email"
-              name="email"
-              placeholder={lang === 'ar' ? 'إيميلك هنا...' : 'Your email here...'}
-              className="cta-input"
-              required
-            />
-            <button type="submit" className="cta-btn">
-              <span className="ar">ابدأ مجاناً 🚀</span>
-              <span className="en">Start Free 🚀</span>
-            </button>
+            <input type="email" name="email" placeholder={lang === 'ar' ? 'إيميلك هنا...' : 'Your email here...'} className="cta-input" required />
+            <button type="submit" className="cta-btn">{lang === 'ar' ? 'ابدأ مجاناً 🚀' : 'Start Free 🚀'}</button>
           </form>
           <div className="trust-badges">
-            <span>✅ <span className="ar">لا كريدت كارد</span><span className="en">No Credit Card</span></span>
-            <span>✅ <span className="ar">إعداد في 5 دقايق</span><span className="en">5-Min Setup</span></span>
-            <span>✅ <span className="ar">ألغِ في أي وقت</span><span className="en">Cancel Anytime</span></span>
+            <span>✅ {lang === 'ar' ? 'لا كريدت كارد' : 'No Credit Card'}</span>
+            <span>✅ {lang === 'ar' ? 'إعداد في 5 دقايق' : '5-Min Setup'}</span>
+            <span>✅ {lang === 'ar' ? 'ألغِ في أي وقت' : 'Cancel Anytime'}</span>
           </div>
         </div>
       </motion.section>
 
-      {/* ── Footer ── */}
+      {/* Footer */}
       <footer className="footer">
         <Link href="/" className="logo">IryChat</Link>
         <div className="footer-links">
-          <Link href="/privacy"><span className="ar">سياسة الخصوصية</span><span className="en">Privacy Policy</span></Link>
-          <Link href="/terms"><span className="ar">الشروط والأحكام</span><span className="en">Terms</span></Link>
-          <Link href="/contact"><span className="ar">الدعم الفني</span><span className="en">Support</span></Link>
-          <Link href="/blog"><span className="ar">المدونة</span><span className="en">Blog</span></Link>
+          <Link href="/privacy">{lang === 'ar' ? 'سياسة الخصوصية' : 'Privacy Policy'}</Link>
+          <Link href="/terms">{lang === 'ar' ? 'الشروط والأحكام' : 'Terms'}</Link>
+          <Link href="/contact">{lang === 'ar' ? 'الدعم الفني' : 'Support'}</Link>
+          <Link href="/blog">{lang === 'ar' ? 'المدونة' : 'Blog'}</Link>
         </div>
         <div className="copyright">© 2025 IryChat</div>
       </footer>
-
     </main>
   )
 }
