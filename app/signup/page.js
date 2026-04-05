@@ -15,7 +15,6 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
 
   const fadeUp = {
     hidden: { opacity: 0, y: 40 },
@@ -58,17 +57,6 @@ export default function SignupPage() {
     router.push('/dashboard')
   }
 
-  if (success) return (
-    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#05080f' }}>
-      <div style={{ maxWidth: '420px', width: '100%', padding: '2.5rem', borderRadius: '28px', textAlign: 'center', background: 'rgba(5,8,15,0.7)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)' }}>
-        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
-        <h2 style={{ color: '#4ade80', marginBottom: '1rem' }}>تم إنشاء الحساب!</h2>
-        <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: '1.5rem' }}>تحقق من بريدك الإلكتروني لتفعيل الحساب</p>
-        <Link href="/login" style={{ color: '#00d4ff', textDecoration: 'none' }}>الذهاب لتسجيل الدخول</Link>
-      </div>
-    </main>
-  )
-
   return (
     <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: '#05080f', position: 'relative' }}>
       <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
@@ -110,24 +98,50 @@ export default function SignupPage() {
             />
           </motion.div>
 
-          <motion.div variants={fadeUp} style={{ position: 'relative', marginBottom: '1rem' }}>
-            <input type={showPassword ? 'text' : 'password'} placeholder="كلمة المرور" value={password} onChange={(e) => setPassword(e.target.value)} required
-              style={{ width: '100%', padding: '0.9rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#eef2ff', fontSize: '0.95rem', outline: 'none' }}
-              onFocus={(e) => e.target.style.borderColor = '#00d4ff'}
-              onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
-            />
-            <button type="button" onClick={() => setShowPassword(!showPassword)}
-              style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.1rem', opacity: 0.6 }}>
-              {showPassword ? '🙈' : '👁️'}
-            </button>
+          {/* حقل كلمة المرور - قفل على اليسار */}
+          <motion.div variants={fadeUp} style={{ marginBottom: '1rem' }}>
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="كلمة المرور"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                style={{ width: '100%', padding: '0.9rem 1rem 0.9rem 3rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#eef2ff', fontSize: '0.95rem', outline: 'none' }}
+                onFocus={(e) => e.target.style.borderColor = '#00d4ff'}
+                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', width: '34px', height: '34px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00d4ff' }}
+              >
+                {showPassword ? '🔓' : '🔒'}
+              </button>
+            </div>
           </motion.div>
 
+          {/* تأكيد كلمة المرور - قفل على اليسار */}
           <motion.div variants={fadeUp} style={{ marginBottom: '1.5rem' }}>
-            <input type={showPassword ? 'text' : 'password'} placeholder="تأكيد كلمة المرور" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required
-              style={{ width: '100%', padding: '0.9rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#eef2ff', fontSize: '0.95rem', outline: 'none' }}
-              onFocus={(e) => e.target.style.borderColor = '#00d4ff'}
-              onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="تأكيد كلمة المرور"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                style={{ width: '100%', padding: '0.9rem 1rem 0.9rem 3rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#eef2ff', fontSize: '0.95rem', outline: 'none' }}
+                onFocus={(e) => e.target.style.borderColor = '#00d4ff'}
+                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', width: '34px', height: '34px', cursor: 'pointer', fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00d4ff' }}
+              >
+                {showPassword ? '🔓' : '🔒'}
+              </button>
+            </div>
           </motion.div>
 
           <motion.button variants={fadeUp} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" disabled={loading}
