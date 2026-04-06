@@ -5,6 +5,8 @@ import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
+import { useLanguage } from '@/context/LanguageContext'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 
 export default function EditAutomationPage() {
   const router = useRouter()
@@ -21,6 +23,7 @@ export default function EditAutomationPage() {
     comment_reply: '',
     dm_message: '',
   })
+  const { t } = useLanguage()
 
   useEffect(() => {
     const init = async () => {
@@ -53,11 +56,11 @@ export default function EditAutomationPage() {
 
   const handleSave = async () => {
     if (!form.name || !form.trigger_keyword) {
-      setError('يرجى ملء الحقول المطلوبة')
+      setError(t('fillRequired'))
       return
     }
     if (!form.comment_reply && !form.dm_message) {
-      setError('يجب إضافة رد على التعليق أو رسالة DM على الأقل')
+      setError(t('addReply'))
       return
     }
 
@@ -76,7 +79,7 @@ export default function EditAutomationPage() {
     }).eq('id', id)
 
     if (error) {
-      setError('حدث خطأ، حاول مرة أخرى')
+      setError(t('genericError'))
       setSaving(false)
       return
     }
@@ -104,7 +107,7 @@ export default function EditAutomationPage() {
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#05080f' }}>
-      <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.5 }} style={{ color: '#00d4ff' }}>جاري التحميل...</motion.div>
+      <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.5 }} style={{ color: '#00d4ff' }}>{t('loading')}</motion.div>
     </div>
   )
 
@@ -118,16 +121,19 @@ export default function EditAutomationPage() {
       {/* Navbar */}
       <nav style={{ position: 'fixed', top: 0, width: '100%', zIndex: 100, padding: '0.85rem 5%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(5,8,15,0.75)', backdropFilter: 'blur(30px)', borderBottom: '1px solid rgba(0,212,255,0.15)' }}>
         <Link href="/" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.5rem', fontWeight: 900, color: '#00d4ff', textDecoration: 'none' }}>IryChat</Link>
-        <Link href="/dashboard/flows" style={{ color: 'rgba(238,242,255,0.6)', textDecoration: 'none', fontSize: '0.9rem' }}>← العودة للأتمتة</Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <LanguageSwitcher />
+          <Link href="/dashboard/flows" style={{ color: 'rgba(238,242,255,0.6)', textDecoration: 'none', fontSize: '0.9rem' }}>{t('backToAutomations')}</Link>
+        </div>
       </nav>
 
       <div style={{ padding: '7rem 5% 5rem', position: 'relative', zIndex: 1, maxWidth: '680px', margin: '0 auto' }}>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: '2rem' }}>
           <h1 style={{ fontSize: '2rem', fontWeight: 700, background: 'linear-gradient(135deg, #fff, #00d4ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.3rem' }}>
-            تعديل الأتمتة
+            {t('editAutomationTitle')}
           </h1>
-          <p style={{ color: 'rgba(238,242,255,0.5)' }}>عدّل إعدادات الأتمتة الخاصة بك</p>
+          <p style={{ color: 'rgba(238,242,255,0.5)' }}>{t('editAutomationSubtitle')}</p>
         </motion.div>
 
         {error && (
@@ -139,26 +145,26 @@ export default function EditAutomationPage() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ background: 'rgba(255,255,255,0.035)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
           <div>
-            <div style={{ color: '#00d4ff', fontSize: '0.8rem', fontWeight: 700, marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>① المعلومات الأساسية</div>
+            <div style={{ color: '#00d4ff', fontSize: '0.8rem', fontWeight: 700, marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('basicInfo')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
-                <label style={labelStyle}>اسم الأتمتة *</label>
+                <label style={labelStyle}>{t('automationName')}</label>
                 <input type="text" value={form.name} onChange={e => update('name', e.target.value)} style={inputStyle}
                   onFocus={e => e.target.style.borderColor = '#00d4ff'}
                   onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
               </div>
               <div>
-                <label style={labelStyle}>الحساب المرتبط</label>
+                <label style={labelStyle}>{t('linkedAccount')}</label>
                 <select value={form.account_id} onChange={e => update('account_id', e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
-                  <option value="">اختر الحساب...</option>
+                  <option value="">{t('selectAccount')}</option>
                   {accounts.map(acc => (
                     <option key={acc.id} value={acc.id}>{acc.account_name} ({acc.account_type === 'instagram' ? 'Instagram' : 'Facebook'})</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label style={labelStyle}>رابط البوست (اختياري)</label>
-                <input type="text" value={form.post_url} onChange={e => update('post_url', e.target.value)} placeholder="https://www.instagram.com/p/..." style={inputStyle}
+                <label style={labelStyle}>{t('postUrl')}</label>
+                <input type="text" value={form.post_url} onChange={e => update('post_url', e.target.value)} placeholder={t('postUrlPlaceholder')} style={inputStyle}
                   onFocus={e => e.target.style.borderColor = '#00d4ff'}
                   onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
               </div>
@@ -168,30 +174,30 @@ export default function EditAutomationPage() {
           <div style={{ height: '1px', background: 'rgba(255,255,255,0.07)' }} />
 
           <div>
-            <div style={{ color: '#00d4ff', fontSize: '0.8rem', fontWeight: 700, marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>② كلمة التشغيل</div>
+            <div style={{ color: '#00d4ff', fontSize: '0.8rem', fontWeight: 700, marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('triggerWord')}</div>
             <div>
-              <label style={labelStyle}>الكلمة المحفزة *</label>
+              <label style={labelStyle}>{t('triggerKeyword')}</label>
               <input type="text" value={form.trigger_keyword} onChange={e => update('trigger_keyword', e.target.value)} style={inputStyle}
                 onFocus={e => e.target.style.borderColor = '#00d4ff'}
                 onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
-              <p style={{ color: 'rgba(238,242,255,0.4)', fontSize: '0.75rem', marginTop: '0.4rem' }}>عند كتابة هذه الكلمة في التعليقات سيتم تشغيل الأتمتة</p>
+              <p style={{ color: 'rgba(238,242,255,0.4)', fontSize: '0.75rem', marginTop: '0.4rem' }}>{t('triggerHint')}</p>
             </div>
           </div>
 
           <div style={{ height: '1px', background: 'rgba(255,255,255,0.07)' }} />
 
           <div>
-            <div style={{ color: '#00d4ff', fontSize: '0.8rem', fontWeight: 700, marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>③ الردود التلقائية</div>
+            <div style={{ color: '#00d4ff', fontSize: '0.8rem', fontWeight: 700, marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('responses')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
-                <label style={labelStyle}>الرد على التعليق</label>
+                <label style={labelStyle}>{t('commentReply')}</label>
                 <textarea value={form.comment_reply} onChange={e => update('comment_reply', e.target.value)} rows={3}
                   style={{ ...inputStyle, resize: 'vertical' }}
                   onFocus={e => e.target.style.borderColor = '#00d4ff'}
                   onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
               </div>
               <div>
-                <label style={labelStyle}>رسالة DM التلقائية</label>
+                <label style={labelStyle}>{t('dmMessage')}</label>
                 <textarea value={form.dm_message} onChange={e => update('dm_message', e.target.value)} rows={3}
                   style={{ ...inputStyle, resize: 'vertical' }}
                   onFocus={e => e.target.style.borderColor = '#00d4ff'}
@@ -203,11 +209,11 @@ export default function EditAutomationPage() {
           <div style={{ display: 'flex', gap: '1rem' }}>
             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSave} disabled={saving}
               style={{ flex: 1, padding: '1rem', background: saving ? 'rgba(0,212,255,0.4)' : '#00d4ff', color: '#05080f', border: 'none', borderRadius: '99px', fontSize: '1rem', fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer' }}>
-              {saving ? 'جاري الحفظ...' : '✓ حفظ التغييرات'}
+              {saving ? t('saving') : t('saveBtn')}
             </motion.button>
             <Link href="/dashboard/flows"
               style={{ flex: 1, padding: '1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#eef2ff', borderRadius: '99px', fontSize: '1rem', textAlign: 'center', textDecoration: 'none' }}>
-              إلغاء
+              {t('cancelBtn')}
             </Link>
           </div>
         </motion.div>
