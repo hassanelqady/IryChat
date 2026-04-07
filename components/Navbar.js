@@ -58,10 +58,10 @@ const Navbar = () => {
   const t = content[lang];
 
   const productItems = [
-    { name: t.instagram, icon: <Instagram size={18} />, href: '/product/instagram' },
-    { name: t.facebook, icon: <Facebook size={18} />, href: '/product/facebook' },
-    { name: t.whatsapp, icon: <MessageCircle size={18} />, href: '/product/whatsapp' },
-    { name: t.tiktok, icon: <Music size={18} />, href: '/product/tiktok' },
+    { name: t.instagram, icon: <Instagram size={16} />, href: '/product/instagram' },
+    { name: t.facebook, icon: <Facebook size={16} />, href: '/product/facebook' },
+    { name: t.whatsapp, icon: <MessageCircle size={16} />, href: '/product/whatsapp' },
+    { name: t.tiktok, icon: <Music size={16} />, href: '/product/tiktok' },
   ];
 
   const aboutItems = [
@@ -108,10 +108,10 @@ const Navbar = () => {
 
   return (
     <>
-      {/* --- الشريط العلوي: الأعلى حد ممكن + عناصر ملتصقة بالحواف --- */}
+      {/* --- الشريط العلوي: Ultra Slim (h-14) & Ultra High (top-1) & No Shadow --- */}
       <nav className="
         fixed 
-        top-2 
+        top-1 
         left-1 
         right-1 
         md:left-4 
@@ -122,20 +122,19 @@ const Navbar = () => {
         transition-all 
         duration-500
       ">
-        {/* طبقة الخلفية */}
+        {/* طبقة الخلفية: شفافية 70% ، ناعمة جداً (3xl Blur) ، بلا ظلال (shadow-none) */}
         <div className={`
           absolute 
           inset-0 
           -z-10 
           rounded-2xl 
-          backdrop-blur-2xl 
+          backdrop-blur-3xl 
           border 
           border-white/40 
           border-b-black/5 
           bg-white/70 
           dark:bg-white/10 
-          shadow-lg 
-          shadow-blue-900/5 
+          shadow-none 
           transition-all 
           duration-500
           ${
@@ -145,13 +144,13 @@ const Navbar = () => {
           }
         `}></div>
 
-        {/* تم تقليل Padding الداخلي بقوة ليكون المحتوى على الأطراف */}
+        {/* تقليل Padding الداخلي لزيادة النحافة وجعل العناصر قريبة من الحواف */}
         <div className="w-full px-1 sm:px-2 md:px-4 lg:px-6">
-          <div className="flex justify-between items-center h-20">
+          <div className="flex justify-between items-center h-14">
             
-            {/* الشعار */}
+            {/* الشعار: خط أصغر ليتناسب الشريط النحيف */}
             <Link href="/" className="flex-shrink-0 cursor-pointer" onClick={closeMenu}>
-              <span className={`text-2xl font-bold ${
+              <span className={`text-xl font-bold ${
                 scrolled ? 'text-black dark:text-white' : 'text-white'
               }`}>
                 IryChat
@@ -159,20 +158,20 @@ const Navbar = () => {
             </Link>
 
             {/* قائمة سطح المكتب (Desktop) */}
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-6">
               
               {/* Product Dropdown */}
               <div className="relative group">
-                <button className={`flex items-center gap-1 text-sm font-semibold py-2 ${
+                <button className={`flex items-center gap-1 text-xs font-bold py-1 ${
                   scrolled ? 'text-gray-900 dark:text-gray-100 hover:text-black dark:hover:text-white' : 'text-white hover:text-gray-200'
                 }`}>
                   <span>{t.product}</span>
-                  <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />
+                  <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180" />
                 </button>
                 <div className="absolute top-full left-0 mt-2 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-1 group-hover:translate-y-0">
-                  <div className="bg-white/95 dark:bg-white/10 backdrop-blur-2xl rounded-xl shadow-2xl border border-gray-100 dark:border-white/10 p-2 space-y-1">
+                  <div className="bg-white/95 dark:bg-white/10 backdrop-blur-2xl rounded-xl shadow-none border border-gray-100 dark:border-white/10 p-2 space-y-1">
                     {productItems.map((item) => (
-                      <Link key={item.name} href={item.href} className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/20 hover:text-black dark:hover:text-white transition-colors text-sm font-medium">
+                      <Link key={item.name} href={item.href} className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/20 hover:text-black dark:hover:text-white transition-colors text-xs font-medium">
                         <span className="text-black dark:text-white">{item.icon}</span>
                         {item.name}
                       </Link>
@@ -183,16 +182,16 @@ const Navbar = () => {
 
               {/* About Dropdown */}
               <div className="relative group">
-                <button className={`flex items-center gap-1 text-sm font-semibold py-2 ${
+                <button className={`flex items-center gap-1 text-xs font-bold py-1 ${
                   scrolled ? 'text-gray-900 dark:text-gray-100 hover:text-black dark:hover:text-white' : 'text-white hover:text-gray-200'
                 }`}>
                   <span>{t.about}</span>
-                  <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />
+                  <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180" />
                 </button>
                 <div className="absolute top-full left-0 mt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-1 group-hover:translate-y-0">
-                  <div className="bg-white/95 dark:bg-white/10 backdrop-blur-2xl rounded-xl shadow-2xl border border-gray-100 dark:border-white/10 p-2 space-y-1">
+                  <div className="bg-white/95 dark:bg-white/10 backdrop-blur-2xl rounded-xl shadow-none border border-gray-100 dark:border-white/10 p-2 space-y-1">
                     {aboutItems.map((item) => (
-                      <Link key={item.name} href={item.href} className="block px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/20 hover:text-black dark:hover:text-white transition-colors text-sm font-medium">
+                      <Link key={item.name} href={item.href} className="block px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/20 hover:text-black dark:hover:text-white transition-colors text-xs font-medium">
                         {item.name}
                       </Link>
                     ))}
@@ -201,7 +200,7 @@ const Navbar = () => {
               </div>
 
               {/* Pricing Link */}
-              <Link href="/pricing" className={`text-sm font-semibold py-2 ${
+              <Link href="/pricing" className={`text-xs font-bold py-1 ${
                   scrolled ? 'text-gray-900 dark:text-gray-100 hover:text-black dark:hover:text-white' : 'text-white hover:text-gray-200'
                 }`}>
                 {t.pricing}
@@ -210,26 +209,26 @@ const Navbar = () => {
             </div>
 
             {/* العناصر الجانبية */}
-            <div className="flex items-center gap-3 rtl:gap-3">
+            <div className="flex items-center gap-2 rtl:gap-2">
               
               {/* Language Dropdown */}
               <div className="relative group">
-                <button className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors duration-300 ${
+                <button className={`hidden md:flex items-center gap-2 px-2 py-1 rounded-full transition-colors duration-300 ${
                   scrolled 
                     ? 'bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-black dark:text-white' 
                     : 'bg-white/20 hover:bg-white/30 text-white'
                 }`}>
                   <span>{isRTL ? '🇸🇦' : '🇺🇸'}</span>
-                  <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180" />
+                  <ChevronDown className="w-2.5 h-2.5 transition-transform group-hover:rotate-180" />
                 </button>
                 
                 <div className="absolute top-full left-0 mt-2 w-36 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-1 group-hover:translate-y-0 z-50">
-                  <div className="bg-white/95 dark:bg-white/10 backdrop-blur-2xl rounded-xl shadow-2xl border border-gray-100 dark:border-white/10 p-1 space-y-1">
+                  <div className="bg-white/95 dark:bg-white/10 backdrop-blur-2xl rounded-xl shadow-none border border-gray-100 dark:border-white/10 p-1 space-y-1">
                     {languageOptions.map((opt) => (
                       <button
                         key={opt.code}
                         onClick={() => handleLanguageSelect(opt.code)}
-                        className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                           lang === opt.code
                             ? 'bg-gray-200 dark:bg-white/20 text-black dark:text-white'
                             : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/20 hover:text-black dark:hover:text-white'
@@ -243,7 +242,7 @@ const Navbar = () => {
                 </div>
               </div>
 
-              {/* زر البدء */}
+              {/* زر البدء: Slimmer Border */}
               <Link 
                 href="/signup" 
                 className={`
@@ -251,14 +250,12 @@ const Navbar = () => {
                   md:inline-flex 
                   items-center 
                   justify-center 
-                  px-6 
-                  py-2.5 
-                  border-2 
-                  text-sm 
+                  px-4 
+                  py-1.5 
+                  border 
+                  text-xs 
                   font-bold 
                   rounded-full 
-                  shadow-sm 
-                  hover:shadow-lg
                   transition-all 
                   duration-200
                   ${
@@ -274,18 +271,18 @@ const Navbar = () => {
               {/* هامبرغر موبايل */}
               <button
                 onClick={() => setIsOpen(true)}
-                className={`md:hidden p-2 rounded-md focus:outline-none transition-colors duration-300 ${
+                className={`md:hidden p-1.5 rounded-md focus:outline-none transition-colors duration-300 ${
                   scrolled ? 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10' : 'text-white hover:bg-white/20'
                 }`}
               >
-                <Menu size={28} />
+                <Menu size={24} />
               </button>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* --- قائمة الموبايل --- */}
+      {/* --- قائمة الموبايل (Full Screen Overlay) --- */}
       <div
         className={`fixed inset-0 z-[60] bg-white/80 dark:bg-white/10 backdrop-blur-xl transform transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isOpen 
@@ -346,7 +343,7 @@ const Navbar = () => {
                <span>{isRTL ? '🇸🇦' : '🇺🇸'}</span>
                {t.langBtn}
              </button>
-             <Link href="/signup" onClick={closeMenu} className="w-full flex items-center justify-center px-6 py-4 border-2 border-black dark:border-white text-lg font-bold rounded-2xl text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all duration-200">
+             <Link href="/signup" onClick={closeMenu} className="w-full flex items-center justify-center px-6 py-3.5 border border-black dark:border-white text-lg font-bold rounded-2xl text-black dark:text-white hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all duration-200">
                {t.getStarted}
              </Link>
           </div>

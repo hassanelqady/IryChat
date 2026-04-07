@@ -10,8 +10,10 @@ export default function LayoutWrapper({ children }) {
     <>
       {!isDashboard && <Navbar />}
 
-      {/* تم تقليل pt إلى 20 لأن الشريط أصبح عالي جداً (top-2) */}
-      <main className={isDashboard ? "min-h-screen" : "pt-20 min-h-screen"}>
+      {/* 
+         تقليل المسافة إلى pt-16 لتناسب الارتفاع الجديد (top-1) والشريط النحيف (h-14)
+      */}
+      <main className={isDashboard ? "min-h-screen" : "pt-16 min-h-screen"}>
         {children}
       </main>
     </>
