@@ -8,11 +8,10 @@ export default function LayoutWrapper({ children }) {
 
   return (
     <>
-      {/* الـ Navbar يظهر في كل الصفحات ما عدا الداشبورد */}
       {!isDashboard && <Navbar />}
 
-      {/* تعديل المسافة العلوية حسب الصفحة */}
-      <main className={isDashboard ? "min-h-screen" : "pt-28 min-h-screen"}>
+      {/* تم تقليل pt إلى 20 لأن الشريط أصبح عالي جداً (top-2) */}
+      <main className={isDashboard ? "min-h-screen" : "pt-20 min-h-screen"}>
         {children}
       </main>
     </>
