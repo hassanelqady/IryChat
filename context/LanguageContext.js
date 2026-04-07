@@ -219,15 +219,30 @@ const LanguageContext = createContext()
 export function LanguageProvider({ children }) {
   const [lang, setLang] = useState('ar')
 
+  // 1. تحميل اللغة المحفوظة
   useEffect(() => {
     const saved = localStorage.getItem('irychat_lang')
     if (saved) setLang(saved)
   }, [])
 
+  // 2. تحديث الـ HTML وتطبيق التغييرات عند تغيير اللغة
+  useEffect(() => {
+    const isRTL = lang === 'ar'
+    
+    // تحديث خصائص الصفحة (مهم جداً لـ globals.css)
+    document.documentElement.dir = isRTL ? 'rtl' : 'ltr'
+    document.documentElement.lang = lang
+    
+    // هذا السطر يحل مشكلة إخفاء النصوص في CSS الخاص بك
+    document.documentElement.setAttribute('data-lang', lang)
+    
+    // حفظ التغيير
+    localStorage.setItem('irychat_lang', lang)
+  }, [lang])
+
   const toggleLang = () => {
     const newLang = lang === 'ar' ? 'en' : 'ar'
     setLang(newLang)
-    localStorage.setItem('irychat_lang', newLang)
   }
 
   const t = (key) => translations[lang][key] || key
@@ -235,14 +250,12 @@ export function LanguageProvider({ children }) {
   const isRTL = lang === 'ar'
 
   return (
-    <LanguageContext.Provider value={{ lang, toggleLang, t, isRTL }}>
-      <div dir={isRTL ? 'rtl' : 'ltr'} style={{
-        fontFamily: isRTL
-          ? "'Cairo', 'Tajawal', sans-serif"
-          : "'Inter', sans-serif"
-      }}>
-        {children}
-      </div>
+    <LanguageContext.Provider value={{ lang, toggleLanguage: toggleLang, t, isRTL }}>
+      {/* 
+         ملاحظة: قمنا بإعادة تسمية toggleLang إلى toggleLanguage في الـ value 
+         ليتوافق مع كود الـ Navbar الجديد الذي أرسلته لك سابقاً 
+      */}
+      {children}
     </LanguageContext.Provider>
   )
 }

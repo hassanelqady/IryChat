@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useState } from 'react'
 import { useLanguage } from '@/context/LanguageContext'
-import LanguageSwitcher from '@/components/LanguageSwitcher'
+// LanguageSwitcher تمت إزالته لأنه موجود الآن داخل الـ Navbar الجديد
 
 const fadeUp = {
   hidden:  { opacity: 0, y: 40 },
@@ -93,11 +93,10 @@ function HighlightCard({ icon, titleAr, titleEn, value, subAr, subEn, lang }) {
 export default function Home() {
   const { lang } = useLanguage()
   const [openFaq, setOpenFaq] = useState(null)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  // تم حذف mobileMenuOpen لأن القائمة أصبحت في الـ Layout
   const chatBoxRef = useRef(null)
 
   const scrollTo = (id) => {
-    setMobileMenuOpen(false)
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
   }
 
@@ -170,31 +169,7 @@ export default function Home() {
       </div>
       <div className="bg-grid" />
 
-      {/* Navbar */}
-      <nav className="navbar">
-        <Link href="/" className="logo">IryChat</Link>
-        <ul className="nav-links">
-          <li><button onClick={() => scrollTo('how')}>{lang === 'ar' ? 'كيف يعمل' : 'How It Works'}</button></li>
-          <li><button onClick={() => scrollTo('features')}>{lang === 'ar' ? 'المميزات' : 'Features'}</button></li>
-          <li><button onClick={() => scrollTo('pricing')}>{lang === 'ar' ? 'الأسعار' : 'Pricing'}</button></li>
-          <li><button onClick={() => scrollTo('faq')}>FAQ</button></li>
-        </ul>
-        <div className="nav-right">
-          <LanguageSwitcher />
-          <Link href="/login" className="btn-login">{lang === 'ar' ? 'تسجيل دخول' : 'Login'}</Link>
-          <button className="hamburger" onClick={() => setMobileMenuOpen(o => !o)}>
-            <span className="hamburger-line" /><span className="hamburger-line" /><span className="hamburger-line" />
-          </button>
-        </div>
-      </nav>
-
-      {/* Mobile Menu */}
-      <div className={`mobile-menu ${mobileMenuOpen ? 'open' : ''}`}>
-        <button onClick={() => scrollTo('how')}>{lang === 'ar' ? 'كيف يعمل' : 'How It Works'}</button>
-        <button onClick={() => scrollTo('features')}>{lang === 'ar' ? 'المميزات' : 'Features'}</button>
-        <button onClick={() => scrollTo('pricing')}>{lang === 'ar' ? 'الأسعار' : 'Pricing'}</button>
-        <button onClick={() => scrollTo('faq')}>FAQ</button>
-      </div>
+      {/* تم حذف الـ Mobile Menu القديم لأن الـ Navbar الجديد يدير القائمة بالكامل */}
 
       {/* Hero */}
       <div className="hero">
