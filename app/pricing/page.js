@@ -2,17 +2,18 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Check } from 'lucide-react';
+import { Check, ArrowRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import { useLanguage } from '@/context/LanguageContext'; // استيراد هوك اللغة
+import { useLanguage } from '@/context/LanguageContext';
+import PageLayoutWith3D from '@/components/PageLayoutWith3D';
 
 const PricingPage = () => {
   const { lang } = useLanguage();
+  const isRTL = lang === 'ar';
 
-  // محتوى الترجمة
   const content = {
     en: {
-      title: "Simple, transparent pricing",
+      title: "Pricing Plans", // تم التعديل هنا
       subtitle: "Start for free, upgrade as you grow. No hidden fees.",
       plans: {
         starter: { name: "Starter", price: "$0", period: "/mo", cta: "Get Started" },
@@ -26,7 +27,7 @@ const PricingPage = () => {
       }
     },
     ar: {
-      title: "أسعار بسيطة وشفافة",
+      title: "خطط الأسعار", // تم التعديل هنا
       subtitle: "ابدأ مجاناً، وترقِ خطتك مع نمو مشروعك. لا توجد رسوم خفية.",
       plans: {
         starter: { name: "البداية", price: "0$", period: "/شهر", cta: "ابدأ مجاناً" },
@@ -42,79 +43,81 @@ const PricingPage = () => {
   };
 
   const t = content[lang];
-  const isRTL = lang === 'ar';
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-black text-gray-900 dark:text-white" dir={isRTL ? 'rtl' : 'ltr'}>
+    <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
       <Navbar />
       
       <main className="pt-32 pb-20 px-4">
         <div className="max-w-5xl mx-auto text-center mb-16">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 text-white">
             {t.title}
           </h1>
-          <p className="text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
             {t.subtitle}
           </p>
         </div>
 
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           
-          {/* Starter */}
-          <div className="bg-white dark:bg-white/5 p-8 rounded-3xl border border-gray-100 dark:border-white/10 hover:shadow-xl transition-all duration-300 flex flex-col">
-            <h3 className="text-lg font-semibold mb-2">{t.plans.starter.name}</h3>
-            <div className="text-4xl font-bold mb-6">{t.plans.starter.price}<span className="text-lg font-normal text-gray-500">{t.plans.starter.period}</span></div>
+          {/* Starter Plan */}
+          <div className="bg-white/5 backdrop-blur-sm p-8 rounded-3xl border border-white/10 hover:border-white/20 hover:shadow-xl transition-all duration-300 flex flex-col relative z-10">
+            <h3 className="text-lg font-semibold mb-2 text-white">{t.plans.starter.name}</h3>
+            <div className="text-4xl font-bold mb-6 text-white">{t.plans.starter.price}<span className="text-lg font-normal text-gray-500">{t.plans.starter.period}</span></div>
             <ul className="space-y-4 mb-8 flex-1">
               {t.features.starter.map((feature, i) => (
-                <li key={i} className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                <li key={i} className="flex items-center gap-3 text-gray-300">
                   <Check className="w-5 h-5 text-green-500" />
                   {feature}
                 </li>
               ))}
             </ul>
-            <Link href="/signup" className="block w-full py-3 px-6 rounded-full border border-black dark:border-white text-center font-semibold hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all">
+            <Link href="/signup" className="block w-full py-3 px-6 rounded-full border border-white/20 text-center font-semibold text-white hover:bg-white hover:text-black transition-all">
               {t.plans.starter.cta}
             </Link>
           </div>
 
-          {/* Pro */}
-          <div className="bg-black text-white p-8 rounded-3xl border border-black shadow-2xl transform md:-translate-y-4 flex flex-col relative overflow-hidden">
-            <div className="absolute top-0 right-0 bg-white text-black text-xs font-bold px-3 py-1 rounded-bl-xl">{t.plans.pro.badge}</div>
-            <h3 className="text-lg font-semibold mb-2">{t.plans.pro.name}</h3>
-            <div className="text-4xl font-bold mb-6">{t.plans.pro.price}<span className="text-lg font-normal text-gray-400">{t.plans.pro.period}</span></div>
+          {/* Pro Plan (Highlighted) */}
+          <div className="bg-gradient-to-b from-cyan-900/20 to-black/60 backdrop-blur-md p-8 rounded-3xl border border-cyan-500/50 shadow-[0_0_40px_rgba(6,182,212,0.15)] transform md:-translate-y-6 flex flex-col relative z-20">
+            <div className="absolute top-0 right-0 bg-cyan-500 text-black text-xs font-bold px-4 py-1.5 rounded-bl-xl">
+              {t.plans.pro.badge}
+            </div>
+            <h3 className="text-lg font-semibold mb-2 text-white">{t.plans.pro.name}</h3>
+            <div className="text-4xl font-bold mb-6 text-white">{t.plans.pro.price}<span className="text-lg font-normal text-gray-400">{t.plans.pro.period}</span></div>
             <ul className="space-y-4 mb-8 flex-1">
               {t.features.pro.map((feature, i) => (
-                <li key={i} className="flex items-center gap-3 text-gray-300">
-                  <Check className="w-5 h-5 text-green-400" />
+                <li key={i} className="flex items-center gap-3 text-gray-200">
+                  <Check className="w-5 h-5 text-cyan-400" />
                   {feature}
                 </li>
               ))}
             </ul>
-            <Link href="/signup" className="block w-full py-3 px-6 rounded-full bg-white text-black text-center font-semibold hover:bg-gray-200 transition-all">
+            <Link href="/signup" className="block w-full py-3 px-6 rounded-full bg-cyan-500 text-black text-center font-semibold hover:bg-cyan-400 transition-all shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2">
               {t.plans.pro.cta}
+              <ArrowRight size={18} />
             </Link>
           </div>
 
-          {/* Enterprise */}
-          <div className="bg-white dark:bg-white/5 p-8 rounded-3xl border border-gray-100 dark:border-white/10 hover:shadow-xl transition-all duration-300 flex flex-col">
-            <h3 className="text-lg font-semibold mb-2">{t.plans.enterprise.name}</h3>
-            <div className="text-4xl font-bold mb-6">{t.plans.enterprise.price}<span className="text-lg font-normal text-gray-500">{t.plans.enterprise.period}</span></div>
+          {/* Enterprise Plan */}
+          <div className="bg-white/5 backdrop-blur-sm p-8 rounded-3xl border border-white/10 hover:border-white/20 hover:shadow-xl transition-all duration-300 flex flex-col relative z-10">
+            <h3 className="text-lg font-semibold mb-2 text-white">{t.plans.enterprise.name}</h3>
+            <div className="text-4xl font-bold mb-6 text-white">{t.plans.enterprise.price}<span className="text-lg font-normal text-gray-500">{t.plans.enterprise.period}</span></div>
             <ul className="space-y-4 mb-8 flex-1">
               {t.features.enterprise.map((feature, i) => (
-                <li key={i} className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                <li key={i} className="flex items-center gap-3 text-gray-300">
                   <Check className="w-5 h-5 text-green-500" />
                   {feature}
                 </li>
               ))}
             </ul>
-            <Link href="/contact" className="block w-full py-3 px-6 rounded-full border border-black dark:border-white text-center font-semibold hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all">
+            <Link href="/contact" className="block w-full py-3 px-6 rounded-full border border-white/20 text-center font-semibold text-white hover:bg-white hover:text-black transition-all">
               {t.plans.enterprise.cta}
             </Link>
           </div>
 
         </div>
       </main>
-    </div>
+    </PageLayoutWith3D>
   );
 };
 

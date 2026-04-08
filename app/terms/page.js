@@ -2,8 +2,14 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import Navbar from '@/components/Navbar'
+import PageLayoutWith3D from '@/components/PageLayoutWith3D'
+import { useLanguage } from '@/context/LanguageContext'
 
 export default function TermsPage() {
+  const { lang } = useLanguage()
+  const isRTL = lang === 'ar'
+
   const fadeUp = {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
@@ -14,51 +20,69 @@ export default function TermsPage() {
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
   }
 
+  const content = {
+    ar: {
+      title: "الشروط والأحكام",
+      date: "آخر تحديث: 1 يناير 2025",
+      sections: [
+        { h: "1. قبول الشروط", p: "باستخدامك لخدمات IryChat، فإنك توافق على الالتزام بهذه الشروط والأحكام." },
+        { h: "2. استخدام الخدمة", p: "يحق لك استخدام خدمات IryChat لأغراضك التجارية الشخصية، مع الالتزام بقوانين ميتا وانستجرام." },
+        { h: "3. الحساب والمسؤولية", p: "أنت مسؤول عن الحفاظ على سرية حسابك وكلمة المرور الخاصة بك." },
+        { h: "4. الدفع والإلغاء", p: "يمكنك إلغاء اشتراكك في أي وقت من خلال لوحة التحكم. لن يتم إصدار استرداد للفترة المتبقية من الاشتراك." },
+        { h: "5. إنهاء الخدمة", p: "نحتفظ بالحق في إنهاء أو تعليق حسابك في حال انتهاك هذه الشروط." },
+        { h: "6. التواصل", p: "للاستفسارات حول الشروط والأحكام، تواصل معنا على" }
+      ],
+      contactEmail: "legal@irychat.com"
+    },
+    en: {
+      title: "Terms and Conditions",
+      date: "Last updated: January 1, 2025",
+      sections: [
+        { h: "1. Acceptance of Terms", p: "By using IryChat services, you agree to abide by these terms and conditions." },
+        { h: "2. Use of Service", p: "You may use IryChat services for your own commercial purposes, subject to Meta and Instagram's policies." },
+        { h: "3. Account and Responsibility", p: "You are responsible for maintaining the confidentiality of your account and password." },
+        { h: "4. Payment and Cancellation", p: "You can cancel your subscription at any time via the dashboard. No refunds will be issued for the remaining period." },
+        { h: "5. Termination of Service", p: "We reserve the right to terminate or suspend your account if these terms are violated." },
+        { h: "6. Contact", p: "For inquiries regarding terms and conditions, contact us at" }
+      ],
+      contactEmail: "legal@irychat.com"
+    }
+  }
+
+  const t = content[lang] || content.ar
+
   return (
-    <main style={{ minHeight: '100vh', background: '#05080f', padding: '7rem 5% 5rem' }}>
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
-        <div style={{ position: 'absolute', width: '700px', height: '700px', borderRadius: '50%', background: 'rgba(0,212,255,0.14)', filter: 'blur(110px)', top: '-200px', right: '-180px', animation: 'float 12s infinite alternate' }}></div>
-        <div style={{ position: 'absolute', width: '550px', height: '550px', borderRadius: '50%', background: 'rgba(0,80,255,0.11)', filter: 'blur(110px)', bottom: '-150px', left: '-150px', animation: 'float 12s infinite alternate', animationDelay: '-5s' }}></div>
-      </div>
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', backgroundImage: 'linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px)', backgroundSize: '64px 64px' }}></div>
+    <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
+      <Navbar />
+      
+      <main className="pt-32 pb-20 px-4">
+        <div className="max-w-3xl mx-auto">
+          
+          <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="mb-12">
+            <motion.h1 variants={fadeUp} className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+              {t.title}
+            </motion.h1>
+            <motion.p variants={fadeUp} className="text-gray-400">{t.date}</motion.p>
+          </motion.div>
 
-      <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-        <motion.div initial="hidden" animate="visible" variants={staggerContainer} style={{ marginBottom: '3rem' }}>
-          <motion.h1 variants={fadeUp} style={{ fontSize: '2rem', fontWeight: 700, background: 'linear-gradient(135deg, #fff, #00d4ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>الشروط والأحكام</motion.h1>
-          <motion.p variants={fadeUp} style={{ color: 'rgba(238,242,255,0.6)' }}>آخر تحديث: 1 يناير 2025</motion.p>
-        </motion.div>
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}>
+            {t.sections.map((section, index) => (
+              <motion.div key={index} variants={fadeUp} className="mb-8">
+                <h2 className="text-xl font-bold mb-3 text-white">{section.h}</h2>
+                <p className="text-gray-400 leading-relaxed">
+                  {section.p}
+                  {index === t.sections.length - 1 && (
+                    <a href={`mailto:${t.contactEmail}`} className="text-blue-400 hover:underline">
+                      {t.contactEmail}
+                    </a>
+                  )}
+                </p>
+              </motion.div>
+            ))}
+          </motion.div>
 
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}>
-          <motion.div variants={fadeUp} style={{ marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.5rem' }}>1. قبول الشروط</h2>
-            <p style={{ color: 'rgba(238,242,255,0.6)', lineHeight: '1.6' }}>باستخدامك لخدمات IryChat، فإنك توافق على الالتزام بهذه الشروط والأحكام.</p>
-          </motion.div>
-          <motion.div variants={fadeUp} style={{ marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.5rem' }}>2. استخدام الخدمة</h2>
-            <p style={{ color: 'rgba(238,242,255,0.6)', lineHeight: '1.6' }}>يحق لك استخدام خدمات IryChat لأغراضك التجارية الشخصية، مع الالتزام بقوانين ميتا وانستجرام.</p>
-          </motion.div>
-          <motion.div variants={fadeUp} style={{ marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.5rem' }}>3. الحساب والمسؤولية</h2>
-            <p style={{ color: 'rgba(238,242,255,0.6)', lineHeight: '1.6' }}>أنت مسؤول عن الحفاظ على سرية حسابك وكلمة المرور الخاصة بك.</p>
-          </motion.div>
-          <motion.div variants={fadeUp} style={{ marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.5rem' }}>4. الدفع والإلغاء</h2>
-            <p style={{ color: 'rgba(238,242,255,0.6)', lineHeight: '1.6' }}>يمكنك إلغاء اشتراكك في أي وقت من خلال لوحة التحكم. لن يتم إصدار استرداد للفترة المتبقية من الاشتراك.</p>
-          </motion.div>
-          <motion.div variants={fadeUp} style={{ marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.5rem' }}>5. إنهاء الخدمة</h2>
-            <p style={{ color: 'rgba(238,242,255,0.6)', lineHeight: '1.6' }}>نحتفظ بالحق في إنهاء أو تعليق حسابك في حال انتهاك هذه الشروط.</p>
-          </motion.div>
-          <motion.div variants={fadeUp}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '0.5rem' }}>6. التواصل</h2>
-            <p style={{ color: 'rgba(238,242,255,0.6)', lineHeight: '1.6' }}>للاستفسارات حول الشروط والأحكام، تواصل معنا على <a href="mailto:legal@irychat.com" style={{ color: '#00d4ff' }}>legal@irychat.com</a></p>
-          </motion.div>
-        </motion.div>
-      </div>
-
-      <style jsx>{`
-        @keyframes float { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(35px,25px) scale(1.08); } }
-      `}</style>
-    </main>
+        </div>
+      </main>
+    </PageLayoutWith3D>
   )
 }

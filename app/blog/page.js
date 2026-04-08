@@ -2,8 +2,15 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { ArrowRight, Calendar, Clock } from 'lucide-react'
+import Navbar from '@/components/Navbar'
+import PageLayoutWith3D from '@/components/PageLayoutWith3D'
+import { useLanguage } from '@/context/LanguageContext'
 
 export default function Blog() {
+  const { lang } = useLanguage()
+  const isRTL = lang === 'ar'
+
   const fadeUp = {
     hidden: { opacity: 0, y: 40 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] } }
@@ -14,251 +21,215 @@ export default function Blog() {
     visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
   }
 
-  const blogPosts = [
-    {
-      id: 1,
-      title: 'كيف تزيد مبيعاتك 300% باستخدام أتمتة الـ DM',
-      date: '٢ أبريل ٢٠٢٥',
-      readTime: '٥ دقائق',
-      excerpt: 'تعلم كيف حول كل رسالة على انستجرام لفرصة بيع حقيقية باستخدام IryChat. نصائح عملية لزيادة مبيعاتك.',
-      category: 'نصائح'
+  const content = {
+    ar: {
+      title: "أحدث <span class='text-cyan-400'>المقالات</span>",
+      subtitle: "نصائح واستراتيجيات لزيادة مبيعاتك على انستجرام",
+      backLink: "← رجوع للرئيسية",
+      readMore: "اقرأ المزيد",
+      posts: [
+        {
+          id: 1,
+          title: 'كيف تزيد مبيعاتك 300% باستخدام أتمتة الـ DM',
+          date: '٢ أبريل ٢٠٢٥',
+          readTime: '٥ دقائق',
+          excerpt: 'تعلم كيف حول كل رسالة على انستجرام لفرصة بيع حقيقية باستخدام IryChat. نصائح عملية لزيادة مبيعاتك.',
+          category: 'نصائح',
+          slug: 'increase-sales-300-dm'
+        },
+        {
+          id: 2,
+          title: 'أفضل 5 استراتيجيات للرد التلقائي على الكومنتات',
+          date: '٢٨ مارس ٢٠٢٥',
+          readTime: '٤ دقائق',
+          excerpt: 'ازاي تخلي كل واحد يكتب "سعر" أو "عرض" في الكومنتات يتحول لعميل. استراتيجيات مجربة بنسبة نجاح 98%.',
+          category: 'استراتيجيات',
+          slug: 'auto-reply-comments'
+        },
+        {
+          id: 3,
+          title: 'IryChat vs المنافسين: ليه إحنا الأفضل؟',
+          date: '٢٠ مارس ٢٠٢٥',
+          readTime: '٦ دقائق',
+          excerpt: 'مقارنة شاملة بين IryChat وأدوات الأتمتة التانية في السوق. تعرف على المميزات الحصرية.',
+          category: 'مقارنات',
+          slug: 'irychat-vs-competitors'
+        },
+        {
+          id: 4,
+          title: 'ازاي توصل لعملاء جدد عبر الـ Story Mentions',
+          date: '١٥ مارس ٢٠٢٥',
+          readTime: '٣ دقائق',
+          excerpt: 'استراتيجية مبتكرة لتحويل كل منشن في الاستوري إلى عميل دافع. شرح خطوة بخطوة.',
+          category: 'تسويق',
+          slug: 'story-mentions-customers'
+        },
+        {
+          id: 5,
+          title: 'أخطاء تقتل مبيعاتك على انستجرام (وتجنبها بسهولة)',
+          date: '١٠ مارس ٢٠٢٥',
+          readTime: '٧ دقائق',
+          excerpt: '٧ أخطاء شائعة في الـ DMs والكومنتات بتخسرك عملاء. وكيفية تجنبها باستخدام IryChat.',
+          category: 'تحذيرات',
+          slug: 'common-instagram-mistakes'
+        },
+        {
+          id: 6,
+          title: 'أتمتة الـ DM: مستقبل التجارة على انستجرام',
+          date: '٥ مارس ٢٠٢٥',
+          readTime: '٥ دقائق',
+          excerpt: 'لماذا أتمتة الرسائل هي مستقبل البيع على انستجرام وكيف تستعد له الآن.',
+          category: 'تقنية',
+          slug: 'dm-automation-future'
+        }
+      ]
     },
-    {
-      id: 2,
-      title: 'أفضل 5 استراتيجيات للرد التلقائي على الكومنتات',
-      date: '٢٨ مارس ٢٠٢٥',
-      readTime: '٤ دقائق',
-      excerpt: 'ازاي تخلي كل واحد يكتب "سعر" أو "عرض" في الكومنتات يتحول لعميل. استراتيجيات مجربة بنسبة نجاح 98%.',
-      category: 'استراتيجيات'
-    },
-    {
-      id: 3,
-      title: 'IryChat vs المنافسين: ليه إحنا الأفضل؟',
-      date: '٢٠ مارس ٢٠٢٥',
-      readTime: '٦ دقائق',
-      excerpt: 'مقارنة شاملة بين IryChat وأدوات الأتمتة التانية في السوق. تعرف على المميزات الحصرية.',
-      category: 'مقارنات'
-    },
-    {
-      id: 4,
-      title: 'ازاي توصل لعملاء جدد عبر الـ Story Mentions',
-      date: '١٥ مارس ٢٠٢٥',
-      readTime: '٣ دقائق',
-      excerpt: 'استراتيجية مبتكرة لتحويل كل منشن في الاستوري إلى عميل دافع. شرح خطوة بخطوة.',
-      category: 'تسويق'
-    },
-    {
-      id: 5,
-      title: 'أخطاء تقتل مبيعاتك على انستجرام (وتجنبها بسهولة)',
-      date: '١٠ مارس ٢٠٢٥',
-      readTime: '٧ دقائق',
-      excerpt: '٧ أخطاء شائعة في الـ DMs والكومنتات بتخسرك عملاء. وكيفية تجنبها باستخدام IryChat.',
-      category: 'تحذيرات'
-    },
-    {
-      id: 6,
-      title: 'أتمتة الـ DM: مستقبل التجارة على انستجرام',
-      date: '٥ مارس ٢٠٢٥',
-      readTime: '٥ دقائق',
-      excerpt: 'لماذا أتمتة الرسائل هي مستقبل البيع على انستجرام وكيف تستعد له الآن.',
-      category: 'تقنية'
+    en: {
+      title: "Latest <span class='text-cyan-400'>Articles</span>",
+      subtitle: "Tips and strategies to boost your Instagram sales",
+      backLink: "← Back to Home",
+      readMore: "Read More",
+      posts: [
+        {
+          id: 1,
+          title: 'How to Increase Sales 300% Using DM Automation',
+          date: 'April 2, 2025',
+          readTime: '5 min',
+          excerpt: 'Learn how to turn every Instagram message into a real sales opportunity with IryChat. Practical tips to boost sales.',
+          category: 'Tips',
+          slug: 'increase-sales-300-dm'
+        },
+        {
+          id: 2,
+          title: 'Top 5 Strategies for Auto-Replying to Comments',
+          date: 'March 28, 2025',
+          readTime: '4 min',
+          excerpt: 'How to turn everyone who comments "price" or "offer" into a customer. Tested strategies with a 98% success rate.',
+          category: 'Strategies',
+          slug: 'auto-reply-comments'
+        },
+        {
+          id: 3,
+          title: 'IryChat vs Competitors: Why We Are The Best?',
+          date: 'March 20, 2025',
+          readTime: '6 min',
+          excerpt: 'A comprehensive comparison between IryChat and other automation tools in the market. Discover exclusive features.',
+          category: 'Comparisons',
+          slug: 'irychat-vs-competitors'
+        },
+        {
+          id: 4,
+          title: 'How to Reach New Customers via Story Mentions',
+          date: 'March 15, 2025',
+          readTime: '3 min',
+          excerpt: 'An innovative strategy to turn every Story mention into a paying customer. Step-by-step guide.',
+          category: 'Marketing',
+          slug: 'story-mentions-customers'
+        },
+        {
+          id: 5,
+          title: 'Mistakes Killing Your Instagram Sales (And How to Avoid Them)',
+          date: 'March 10, 2025',
+          readTime: '7 min',
+          excerpt: '7 common mistakes in DMs and comments that lose you customers. And how to avoid them using IryChat.',
+          category: 'Warnings',
+          slug: 'common-instagram-mistakes'
+        },
+        {
+          id: 6,
+          title: 'DM Automation: The Future of Instagram Commerce',
+          date: 'March 5, 2025',
+          readTime: '5 min',
+          excerpt: 'Why message automation is the future of selling on Instagram and how to prepare for it now.',
+          category: 'Technology',
+          slug: 'dm-automation-future'
+        }
+      ]
     }
-  ]
+  }
+
+  const t = content[lang] || content.ar
 
   return (
-    <>
-      {/* خلفية زي الرئيسية */}
-      <div className="bg-mesh">
-        <div className="blob b1"></div>
-        <div className="blob b2"></div>
-        <div className="blob b3"></div>
-      </div>
-      <div className="bg-grid"></div>
-
+    <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
+      <Navbar />
+      
       <motion.main
         initial="hidden"
         animate="visible"
         variants={staggerContainer}
-        style={{ position: 'relative', zIndex: 1, padding: '8rem 5% 5rem', maxWidth: '1200px', margin: '0 auto' }}
+        className="pt-32 pb-20 px-4 max-w-7xl mx-auto relative z-10"
       >
-        {/* رجوع للرئيسية */}
-        <motion.div variants={fadeUp}>
-          <Link href="/" style={{ color: '#00d4ff', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginBottom: '3rem' }}>
-            ← رجوع للرئيسية
+        {/* Back Link */}
+        <motion.div variants={fadeUp} className="mb-10">
+          <Link href="/" className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors font-medium">
+            {lang === 'ar' ? <ArrowRight size={18} /> : <ArrowRight size={18} className={isRTL ? 'rotate-180' : ''} />}
+            {t.backLink}
           </Link>
         </motion.div>
         
         {/* Header */}
-        <motion.div variants={fadeUp} style={{ textAlign: 'center', marginBottom: '4rem' }}>
-          <div className="stag">المدونة</div>
-          <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 900, marginBottom: '1rem' }}>
-            أحدث <span style={{ color: '#00d4ff' }}>المقالات</span>
-          </h1>
-          <p style={{ color: 'rgba(238,242,255,.62)', maxWidth: '600px', margin: '0 auto' }}>
-            نصائح واستراتيجيات لزيادة مبيعاتك على انستجرام
+        <motion.div variants={fadeUp} className="text-center mb-16">
+          <div className="text-cyan-400 font-bold tracking-widest uppercase text-xs mb-4">Blog</div>
+          <h1 
+            className="text-4xl md:text-6xl font-bold mb-6 text-white leading-tight"
+            dangerouslySetInnerHTML={{ __html: t.title }}
+          />
+          <p className="text-gray-400 max-w-2xl mx-auto text-lg">
+            {t.subtitle}
           </p>
         </motion.div>
 
-        {/* Grid Cards زي باقي الموقع */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', 
-          gap: '1.5rem' 
-        }}>
-          {blogPosts.map((post, index) => (
+        {/* Grid Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {t.posts.map((post, index) => (
             <motion.div
               key={post.id}
               variants={fadeUp}
               whileHover={{ y: -8 }}
               transition={{ duration: 0.3 }}
-              className="gl"
-              style={{
-                borderRadius: '20px',
-                padding: '1.8rem',
-                cursor: 'pointer',
-                transition: 'all 0.3s'
-              }}
             >
-              {/* التصنيف */}
-              <div style={{
-                display: 'inline-block',
-                background: 'rgba(0,212,255,0.12)',
-                border: '1px solid rgba(0,212,255,0.18)',
-                borderRadius: '99px',
-                padding: '0.25rem 0.9rem',
-                fontSize: '0.7rem',
-                fontWeight: 700,
-                color: '#00d4ff',
-                marginBottom: '1rem'
-              }}>
-                {post.category}
-              </div>
-              
-              {/* العنوان */}
-              <h2 style={{
-                fontSize: '1.3rem',
-                fontWeight: 700,
-                marginBottom: '0.75rem',
-                lineHeight: 1.4,
-                color: '#fff'
-              }}>
-                {post.title}
-              </h2>
-              
-              {/* الملخص */}
-              <p style={{
-                fontSize: '0.88rem',
-                color: 'rgba(238,242,255,.62)',
-                lineHeight: 1.6,
-                marginBottom: '1.2rem'
-              }}>
-                {post.excerpt}
-              </p>
-              
-              {/* التاريخ ووقت القراءة */}
-              <div style={{
-                display: 'flex',
-                gap: '1rem',
-                fontSize: '0.75rem',
-                color: 'rgba(238,242,255,.42)',
-                borderTop: '1px solid rgba(255,255,255,.07)',
-                paddingTop: '1rem'
-              }}>
-                <span>📅 {post.date}</span>
-                <span>⏱️ {post.readTime}</span>
-              </div>
+              <Link href={`/blog/${post.slug}`} className="block h-full group">
+                <div className="h-full bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 hover:border-white/20 hover:bg-white/10 transition-all duration-300 flex flex-col">
+                  {/* Category */}
+                  <div className="inline-block bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 rounded-full px-3 py-1 text-xs font-bold mb-4 w-fit">
+                    {post.category}
+                  </div>
+                  
+                  {/* Title */}
+                  <h2 className="text-xl font-bold mb-3 text-white group-hover:text-cyan-400 transition-colors line-clamp-2">
+                    {post.title}
+                  </h2>
+                  
+                  {/* Excerpt */}
+                  <p className="text-gray-400 text-sm mb-6 flex-grow leading-relaxed line-clamp-3">
+                    {post.excerpt}
+                  </p>
+                  
+                  {/* Footer Meta */}
+                  <div className="flex items-center justify-between pt-4 border-t border-white/10 text-xs text-gray-500 mt-auto">
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center gap-1">
+                        <Calendar size={12} />
+                        {post.date}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock size={12} />
+                        {post.readTime}
+                      </span>
+                    </div>
+                    
+                    <span className="flex items-center gap-1 text-white font-bold group-hover:translate-x-1 transition-transform">
+                      {t.readMore}
+                      <ArrowRight size={14} />
+                    </span>
+                  </div>
+                </div>
+              </Link>
             </motion.div>
           ))}
         </div>
       </motion.main>
-      
-      <style jsx global>{`
-        :root {
-          --c1: #05080f;
-          --c2: #00d4ff;
-          --c2-dim: rgba(0,212,255,.12);
-          --c2-glow: rgba(0,212,255,.22);
-          --c2-border: rgba(0,212,255,.18);
-          --glass: rgba(255,255,255,.035);
-          --gb: rgba(255,255,255,.07);
-          --gs: rgba(255,255,255,.12);
-          --text: #eef2ff;
-          --muted: rgba(238,242,255,.42);
-          --muted2: rgba(238,242,255,.62);
-        }
-
-        .bg-mesh {
-          position: fixed;
-          inset: 0;
-          z-index: 0;
-          overflow: hidden;
-          pointer-events: none;
-        }
-
-        .blob {
-          position: absolute;
-          border-radius: 50%;
-          filter: blur(110px);
-          animation: bd 12s ease-in-out infinite alternate;
-        }
-
-        .b1 {
-          width: 700px;
-          height: 700px;
-          background: rgba(0,212,255,.14);
-          top: -200px;
-          right: -180px;
-        }
-
-        .b2 {
-          width: 550px;
-          height: 550px;
-          background: rgba(0,80,255,.11);
-          bottom: -150px;
-          left: -150px;
-          animation-delay: -5s;
-        }
-
-        .b3 {
-          width: 400px;
-          height: 400px;
-          background: rgba(0,212,255,.06);
-          top: 45%;
-          left: 38%;
-          animation-delay: -9s;
-        }
-
-        @keyframes bd {
-          0% { transform: translate(0,0) scale(1); }
-          100% { transform: translate(35px,25px) scale(1.08); }
-        }
-
-        .bg-grid {
-          position: fixed;
-          inset: 0;
-          z-index: 0;
-          pointer-events: none;
-          background-image: linear-gradient(rgba(0,212,255,.025) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,212,255,.025) 1px, transparent 1px);
-          background-size: 64px 64px;
-        }
-
-        .gl {
-          background: var(--glass);
-          backdrop-filter: blur(22px) saturate(180%);
-          border: 1px solid var(--gb);
-          box-shadow: 0 8px 32px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05);
-        }
-
-        .stag {
-          font-size: .72rem;
-          font-weight: 700;
-          letter-spacing: 3px;
-          text-transform: uppercase;
-          color: var(--c2);
-          margin-bottom: .65rem;
-        }
-      `}</style>
-    </>
+    </PageLayoutWith3D>
   )
 }
