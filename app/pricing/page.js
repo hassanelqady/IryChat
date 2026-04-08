@@ -13,7 +13,7 @@ const PricingPage = () => {
 
   const content = {
     en: {
-      title: "Pricing Plans", // تم التعديل هنا
+      title: "Pricing Plans",
       subtitle: "Start for free, upgrade as you grow. No hidden fees.",
       plans: {
         starter: { name: "Starter", price: "$0", period: "/mo", cta: "Get Started" },
@@ -27,7 +27,7 @@ const PricingPage = () => {
       }
     },
     ar: {
-      title: "خطط الأسعار", // تم التعديل هنا
+      title: "خطط الأسعار",
       subtitle: "ابدأ مجاناً، وترقِ خطتك مع نمو مشروعك. لا توجد رسوم خفية.",
       plans: {
         starter: { name: "البداية", price: "0$", period: "/شهر", cta: "ابدأ مجاناً" },
@@ -59,7 +59,7 @@ const PricingPage = () => {
         </div>
 
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          
+
           {/* Starter Plan */}
           <div className="bg-white/5 backdrop-blur-sm p-8 rounded-3xl border border-white/10 hover:border-white/20 hover:shadow-xl transition-all duration-300 flex flex-col relative z-10">
             <h3 className="text-lg font-semibold mb-2 text-white">{t.plans.starter.name}</h3>
@@ -72,12 +72,12 @@ const PricingPage = () => {
                 </li>
               ))}
             </ul>
-            <Link href="/signup" className="block w-full py-3 px-6 rounded-full border border-white/20 text-center font-semibold text-white hover:bg-white hover:text-black transition-all">
+            <Link href="/login" className="block w-full py-3 px-6 rounded-full border border-white/20 text-center font-semibold text-white hover:bg-white hover:text-black transition-all">
               {t.plans.starter.cta}
             </Link>
           </div>
 
-          {/* Pro Plan (Highlighted) */}
+          {/* Pro Plan */}
           <div className="bg-gradient-to-b from-cyan-900/20 to-black/60 backdrop-blur-md p-8 rounded-3xl border border-cyan-500/50 shadow-[0_0_40px_rgba(6,182,212,0.15)] transform md:-translate-y-6 flex flex-col relative z-20">
             <div className="absolute top-0 right-0 bg-cyan-500 text-black text-xs font-bold px-4 py-1.5 rounded-bl-xl">
               {t.plans.pro.badge}
@@ -92,7 +92,7 @@ const PricingPage = () => {
                 </li>
               ))}
             </ul>
-            <Link href="/signup" className="block w-full py-3 px-6 rounded-full bg-cyan-500 text-black text-center font-semibold hover:bg-cyan-400 transition-all shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2">
+            <Link href="/login" className="block w-full py-3 px-6 rounded-full bg-cyan-500 text-black text-center font-semibold hover:bg-cyan-400 transition-all shadow-lg shadow-cyan-500/25 flex items-center justify-center gap-2">
               {t.plans.pro.cta}
               <ArrowRight size={18} />
             </Link>

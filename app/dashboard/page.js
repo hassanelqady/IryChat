@@ -213,26 +213,14 @@ export default function Dashboard() {
               {stats.connectedAccounts}
             </motion.div>
             <div className="text-gray-400 font-medium mb-1">{t.connectedAccounts}</div>
-            <div className={`text-xs ${stats.connectedAccounts === 0 ? 'text-orange-400' : 'text-gray-500'}`}>
-              {stats.connectedAccounts === 0 ? '⚠️ ' + t.connectAccount : 'Instagram / Facebook'}
-            </div>
+            <div className="text-xs text-gray-500">
+  Instagram / Facebook
+</div>
+
           </motion.div>
         </motion.div>
 
-        {/* Warning Banner */}
-        {stats.connectedAccounts === 0 && (
-          <motion.div initial="hidden" animate="visible" variants={fadeUp}
-            className="bg-orange-500/10 border border-orange-500/20 rounded-2xl p-6 mb-10 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
-              <div className="text-orange-400 font-bold text-lg mb-2">⚠️ {t.noAccountWarning}</div>
-              <div className="text-gray-400 text-sm">{t.noAccountDesc}</div>
-            </div>
-            <Link href="/dashboard/accounts" className="bg-orange-500 text-black px-6 py-3 rounded-full font-bold hover:bg-orange-400 transition-all whitespace-nowrap flex items-center gap-2">
-              {t.connectAccount}
-              <ArrowRight size={18} />
-            </Link>
-          </motion.div>
-        )}
+       
 
         {/* Quick Actions */}
         <motion.div initial="hidden" animate="visible" variants={fadeUp}>
