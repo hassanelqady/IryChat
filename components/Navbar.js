@@ -130,10 +130,10 @@ const Navbar = () => {
           rounded-2xl 
           backdrop-blur-3xl 
           border 
-          border-white/40 
+          border-white/0
           border-b-black/5 
           bg-white/70 
-          dark:bg-white/10 
+          dark:bg-white/0
           shadow-none 
           transition-all 
           duration-500
