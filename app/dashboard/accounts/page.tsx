@@ -4,8 +4,10 @@ import { useEffect, useState, Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { Link as LinkIcon, Trash2, Plus, LogOut, Grid, Zap, CheckCircle2, AlertCircle } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
-import LanguageSwitcher from '@/components/LanguageSwitcher'
+import Navbar from '@/components/Navbar'
+import PageLayoutWith3D from '@/components/PageLayoutWith3D'
 
 function AccountsContent() {
   const [accounts, setAccounts] = useState([])
@@ -15,7 +17,45 @@ function AccountsContent() {
   const searchParams = useSearchParams()
   const success = searchParams.get('success')
   const error = searchParams.get('error')
-  const { t } = useLanguage()
+  const { lang } = useLanguage()
+  const isRTL = lang === 'ar'
+
+  const content = {
+    en: {
+      connectAccounts: "Connected Accounts",
+      connectAccountsDesc: "Manage your Instagram Business and Facebook Pages to enable automation.",
+      successConnect: "Account connected successfully!",
+      errorConnect: "Failed to connect account. Please try again.",
+      connectMetaBtn: "Connect Meta Account (Instagram/Facebook)",
+      noAccounts: "No Connected Accounts",
+      noAccountsDesc: "Connect your Instagram or Facebook account to start automating interactions.",
+      connected: "Connected",
+      disconnect: "Disconnect",
+      dashboard: "Dashboard",
+      accounts: "Accounts",
+      automations: "Automations",
+      logout: "Logout",
+      loading: "Loading...",
+    },
+    ar: {
+      connectAccounts: "الحسابات المتصلة",
+      connectAccountsDesc: "إدارة حسابات انستجرام للنشاط التجاري وصفحات فيسبوك لتفعيل الأتمتة.",
+      successConnect: "تم ربط الحساب بنجاح!",
+      errorConnect: "فشل ربط الحساب. يرجى المحاولة مرة أخرى.",
+      connectMetaBtn: "ربط حساب ميتا (انستجرام/فيسبوك)",
+      noAccounts: "لا توجد حسابات متصلة",
+      noAccountsDesc: "قم بربط حساب انستجرام أو فيسبوك لبدء أتمتة التفاعلات.",
+      connected: "متصل",
+      disconnect: "فصل",
+      dashboard: "لوحة التحكم",
+      accounts: "الحسابات",
+      automations: "الأتمتات",
+      logout: "تسجيل الخروج",
+      loading: "جاري التحميل...",
+    }
+  }
+
+  const t = content[lang]
 
   useEffect(() => {
     const init = async () => {
@@ -53,88 +93,138 @@ function AccountsContent() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', background: '#05080f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#00d4ff' }}>
-      {t('loading')}
+    <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div className="flex items-center gap-3 text-cyan-400 animate-pulse">
+        <Grid className="w-6 h-6" />
+        <span className="text-xl font-medium">{t.loading}</span>
+      </div>
     </div>
   )
 
   return (
-    <main style={{ minHeight: '100vh', background: '#05080f' }}>
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
-        <div style={{ position: 'absolute', width: '700px', height: '700px', borderRadius: '50%', background: 'rgba(0,212,255,0.14)', filter: 'blur(110px)', top: '-200px', right: '-180px' }}></div>
-        <div style={{ position: 'absolute', width: '550px', height: '550px', borderRadius: '50%', background: 'rgba(0,80,255,0.11)', filter: 'blur(110px)', bottom: '-150px', left: '-150px' }}></div>
-      </div>
+    <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
+      <Navbar />
+      
+      <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+        
+        {/* Dashboard Sub-nav */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">{t.connectAccounts}</h1>
+            <p className="text-gray-400">{t.connectAccountsDesc}</p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Link 
+              href="/dashboard" 
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
+            >
+              <Zap size={18} />
+              {t.dashboard}
+            </Link>
+            <Link 
+              href="/dashboard/flows" 
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
+            >
+              <Grid size={18} />
+              {t.automations}
+            </Link>
+            
+            <div className="h-6 w-px bg-white/20 mx-1 hidden md:block"></div>
 
-      {/* Navbar */}
-      <nav style={{ position: 'fixed', top: 0, width: '100%', zIndex: 100, padding: '0.85rem 5%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(5,8,15,0.75)', backdropFilter: 'blur(30px)', borderBottom: '1px solid rgba(0,212,255,0.15)' }}>
-        <Link href="/" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.5rem', fontWeight: 900, color: '#00d4ff', textDecoration: 'none' }}>IryChat</Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <Link href="/dashboard" style={{ color: '#eef2ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', fontSize: '0.9rem' }}>{t('dashboard')}</Link>
-          <Link href="/dashboard/accounts" style={{ color: '#00d4ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', fontSize: '0.9rem', background: 'rgba(0,212,255,0.1)' }}>{t('accounts')}</Link>
-          <Link href="/dashboard/flows" style={{ color: '#eef2ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', fontSize: '0.9rem' }}>{t('automations')}</Link>
-          <LanguageSwitcher />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(0,212,255,0.05)', padding: '0.3rem 0.8rem 0.3rem 1rem', borderRadius: '99px', border: '1px solid rgba(0,212,255,0.15)' }}>
-            <span style={{ color: '#00d4ff', fontSize: '0.85rem' }}>{user?.email?.split('@')[0]}</span>
-            <button onClick={handleLogout} style={{ background: 'transparent', padding: '0.3rem 0.8rem', borderRadius: '99px', color: '#eef2ff', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.8rem' }}>{t('logout')}</button>
+            <button 
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg text-red-400 text-sm font-medium transition-all"
+            >
+              <LogOut size={18} />
+              {t.logout}
+            </button>
           </div>
         </div>
-      </nav>
 
-      <div style={{ maxWidth: 800, margin: '0 auto', padding: '7rem 2rem 5rem', position: 'relative', zIndex: 1 }}>
-        <h1 style={{ color: '#fff', fontSize: '1.8rem', marginBottom: '0.5rem' }}>{t('connectAccounts')}</h1>
-        <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '2rem' }}>{t('connectAccountsDesc')}</p>
-
+        {/* Alerts */}
         {success && (
-          <div style={{ background: 'rgba(74,222,128,0.1)', border: '1px solid #4ade80', borderRadius: 12, padding: '1rem', marginBottom: '1.5rem', color: '#4ade80' }}>
-            {t('successConnect')}
+          <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-4 mb-6 flex items-center gap-3 text-green-400">
+            <CheckCircle2 size={20} />
+            {t.successConnect}
           </div>
         )}
         {error && (
-          <div style={{ background: 'rgba(255,80,80,0.1)', border: '1px solid #ff5050', borderRadius: 12, padding: '1rem', marginBottom: '1.5rem', color: '#ff5050' }}>
-            {t('errorConnect')}
+          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 mb-6 flex items-center gap-3 text-red-400">
+            <AlertCircle size={20} />
+            {t.errorConnect}
           </div>
         )}
 
-        <button onClick={connectMeta} style={{ background: 'linear-gradient(135deg,#0866ff,#1877f2)', color: '#fff', border: 'none', borderRadius: 12, padding: '0.9rem 2rem', fontSize: '1rem', cursor: 'pointer', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span>📘</span> {t('connectMetaBtn')}
-        </button>
+        {/* Connect Button */}
+        <div className="mb-10">
+          <button onClick={connectMeta} className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white font-bold rounded-full transition-all shadow-lg shadow-blue-500/20">
+            <Plus size={20} />
+            {t.connectMetaBtn}
+          </button>
+        </div>
 
+        {/* Accounts List */}
         {accounts.length === 0 ? (
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '3rem', textAlign: 'center', color: 'rgba(255,255,255,0.4)' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔗</div>
-            <div style={{ marginBottom: '0.5rem', fontSize: '1.1rem', color: 'rgba(255,255,255,0.6)' }}>{t('noAccounts')}</div>
-            <div style={{ fontSize: '0.85rem' }}>{t('noAccountsDesc')}</div>
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-12 text-center">
+            <div className="inline-flex p-6 rounded-full bg-white/5 text-gray-400 mb-4">
+              <LinkIcon size={48} />
+            </div>
+            <div className="text-2xl font-bold text-white mb-2">{t.noAccounts}</div>
+            <div className="text-gray-400 max-w-md mx-auto">{t.noAccountsDesc}</div>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="flex flex-col gap-4">
             {accounts.map(account => (
-              <div key={account.id} style={{ background: 'rgba(255,255,255,0.035)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '1.2rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <div style={{ width: 44, height: 44, borderRadius: '50%', background: account.account_type === 'instagram' ? 'linear-gradient(135deg,#f09433,#dc2743,#bc1888)' : '#1877f2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem' }}>
+              <div key={account.id} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 transition-all hover:border-white/20">
+                <div className="flex items-center gap-4 w-full md:w-auto">
+                  <div 
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-lg ${
+                      account.account_type === 'instagram' 
+                        ? 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400' 
+                        : 'bg-blue-600'
+                    }`}
+                  >
                     {account.account_type === 'instagram' ? '📸' : '📘'}
                   </div>
                   <div>
-                    <div style={{ color: '#fff', fontWeight: 600 }}>{account.account_name}</div>
-                    <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>
+                    <div className="text-white font-bold text-lg">{account.account_name}</div>
+                    <div className="text-gray-400 text-sm">
                       {account.account_type === 'instagram' ? 'Instagram Business' : 'Facebook Page'}
                     </div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#4ade80', background: 'rgba(74,222,128,0.1)', padding: '0.25rem 0.75rem', borderRadius: '99px', border: '1px solid rgba(74,222,128,0.3)' }}>{t('connected')}</span>
-                  <button onClick={() => disconnect(account.id)} style={{ background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.3)', color: '#ff5050', borderRadius: 8, padding: '0.4rem 1rem', cursor: 'pointer', fontSize: '0.85rem' }}>
-                    {t('disconnect')}
+                
+                <div className="flex items-center gap-4 w-full md:w-auto justify-end">
+                  <span className="flex items-center gap-1.5 px-3 py-1 bg-green-500/10 border border-green-500/20 text-green-400 rounded-full text-xs font-bold uppercase tracking-wide">
+                    <CheckCircle2 size={12} />
+                    {t.connected}
+                  </span>
+                  <button 
+                    onClick={() => disconnect(account.id)} 
+                    className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 rounded-xl text-sm font-medium transition-all"
+                  >
+                    <Trash2 size={16} />
+                    <span className="hidden sm:inline">{t.disconnect}</span>
                   </button>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </div>
-    </main>
+      </main>
+    </PageLayoutWith3D>
   )
 }
 
 export default function AccountsPage() {
-  return <Suspense><AccountsContent /></Suspense>
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400"></div>
+      </div>
+    }>
+      <AccountsContent />
+    </Suspense>
+  )
 }

@@ -3,10 +3,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/context/LanguageContext'
-import LanguageSwitcher from '@/components/LanguageSwitcher'
+import Navbar from '@/components/Navbar'
+import PageLayoutWith3D from '@/components/PageLayoutWith3D'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -15,11 +17,40 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
-  const { t } = useLanguage()
+  const { lang } = useLanguage()
+  const isRTL = lang === 'ar'
+
+  // تعريف محتوى النصوص محلياً
+  const content = {
+    en: {
+      login: "Welcome Back",
+      loginSubtitle: "Log in to your dashboard to manage your automations.",
+      email: "Email Address",
+      password: "Password",
+      loading: "Logging in...",
+      loginBtn: "Log In",
+      wrongCredentials: "Invalid email or password.",
+      forgotPassword: "Forgot Password?",
+      noAccount: "Don't have an account? Sign up",
+    },
+    ar: {
+      login: "مرحباً بعودتك",
+      loginSubtitle: "سجل الدخول إلى لوحة التحكم لإدارة الأتمتة الخاصة بك.",
+      email: "البريد الإلكتروني",
+      password: "كلمة المرور",
+      loading: "جاري تسجيل الدخول...",
+      loginBtn: "تسجيل الدخول",
+      wrongCredentials: "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+      forgotPassword: "نسيت كلمة المرور؟",
+      noAccount: "ليس لديك حساب؟ سجل الآن",
+    }
+  }
+
+  const t = content[lang]
 
   const fadeUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
   }
   const staggerContainer = {
     hidden: { opacity: 0 },
@@ -33,7 +64,7 @@ export default function LoginPage() {
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      setError(t('wrongCredentials'))
+      setError(t.wrongCredentials)
       setLoading(false)
       return
     }
@@ -41,89 +72,99 @@ export default function LoginPage() {
   }
 
   return (
-    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: '#05080f' }}>
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
-        <div style={{ position: 'absolute', width: '700px', height: '700px', borderRadius: '50%', background: 'rgba(0,212,255,0.14)', filter: 'blur(110px)', top: '-200px', right: '-180px' }}></div>
-        <div style={{ position: 'absolute', width: '550px', height: '550px', borderRadius: '50%', background: 'rgba(0,80,255,0.11)', filter: 'blur(110px)', bottom: '-150px', left: '-150px' }}></div>
-      </div>
-
-      {/* Language Switcher */}
-      <div style={{ position: 'fixed', top: '1.5rem', left: '1.5rem', zIndex: 100 }}>
-        <LanguageSwitcher />
-      </div>
-
-      <motion.div
-        initial="hidden" animate="visible" variants={staggerContainer}
-        style={{ maxWidth: '420px', width: '100%', padding: '2.5rem', borderRadius: '28px', textAlign: 'center', zIndex: 1, background: 'rgba(5,8,15,0.7)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 8px 32px rgba(0,0,0,0.35)' }}
-      >
-        <motion.div variants={fadeUp}>
-          <Link href="/" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.8rem', fontWeight: 900, color: '#00d4ff', textDecoration: 'none', display: 'inline-block', marginBottom: '1.5rem' }}>IryChat</Link>
-        </motion.div>
-
-        <motion.h1 variants={fadeUp} style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '0.5rem', background: 'linear-gradient(135deg, #fff, #00d4ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-          {t('login')}
-        </motion.h1>
-        <motion.p variants={fadeUp} style={{ color: 'rgba(238,242,255,0.6)', marginBottom: '2rem' }}>
-          {t('loginSubtitle')}
-        </motion.p>
-
-        {error && (
-          <div style={{ background: 'rgba(255,80,80,0.15)', border: '1px solid rgba(255,80,80,0.3)', borderRadius: '12px', padding: '0.75rem', marginBottom: '1rem', color: '#ff6b6b', fontSize: '0.85rem' }}>
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <motion.div variants={fadeUp} style={{ marginBottom: '1rem' }}>
-            <input
-              type="email"
-              placeholder={t('email')}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              style={{ width: '100%', padding: '0.9rem 1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#eef2ff', fontSize: '0.95rem', outline: 'none' }}
-              onFocus={(e) => e.target.style.borderColor = '#00d4ff'}
-              onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
-            />
-          </motion.div>
-
-          <motion.div variants={fadeUp} style={{ marginBottom: '1.5rem' }}>
-            <div style={{ position: 'relative' }}>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                placeholder={t('password')}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                style={{ width: '100%', padding: '0.9rem 1rem 0.9rem 3rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#eef2ff', fontSize: '0.95rem', outline: 'none' }}
-                onFocus={(e) => e.target.style.borderColor = '#00d4ff'}
-                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
-              />
-              <button type="button" onClick={() => setShowPassword(!showPassword)}
-                style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1rem', color: '#00d4ff' }}>
-                {showPassword ? '🔓' : '🔒'}
-              </button>
-            </div>
-          </motion.div>
-
-          <motion.div variants={fadeUp} style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem' }}>
-            <Link href="/forgot-password" style={{ color: '#00d4ff', textDecoration: 'none', fontSize: '0.85rem' }}>
-              {t('forgotPassword')}
+    <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
+      <Navbar />
+      
+      <main className="min-h-screen pt-32 pb-20 px-4 flex items-center justify-center">
+        <motion.div
+          initial="hidden" 
+          animate="visible" 
+          variants={staggerContainer}
+          className="w-full max-w-md bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8 shadow-2xl"
+        >
+          {/* Logo/Brand */}
+          <motion.div variants={fadeUp} className="text-center mb-6">
+            <Link href="/" className="text-3xl font-black text-cyan-400 tracking-tight">
+              IryChat
             </Link>
           </motion.div>
 
-          <motion.button variants={fadeUp} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" disabled={loading}
-            style={{ width: '100%', padding: '0.9rem', background: 'linear-gradient(135deg, #00d4ff, #0099cc)', color: '#05080f', border: 'none', borderRadius: '99px', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', marginBottom: '1rem', opacity: loading ? 0.7 : 1 }}>
-            {loading ? t('loading') : t('loginBtn')}
-          </motion.button>
-        </form>
+          <motion.h1 variants={fadeUp} className="text-2xl font-bold mb-2 text-white text-center bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+            {t.login}
+          </motion.h1>
+          <motion.p variants={fadeUp} className="text-gray-400 mb-8 text-center text-sm">
+            {t.loginSubtitle}
+          </motion.p>
 
-        <motion.div variants={fadeUp}>
-          <Link href="/signup" style={{ color: '#00d4ff', textDecoration: 'none', fontSize: '0.9rem' }}>
-            {t('noAccount')}
-          </Link>
+          {error && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6 text-sm text-red-400 text-center">
+              {error}
+            </motion.div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Email Input */}
+            <motion.div variants={fadeUp}>
+              <input
+                type="email"
+                placeholder={t.email}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+              />
+            </motion.div>
+
+            {/* Password Input */}
+            <motion.div variants={fadeUp}>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder={t.password}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                />
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)}
+                  // التأكد من مكان الأيقونة بناءً على اتجاه اللغة
+                  className={`absolute top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-cyan-400 transition-colors ${isRTL ? 'left-4' : 'right-4'}`}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </motion.div>
+
+            {/* Forgot Password */}
+            <motion.div variants={fadeUp} className="flex justify-end mb-2">
+              <Link href="/forgot-password" className="text-sm text-cyan-400 hover:text-cyan-300">
+                {t.forgotPassword}
+              </Link>
+            </motion.div>
+
+            {/* Submit Button */}
+            <motion.button 
+              variants={fadeUp} 
+              whileHover={{ scale: 1.02 }} 
+              whileTap={{ scale: 0.98 }} 
+              type="submit" 
+              disabled={loading}
+              className="w-full py-4 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full transition-all duration-200 shadow-lg shadow-cyan-500/20 disabled:opacity-70 flex items-center justify-center"
+            >
+              {loading ? t.loading : t.loginBtn}
+            </motion.button>
+          </form>
+
+          {/* Link to Signup */}
+          <motion.div variants={fadeUp} className="mt-8 text-center text-sm text-gray-400">
+            <Link href="/signup" className="text-cyan-400 hover:underline font-medium">
+              {t.noAccount}
+            </Link>
+          </motion.div>
         </motion.div>
-      </motion.div>
-    </main>
+      </main>
+    </PageLayoutWith3D>
   )
 }

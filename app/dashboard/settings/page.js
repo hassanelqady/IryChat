@@ -4,6 +4,10 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { User, Key, Instagram as InstaIcon, LogOut, CheckCircle, AlertCircle, Save, RefreshCw } from 'lucide-react'
+import Navbar from '@/components/Navbar'
+import PageLayoutWith3D from '@/components/PageLayoutWith3D'
+import { useLanguage } from '@/context/LanguageContext'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -16,23 +20,71 @@ export default function SettingsPage() {
   const [passwordError, setPasswordError] = useState('')
   const [passwordSuccess, setPasswordSuccess] = useState('')
   const [instagram, setInstagram] = useState({ username: '', connected: false })
+  
+  const { lang } = useLanguage()
+  const isRTL = lang === 'ar'
 
-  // Animation variants
+  const content = {
+    en: {
+      settings: "Settings",
+      subtitle: "Manage your account and application preferences",
+      profile: "Profile",
+      password: "Password",
+      instagram: "Instagram",
+      nameLabel: "Full Name",
+      emailLabel: "Email Address",
+      bioLabel: "Bio",
+      saveBtn: "Save Changes",
+      currentPass: "Current Password",
+      newPass: "New Password",
+      confirmPass: "Confirm New Password",
+      updatePassBtn: "Update Password",
+      connectInsta: "Connect Instagram",
+      usernamePlaceholder: "@username",
+      connectedAs: "Connected as",
+      disconnectBtn: "Disconnect",
+      passMismatch: "New passwords do not match.",
+      passShort: "Password must be at least 6 characters.",
+      passSuccess: "Password updated successfully!",
+      loading: "Loading...",
+      saved: "Changes saved successfully!",
+    },
+    ar: {
+      settings: "الإعدادات",
+      subtitle: "إدارة حسابك وإعدادات التطبيق",
+      profile: "الملف الشخصي",
+      password: "كلمة المرور",
+      instagram: "إنستجرام",
+      nameLabel: "الاسم الكامل",
+      emailLabel: "البريد الإلكتروني",
+      bioLabel: "نبذة عنك",
+      saveBtn: "حفظ التغييرات",
+      currentPass: "كلمة المرور الحالية",
+      newPass: "كلمة المرور الجديدة",
+      confirmPass: "تأكيد كلمة المرور الجديدة",
+      updatePassBtn: "تغيير كلمة المرور",
+      connectInsta: "ربط انستجرام",
+      usernamePlaceholder: "@اسم_المستخدم",
+      connectedAs: "متصل بـ",
+      disconnectBtn: "فصل الحساب",
+      passMismatch: "كلمات المرور غير متطابقة.",
+      passShort: "يجب أن تكون كلمة المرور 6 أحرف على الأقل.",
+      passSuccess: "تم تحديث كلمة المرور بنجاح!",
+      loading: "جاري التحميل...",
+      saved: "تم حفظ التغييرات بنجاح!",
+    }
+  }
+
+  const t = content[lang]
+
+  // Animation Variants
   const fadeUp = {
-    hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] } }
-  }
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
-  }
-
-  const cardHover = {
-    whileHover: { y: -5, transition: { duration: 0.2 } }
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
   }
 
   useEffect(() => {
+    // محاكاة جلب المستخدم (نفس المنطق القديم)
     const loggedUser = localStorage.getItem('irychat_user')
     if (!loggedUser) router.push('/login')
     else {
@@ -61,155 +113,227 @@ export default function SettingsPage() {
     e.preventDefault()
     setPasswordError('')
     setPasswordSuccess('')
-    if (passwordData.new !== passwordData.confirm) { setPasswordError('كلمة المرور الجديدة غير متطابقة'); return }
-    if (passwordData.new.length < 6) { setPasswordError('كلمة المرور يجب أن تكون 6 أحرف على الأقل'); return }
-    setTimeout(() => { setPasswordSuccess('تم تغيير كلمة المرور بنجاح'); setPasswordData({ current: '', new: '', confirm: '' }) }, 1000)
+    if (passwordData.new !== passwordData.confirm) { setPasswordError(t.passMismatch); return }
+    if (passwordData.new.length < 6) { setPasswordError(t.passShort); return }
+    setTimeout(() => { setPasswordSuccess(t.passSuccess); setPasswordData({ current: '', new: '', confirm: '' }) }, 1000)
   }
 
-  const connectInstagram = () => { setInstagram({ username: '@' + (profile.instagram || 'user'), connected: true }); setSaved(true); setTimeout(() => setSaved(false), 3000) }
-  const disconnectInstagram = () => { setInstagram({ username: '', connected: false }); setSaved(true); setTimeout(() => setSaved(false), 3000) }
+  const connectInstagram = () => { 
+    setInstagram({ username: '@' + (profile.instagram || 'user'), connected: true }); 
+    setSaved(true); 
+    setTimeout(() => setSaved(false), 3000) 
+  }
+  
+  const disconnectInstagram = () => { 
+    setInstagram({ username: '', connected: false }); 
+    setSaved(true); 
+    setTimeout(() => setSaved(false), 3000) 
+  }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#05080f' }}>
-      <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity }} style={{ color: '#00d4ff' }}>جاري التحميل...</motion.div>
+    <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div className="flex items-center gap-3 text-cyan-400">
+        <RefreshCw className="w-6 h-6 animate-spin" />
+        <span className="text-xl font-medium">{t.loading}</span>
+      </div>
     </div>
   )
 
   return (
-    <main style={{ minHeight: '100vh', background: '#05080f' }}>
-      {/* Background */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
-        <div style={{ position: 'absolute', width: '700px', height: '700px', borderRadius: '50%', background: 'rgba(0,212,255,0.14)', filter: 'blur(110px)', top: '-200px', right: '-180px', animation: 'float 12s infinite alternate' }}></div>
-        <div style={{ position: 'absolute', width: '550px', height: '550px', borderRadius: '50%', background: 'rgba(0,80,255,0.11)', filter: 'blur(110px)', bottom: '-150px', left: '-150px', animation: 'float 12s infinite alternate', animationDelay: '-5s' }}></div>
-      </div>
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', backgroundImage: 'linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px)', backgroundSize: '64px 64px' }}></div>
-
-      {/* Navbar - تم تعديله ليصبح احترافي */}
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.5 }}
-        style={{
-          position: 'fixed', top: 0, width: '100%', zIndex: 100,
-          padding: '0.85rem 5%', display: 'flex', alignItems: 'center',
-          justifyContent: 'space-between', background: 'rgba(5,8,15,0.75)',
-          backdropFilter: 'blur(30px)', borderBottom: '1px solid rgba(0,212,255,0.15)'
-        }}
-      >
-        <Link href="/" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.5rem', fontWeight: 900, color: '#00d4ff', textDecoration: 'none' }}>IryChat</Link>
+    <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
+      <Navbar />
+      
+      <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-          {/* روابط النافبار */}
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <Link href="/dashboard" style={{ color: '#eef2ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', transition: 'all 0.3s', fontSize: '0.9rem' }} onMouseEnter={(e) => e.target.style.background = 'rgba(0,212,255,0.1)'} onMouseLeave={(e) => e.target.style.background = 'transparent'}>
-              الرئيسية
-            </Link>
-            <Link href="/dashboard/flows" style={{ color: '#eef2ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', transition: 'all 0.3s', fontSize: '0.9rem' }} onMouseEnter={(e) => e.target.style.background = 'rgba(0,212,255,0.1)'} onMouseLeave={(e) => e.target.style.background = 'transparent'}>
-              الردود التلقائية
-            </Link>
-            <Link href="/dashboard/analytics" style={{ color: '#eef2ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', transition: 'all 0.3s', fontSize: '0.9rem' }} onMouseEnter={(e) => e.target.style.background = 'rgba(0,212,255,0.1)'} onMouseLeave={(e) => e.target.style.background = 'transparent'}>
-              التحليلات
-            </Link>
-          </div>
-          
-          {/* قسم الترحيب والخروج */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(0,212,255,0.05)', padding: '0.3rem 0.8rem 0.3rem 1rem', borderRadius: '99px', border: '1px solid rgba(0,212,255,0.15)' }}>
-            <span style={{ color: '#00d4ff', fontSize: '0.9rem' }}>مرحباً, {user?.name || 'مستخدم'}</span>
-            <div style={{ width: '1px', height: '20px', background: 'rgba(0,212,255,0.2)' }}></div>
-            <motion.button 
-              whileHover={{ scale: 1.05 }} 
-              whileTap={{ scale: 0.95 }} 
-              onClick={handleLogout} 
-              style={{ 
-                background: 'transparent', 
-                padding: '0.4rem 1rem', 
-                borderRadius: '99px', 
-                color: '#eef2ff', 
-                cursor: 'pointer',
-                border: '1px solid rgba(255,255,255,0.1)',
-                fontSize: '0.8rem',
-                transition: 'all 0.3s'
-              }}
-              onMouseEnter={(e) => e.target.style.background = 'rgba(255,80,80,0.2)'}
-              onMouseLeave={(e) => e.target.style.background = 'transparent'}
-            >
-              تسجيل خروج
-            </motion.button>
-          </div>
-        </div>
-      </motion.nav>
-
-      {/* Content - باقي الكود كما هو */}
-      <div style={{ padding: '7rem 5% 5rem', position: 'relative', zIndex: 1 }}>
         {/* Header */}
-        <motion.div initial="hidden" animate="visible" variants={fadeUp} style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.2rem)', fontWeight: 700, background: 'linear-gradient(135deg, #fff, #00d4ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>الإعدادات</h1>
-          <p style={{ color: 'rgba(238,242,255,0.6)' }}>إدارة حسابك وإعدادات التطبيق</p>
-        </motion.div>
+        <div className="mb-10">
+          <h1 className="text-4xl font-bold text-white mb-2">{t.settings}</h1>
+          <p className="text-gray-400">{t.subtitle}</p>
+        </div>
 
-        {/* Success Message */}
-        {saved && <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} style={{ background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)', borderRadius: '12px', padding: '1rem', marginBottom: '1.5rem', textAlign: 'center', color: '#4ade80' }}>تم حفظ التغييرات بنجاح ✅</motion.div>}
+        {/* Success Alert */}
+        {saved && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }} 
+            animate={{ opacity: 1, scale: 1 }} 
+            className="bg-green-500/10 border border-green-500/20 rounded-2xl p-4 mb-8 flex items-center gap-3 text-green-400"
+          >
+            <CheckCircle size={20} />
+            {t.saved}
+          </motion.div>
+        )}
 
         {/* Tabs */}
-        <motion.div initial="hidden" animate="visible" variants={fadeUp} style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', marginBottom: '2rem', flexWrap: 'wrap' }}>
-          {['profile', 'password', 'instagram'].map((tab, i) => (
-            <motion.button key={tab} whileHover={{ y: -2 }} onClick={() => setActiveTab(tab)} style={{ padding: '0.75rem 1.5rem', background: 'none', border: 'none', color: activeTab === tab ? '#00d4ff' : 'rgba(238,242,255,0.6)', borderBottom: activeTab === tab ? '2px solid #00d4ff' : 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 500 }}>
-              {tab === 'profile' ? 'الملف الشخصي' : tab === 'password' ? 'كلمة المرور' : 'ربط انستجرام'}
-            </motion.button>
+        <div className="flex gap-4 border-b border-white/10 mb-8 overflow-x-auto">
+          {[
+            { id: 'profile', label: t.profile, icon: User },
+            { id: 'password', label: t.password, icon: Key },
+            { id: 'instagram', label: t.instagram, icon: InstaIcon },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-1 pb-3 text-sm font-medium transition-colors ${
+                activeTab === tab.id 
+                  ? 'text-cyan-400 border-b-2 border-cyan-400' 
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              <tab.icon size={18} />
+              {tab.label}
+            </button>
           ))}
-        </motion.div>
+        </div>
 
         {/* Profile Tab */}
         {activeTab === 'profile' && (
-          <motion.div initial="hidden" animate="visible" variants={staggerContainer} {...cardHover} style={{ background: 'rgba(255,255,255,0.035)', backdropFilter: 'blur(22px)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
-            <form onSubmit={handleProfileUpdate}>
-              <motion.div variants={fadeUp}><label>الاسم</label><input type="text" value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} style={{ width: '100%', padding: '0.9rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#eef2ff', marginBottom: '1rem' }} /></motion.div>
-              <motion.div variants={fadeUp}><label>البريد الإلكتروني</label><input type="email" value={profile.email} onChange={(e) => setProfile({ ...profile, email: e.target.value })} style={{ width: '100%', padding: '0.9rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#eef2ff', marginBottom: '1rem' }} /></motion.div>
-              <motion.div variants={fadeUp}><label>نبذة عنك</label><textarea value={profile.bio} onChange={(e) => setProfile({ ...profile, bio: e.target.value })} rows="3" style={{ width: '100%', padding: '0.9rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#eef2ff', marginBottom: '1rem', resize: 'vertical' }} /></motion.div>
-              <motion.button variants={fadeUp} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" style={{ width: '100%', padding: '0.9rem', background: '#00d4ff', color: '#05080f', border: 'none', borderRadius: '99px', fontWeight: 700, cursor: 'pointer' }}>حفظ التغييرات</motion.button>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8">
+            <form onSubmit={handleProfileUpdate} className="space-y-6 max-w-xl">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">{t.nameLabel}</label>
+                <input 
+                  type="text" 
+                  value={profile.name} 
+                  onChange={(e) => setProfile({ ...profile, name: e.target.value })} 
+                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">{t.emailLabel}</label>
+                <input 
+                  type="email" 
+                  value={profile.email} 
+                  onChange={(e) => setProfile({ ...profile, email: e.target.value })} 
+                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-gray-400 cursor-not-allowed" 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">{t.bioLabel}</label>
+                <textarea 
+                  value={profile.bio} 
+                  onChange={(e) => setProfile({ ...profile, bio: e.target.value })} 
+                  rows="4" 
+                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all resize-vertical"
+                />
+              </div>
+              <button 
+                type="submit" 
+                className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                <Save size={18} />
+                {t.saveBtn}
+              </button>
             </form>
           </motion.div>
         )}
 
         {/* Password Tab */}
         {activeTab === 'password' && (
-          <motion.div initial="hidden" animate="visible" variants={staggerContainer} {...cardHover} style={{ background: 'rgba(255,255,255,0.035)', backdropFilter: 'blur(22px)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
-            {passwordError && <div style={{ background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.3)', borderRadius: '12px', padding: '0.75rem', marginBottom: '1rem', color: '#ff6b6b' }}>{passwordError}</div>}
-            {passwordSuccess && <div style={{ background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)', borderRadius: '12px', padding: '0.75rem', marginBottom: '1rem', color: '#4ade80' }}>{passwordSuccess}</div>}
-            <form onSubmit={handlePasswordUpdate}>
-              <motion.div variants={fadeUp}><label>كلمة المرور الحالية</label><input type="password" value={passwordData.current} onChange={(e) => setPasswordData({ ...passwordData, current: e.target.value })} required style={{ width: '100%', padding: '0.9rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#eef2ff', marginBottom: '1rem' }} /></motion.div>
-              <motion.div variants={fadeUp}><label>كلمة المرور الجديدة</label><input type="password" value={passwordData.new} onChange={(e) => setPasswordData({ ...passwordData, new: e.target.value })} required style={{ width: '100%', padding: '0.9rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#eef2ff', marginBottom: '1rem' }} /></motion.div>
-              <motion.div variants={fadeUp}><label>تأكيد كلمة المرور الجديدة</label><input type="password" value={passwordData.confirm} onChange={(e) => setPasswordData({ ...passwordData, confirm: e.target.value })} required style={{ width: '100%', padding: '0.9rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#eef2ff', marginBottom: '1rem' }} /></motion.div>
-              <motion.button variants={fadeUp} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" style={{ width: '100%', padding: '0.9rem', background: '#00d4ff', color: '#05080f', border: 'none', borderRadius: '99px', fontWeight: 700, cursor: 'pointer' }}>تغيير كلمة المرور</motion.button>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8 max-w-xl">
+            {passwordError && <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6 text-sm text-red-400 flex items-center gap-2"><AlertCircle size={18} /> {passwordError}</div>}
+            {passwordSuccess && <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 mb-6 text-sm text-green-400 flex items-center gap-2"><CheckCircle size={18} /> {passwordSuccess}</div>}
+            
+            <form onSubmit={handlePasswordUpdate} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">{t.currentPass}</label>
+                <input 
+                  type="password" 
+                  value={passwordData.current} 
+                  onChange={(e) => setPasswordData({ ...passwordData, current: e.target.value })} 
+                  required 
+                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">{t.newPass}</label>
+                <input 
+                  type="password" 
+                  value={passwordData.new} 
+                  onChange={(e) => setPasswordData({ ...passwordData, new: e.target.value })} 
+                  required 
+                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-2">{t.confirmPass}</label>
+                <input 
+                  type="password" 
+                  value={passwordData.confirm} 
+                  onChange={(e) => setPasswordData({ ...passwordData, confirm: e.target.value })} 
+                  required 
+                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                />
+              </div>
+              <button 
+                type="submit" 
+                className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                <Save size={18} />
+                {t.updatePassBtn}
+              </button>
             </form>
           </motion.div>
         )}
 
         {/* Instagram Tab */}
         {activeTab === 'instagram' && (
-          <motion.div initial="hidden" animate="visible" variants={staggerContainer} {...cardHover} style={{ background: 'rgba(255,255,255,0.035)', backdropFilter: 'blur(22px)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '2rem', maxWidth: '600px', margin: '0 auto' }}>
-            <motion.div variants={fadeUp} style={{ textAlign: 'center', marginBottom: '2rem' }}><div style={{ fontSize: '3rem' }}>📸</div><h3>ربط حساب انستجرام</h3><p style={{ color: 'rgba(238,242,255,0.6)' }}>قم بربط حساب انستجرام الخاص بك لتفعيل الردود التلقائية</p></motion.div>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8 max-w-xl text-center">
             {!instagram.connected ? (
               <>
-                <motion.div variants={fadeUp}><label>اسم المستخدم في انستجرام</label><input type="text" placeholder="@username" value={profile.instagram} onChange={(e) => setProfile({ ...profile, instagram: e.target.value })} style={{ width: '100%', padding: '0.9rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#eef2ff', marginBottom: '1rem' }} /></motion.div>
-                <motion.button variants={fadeUp} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={connectInstagram} style={{ width: '100%', padding: '0.9rem', background: '#00d4ff', color: '#05080f', border: 'none', borderRadius: '99px', fontWeight: 700, cursor: 'pointer' }}>ربط الحساب</motion.button>
+                <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 mb-6 text-white">
+                  <InstaIcon size={48} />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">{t.connectInsta}</h3>
+                <p className="text-gray-400 mb-8">قم بربط حساب انستجرام الخاص بك لتفعيل الردود التلقائية.</p>
+                
+                <div className="relative mb-6">
+                  <input 
+                    type="text" 
+                    placeholder={t.usernamePlaceholder} 
+                    value={profile.instagram} 
+                    onChange={(e) => setProfile({ ...profile, instagram: e.target.value })} 
+                    className="w-full pl-12 p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                  />
+                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">
+                    <span className="text-xl">@</span>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={connectInstagram} 
+                  className="w-full py-3 bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white font-bold rounded-full transition-all duration-200 shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2"
+                >
+                  <InstaIcon size={20} />
+                  {t.connectInsta}
+                </button>
               </>
             ) : (
-              <>
-                <motion.div variants={fadeUp} style={{ background: 'rgba(0,212,255,0.05)', borderRadius: '16px', padding: '1rem', textAlign: 'center', marginBottom: '1rem' }}><div>✅</div><div style={{ fontWeight: 600, color: '#00d4ff' }}>{instagram.username}</div><div style={{ fontSize: '0.8rem', color: 'rgba(238,242,255,0.5)' }}>متصل</div></motion.div>
-                <motion.button variants={fadeUp} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={disconnectInstagram} style={{ width: '100%', padding: '0.9rem', background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.3)', color: '#ff6b6b', borderRadius: '99px', fontWeight: 700, cursor: 'pointer' }}>فصل الحساب</motion.button>
-              </>
+              <div className="space-y-6">
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex items-center justify-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 flex items-center justify-center text-white">
+                    <InstaIcon size={24} />
+                  </div>
+                  <div className="text-left">
+                    <div className="text-white font-bold text-lg">{t.connectedAs}</div>
+                    <div className="text-cyan-400 font-medium">{instagram.username}</div>
+                  </div>
+                  <div className="w-8 h-8 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center">
+                    <CheckCircle size={20} />
+                  </div>
+                </div>
+                <button 
+                  onClick={disconnectInstagram} 
+                  className="w-full py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold rounded-full border border-red-500/20 transition-all duration-200 flex items-center justify-center gap-2"
+                >
+                  <LogOut size={18} />
+                  {t.disconnectBtn}
+                </button>
+              </div>
             )}
           </motion.div>
         )}
-      </div>
 
-      <style jsx>{`
-        @keyframes float {
-          0% { transform: translate(0,0) scale(1); }
-          100% { transform: translate(35px,25px) scale(1.08); }
-        }
-      `}</style>
-    </main>
+      </main>
+    </PageLayoutWith3D>
   )
 }

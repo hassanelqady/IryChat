@@ -6,18 +6,66 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/context/LanguageContext'
-import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { Plus, Play, Pause, Pencil, Trash2, Bot, LogOut, Zap, Grid, CheckCircle, XCircle } from 'lucide-react'
+import Navbar from '@/components/Navbar'
+import PageLayoutWith3D from '@/components/PageLayoutWith3D'
 
 export default function AutomationsPage() {
   const router = useRouter()
   const [automations, setAutomations] = useState([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState(null)
-  const { t } = useLanguage()
+  const { lang } = useLanguage()
+  const isRTL = lang === 'ar'
+
+  const content = {
+    en: {
+      automationsTitle: "All Automations",
+      automationsDesc: "Manage and monitor all your automation flows.",
+      newAutomationBtn: "New Automation",
+      noAutomations: "No Automations Yet",
+      noAutomationsDesc: "Create your first automation to start replying to comments and DMs automatically.",
+      keyword: "Keyword",
+      active: "Active",
+      inactive: "Inactive",
+      stop: "Stop",
+      start: "Start",
+      edit: "Edit",
+      delete: "Delete",
+      deleteConfirm: "Are you sure you want to delete this automation?",
+      dashboard: "Dashboard",
+      accounts: "Accounts",
+      automations: "Automations",
+      logout: "Logout",
+      loading: "Loading...",
+    },
+    ar: {
+      automationsTitle: "كل الأتمتات",
+      automationsDesc: "إدارة ومراقبة جميع تدفقات الأتمتة الخاصة بك.",
+      newAutomationBtn: "أتمتة جديدة",
+      noAutomations: "لا توجد أتمتات بعد",
+      noAutomationsDesc: "أنشئ أتمتتك الأولى لبدء الرد على التعليقات والرسائل تلقائياً.",
+      keyword: "كلمة مفتاحية",
+      active: "نشط",
+      inactive: "غير نشط",
+      stop: "إيقاف",
+      start: "بدء",
+      edit: "تعديل",
+      delete: "حذف",
+      deleteConfirm: "هل أنت متأكد من حذف هذه الأتمتة؟",
+      dashboard: "لوحة التحكم",
+      accounts: "الحسابات",
+      automations: "الأتمتات",
+      logout: "تسجيل الخروج",
+      loading: "جاري التحميل...",
+    }
+  }
+
+  const t = content[lang]
 
   const fadeUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
   }
 
   useEffect(() => {
@@ -50,105 +98,169 @@ export default function AutomationsPage() {
   }
 
   const deleteAutomation = async (id) => {
-    if (!confirm(t('delete') + '?')) return
+    if (!confirm(t.deleteConfirm)) return
     const supabase = createClient()
     await supabase.from('automations').delete().eq('id', id)
     setAutomations(automations.filter(a => a.id !== id))
   }
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#05080f' }}>
-      <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.5 }} style={{ color: '#00d4ff' }}>{t('loading')}</motion.div>
+    <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div className="flex items-center gap-3 text-cyan-400 animate-pulse">
+        <Grid className="w-6 h-6" />
+        <span className="text-xl font-medium">{t.loading}</span>
+      </div>
     </div>
   )
 
   return (
-    <main style={{ minHeight: '100vh', background: '#05080f' }}>
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
-        <div style={{ position: 'absolute', width: '700px', height: '700px', borderRadius: '50%', background: 'rgba(0,212,255,0.14)', filter: 'blur(110px)', top: '-200px', right: '-180px' }}></div>
-        <div style={{ position: 'absolute', width: '550px', height: '550px', borderRadius: '50%', background: 'rgba(0,80,255,0.11)', filter: 'blur(110px)', bottom: '-150px', left: '-150px' }}></div>
-      </div>
+    <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
+      <Navbar />
+      
+      <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        
+        {/* Dashboard Sub-nav */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">{t.automationsTitle}</h1>
+            <p className="text-gray-400">{t.automationsDesc}</p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <Link 
+              href="/dashboard" 
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
+            >
+              <Zap size={18} />
+              {t.dashboard}
+            </Link>
+            <Link 
+              href="/dashboard/accounts" 
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
+            >
+              <Grid size={18} />
+              {t.accounts}
+            </Link>
+            
+            <div className="h-6 w-px bg-white/20 mx-1 hidden md:block"></div>
 
-      {/* Navbar */}
-      <motion.nav initial={{ y: -100 }} animate={{ y: 0 }} transition={{ duration: 0.5 }}
-        style={{ position: 'fixed', top: 0, width: '100%', zIndex: 100, padding: '0.85rem 5%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(5,8,15,0.75)', backdropFilter: 'blur(30px)', borderBottom: '1px solid rgba(0,212,255,0.15)' }}>
-        <Link href="/" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.5rem', fontWeight: 900, color: '#00d4ff', textDecoration: 'none' }}>IryChat</Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <Link href="/dashboard" style={{ color: '#eef2ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', fontSize: '0.9rem' }}>{t('dashboard')}</Link>
-          <Link href="/dashboard/accounts" style={{ color: '#eef2ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', fontSize: '0.9rem' }}>{t('accounts')}</Link>
-          <Link href="/dashboard/flows" style={{ color: '#00d4ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', fontSize: '0.9rem', background: 'rgba(0,212,255,0.1)' }}>{t('automations')}</Link>
-          <LanguageSwitcher />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(0,212,255,0.05)', padding: '0.3rem 0.8rem 0.3rem 1rem', borderRadius: '99px', border: '1px solid rgba(0,212,255,0.15)' }}>
-            <span style={{ color: '#00d4ff', fontSize: '0.85rem' }}>{user?.email?.split('@')[0]}</span>
-            <button onClick={handleLogout} style={{ background: 'transparent', padding: '0.3rem 0.8rem', borderRadius: '99px', color: '#eef2ff', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.8rem' }}>{t('logout')}</button>
+            <button 
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg text-red-400 text-sm font-medium transition-all"
+            >
+              <LogOut size={18} />
+              {t.logout}
+            </button>
           </div>
         </div>
-      </motion.nav>
 
-      <div style={{ padding: '7rem 5% 5rem', position: 'relative', zIndex: 1 }}>
-        <motion.div initial="hidden" animate="visible" variants={fadeUp} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <h1 style={{ fontSize: '2rem', fontWeight: 700, background: 'linear-gradient(135deg, #fff, #00d4ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.3rem' }}>{t('automationsTitle')}</h1>
-            <p style={{ color: 'rgba(238,242,255,0.6)' }}>{t('automationsDesc')}</p>
-          </div>
-          <Link href="/dashboard/automations/new"
-            style={{ background: '#00d4ff', color: '#05080f', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '99px', fontWeight: 700, cursor: 'pointer', textDecoration: 'none', fontSize: '0.95rem' }}>
-            {t('newAutomationBtn')}
+        {/* Create Button */}
+        <div className="mb-8 flex justify-end">
+          <Link 
+            href="/dashboard/automations/new"
+            className="flex items-center gap-2 px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full transition-all shadow-lg shadow-cyan-500/20"
+          >
+            <Plus size={20} />
+            {t.newAutomationBtn}
           </Link>
-        </motion.div>
+        </div>
 
+        {/* Empty State */}
         {automations.length === 0 && (
           <motion.div initial="hidden" animate="visible" variants={fadeUp}
-            style={{ textAlign: 'center', padding: '4rem 2rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '24px' }}>
-            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🤖</div>
-            <h3 style={{ color: '#fff', fontSize: '1.3rem', marginBottom: '0.5rem' }}>{t('noAutomations')}</h3>
-            <p style={{ color: 'rgba(238,242,255,0.5)', marginBottom: '1.5rem' }}>{t('noAutomationsDesc')}</p>
+            className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-12 text-center mb-10">
+            <div className="inline-flex p-6 rounded-full bg-white/5 text-gray-400 mb-6">
+              <Bot size={48} />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-3">{t.noAutomations}</h3>
+            <p className="text-gray-400 max-w-md mx-auto mb-8">{t.noAutomationsDesc}</p>
             <Link href="/dashboard/automations/new"
-              style={{ background: '#00d4ff', color: '#05080f', padding: '0.75rem 2rem', borderRadius: '99px', fontWeight: 700, textDecoration: 'none', fontSize: '0.95rem' }}>
-              {t('newAutomationBtn')}
+              className="inline-flex items-center gap-2 px-8 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full transition-all">
+              <Plus size={20} />
+              {t.newAutomationBtn}
             </Link>
           </motion.div>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {/* Automations List */}
+        <div className="flex flex-col gap-4">
           {automations.map((automation, i) => (
             <motion.div key={automation.id}
               initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-              style={{ background: 'rgba(255,255,255,0.035)', border: `1px solid ${automation.is_active ? 'rgba(0,212,255,0.25)' : 'rgba(255,255,255,0.07)'}`, borderRadius: '16px', padding: '1.25rem 1.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
-                  <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(0,212,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem', flexShrink: 0 }}>⚡</div>
-                  <div>
-                    <div style={{ color: '#fff', fontWeight: 600, marginBottom: '0.2rem' }}>{automation.name}</div>
-                    <div style={{ color: 'rgba(238,242,255,0.5)', fontSize: '0.8rem' }}>
-                      {t('keyword')}: <span style={{ color: '#00d4ff' }}>{automation.trigger_keyword}</span>
-                      {automation.connected_accounts && <span> · {automation.connected_accounts.account_name}</span>}
-                    </div>
+              className={`bg-white/5 backdrop-blur-md border rounded-2xl p-6 transition-all hover:border-white/20 flex flex-col md:flex-row items-center justify-between gap-6 ${
+                automation.is_active ? 'border-cyan-500/30' : 'border-white/10'
+              }`}
+            >
+              <div className="flex items-center gap-4 w-full md:w-auto">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 ${
+                  automation.is_active ? 'bg-cyan-500/20 text-cyan-400' : 'bg-white/5 text-gray-400'
+                }`}>
+                  <Zap size={24} />
+                </div>
+                <div>
+                  <div className="text-white font-bold text-lg mb-1">{automation.name}</div>
+                  <div className="text-gray-400 text-sm flex items-center gap-2">
+                    <span className="text-gray-500">{t.keyword}:</span>
+                    <span className="text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded text-xs font-mono">
+                      {automation.trigger_keyword}
+                    </span>
+                    {automation.connected_accounts && (
+                      <>
+                        <span className="text-gray-600">·</span>
+                        <span className="text-gray-300">
+                          {automation.connected_accounts.account_type === 'instagram' ? '📸' : '📘'} {automation.connected_accounts.account_name}
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
+              </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <span style={{ fontSize: '0.75rem', padding: '0.25rem 0.75rem', borderRadius: '99px', background: automation.is_active ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.07)', color: automation.is_active ? '#4ade80' : 'rgba(238,242,255,0.4)', border: `1px solid ${automation.is_active ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}` }}>
-                    {automation.is_active ? t('active') : t('inactive')}
-                  </span>
-                  <button onClick={() => toggleStatus(automation.id, automation.is_active)}
-                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#eef2ff', padding: '0.35rem 0.9rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem' }}>
-                    {automation.is_active ? t('stop') : t('start')}
-                  </button>
-                  <Link href={`/dashboard/automations/${automation.id}/edit`}
-                    style={{ background: 'rgba(0,212,255,0.1)', border: '1px solid rgba(0,212,255,0.25)', color: '#00d4ff', padding: '0.35rem 0.9rem', borderRadius: '8px', fontSize: '0.8rem', textDecoration: 'none' }}>
-                    {t('edit')}
-                  </Link>
-                  <button onClick={() => deleteAutomation(automation.id)}
-                    style={{ background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.25)', color: '#ff6b6b', padding: '0.35rem 0.9rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.8rem' }}>
-                    {t('delete')}
-                  </button>
-                </div>
+              <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                {/* Status Badge */}
+                <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide border ${
+                  automation.is_active 
+                    ? 'bg-green-500/10 border-green-500/20 text-green-400' 
+                    : 'bg-white/5 border-white/10 text-gray-500'
+                }`}>
+                  {automation.is_active ? <CheckCircle2 size={14} /> : <XCircle size={14} />}
+                  {automation.is_active ? t.active : t.inactive}
+                </span>
+
+                {/* Toggle Button */}
+                <button 
+                  onClick={() => toggleStatus(automation.id, automation.is_active)}
+                  className={`p-2 rounded-lg transition-colors ${
+                    automation.is_active 
+                      ? 'bg-orange-500/10 text-orange-400 hover:bg-orange-500/20' 
+                      : 'bg-green-500/10 text-green-400 hover:bg-green-500/20'
+                  }`}
+                  title={automation.is_active ? t.stop : t.start}
+                >
+                  {automation.is_active ? <Pause size={20} /> : <Play size={20} />}
+                </button>
+
+                {/* Edit Button */}
+                <Link href={`/dashboard/automations/${automation.id}/edit`}
+                  className="p-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors"
+                  title={t.edit}
+                >
+                  <Pencil size={20} />
+                </Link>
+
+                {/* Delete Button */}
+                <button 
+                  onClick={() => deleteAutomation(automation.id)}
+                  className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
+                  title={t.delete}
+                >
+                  <Trash2 size={20} />
+                </button>
               </div>
             </motion.div>
           ))}
         </div>
-      </div>
-    </main>
+      </main>
+    </PageLayoutWith3D>
   )
 }

@@ -6,7 +6,9 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/context/LanguageContext'
-import LanguageSwitcher from '@/components/LanguageSwitcher'
+import { ArrowLeft, Save, X, Zap, MessageSquare, Loader2 } from 'lucide-react'
+import Navbar from '@/components/Navbar'
+import PageLayoutWith3D from '@/components/PageLayoutWith3D'
 
 export default function EditAutomationPage() {
   const router = useRouter()
@@ -23,7 +25,59 @@ export default function EditAutomationPage() {
     comment_reply: '',
     dm_message: '',
   })
-  const { t } = useLanguage()
+  const { lang } = useLanguage()
+  const isRTL = lang === 'ar'
+
+  const content = {
+    en: {
+      editAutomationTitle: "Edit Automation",
+      editAutomationSubtitle: "Update your automation settings and responses.",
+      basicInfo: "Basic Information",
+      automationName: "Automation Name",
+      linkedAccount: "Linked Account",
+      selectAccount: "Select an account",
+      postUrl: "Post URL",
+      triggerWord: "Trigger Word",
+      triggerKeyword: "Trigger Keyword",
+      triggerHint: "This word triggers the automation.",
+      responses: "Automation Responses",
+      commentReply: "Comment Reply",
+      dmMessage: "Direct Message",
+      fillRequired: "Please fill in all required fields.",
+      addReply: "Please add at least one reply.",
+      genericError: "An error occurred while saving.",
+      saving: "Saving...",
+      saveBtn: "Save Changes",
+      cancelBtn: "Cancel",
+      backToAutomations: "Back to Automations",
+      loading: "Loading...",
+    },
+    ar: {
+      editAutomationTitle: "تعديل الأتمتة",
+      editAutomationSubtitle: "قم بتحديث إعدادات وردود الأتمتة.",
+      basicInfo: "المعلومات الأساسية",
+      automationName: "اسم الأتمتة",
+      linkedAccount: "الحساب المرتبط",
+      selectAccount: "اختر حساباً",
+      postUrl: "رابط المنشور",
+      triggerWord: "كلمة التفعيل",
+      triggerKeyword: "الكلمة المفتاحية",
+      triggerHint: "هذه الكلمة تقوم بتشغيل الأتمتة.",
+      responses: "ردود الأتمتة",
+      commentReply: "رد على التعليق",
+      dmMessage: "رسالة خاصة",
+      fillRequired: "يرجى ملء جميع الحقول المطلوبة.",
+      addReply: "يرجى إضافة رد واحد على الأقل.",
+      genericError: "حدث خطأ أثناء الحفظ.",
+      saving: "جاري الحفظ...",
+      saveBtn: "حفظ التغييرات",
+      cancelBtn: "إلغاء",
+      backToAutomations: "العودة للأتمتات",
+      loading: "جاري التحميل...",
+    }
+  }
+
+  const t = content[lang]
 
   useEffect(() => {
     const init = async () => {
@@ -31,6 +85,7 @@ export default function EditAutomationPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
 
+      // Fetch automation details and accounts simultaneously
       const [{ data: automation }, { data: accountsData }] = await Promise.all([
         supabase.from('automations').select('*').eq('id', id).single(),
         supabase.from('connected_accounts').select('*').eq('user_id', user.id)
@@ -56,11 +111,11 @@ export default function EditAutomationPage() {
 
   const handleSave = async () => {
     if (!form.name || !form.trigger_keyword) {
-      setError(t('fillRequired'))
+      setError(t.fillRequired)
       return
     }
     if (!form.comment_reply && !form.dm_message) {
-      setError(t('addReply'))
+      setError(t.addReply)
       return
     }
 
@@ -79,7 +134,7 @@ export default function EditAutomationPage() {
     }).eq('id', id)
 
     if (error) {
-      setError(t('genericError'))
+      setError(t.genericError)
       setSaving(false)
       return
     }
@@ -87,137 +142,166 @@ export default function EditAutomationPage() {
     router.push('/dashboard/flows')
   }
 
-  const inputStyle = {
-    width: '100%',
-    padding: '0.9rem 1rem',
-    background: 'rgba(255,255,255,0.05)',
-    border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: '12px',
-    color: '#eef2ff',
-    fontSize: '0.95rem',
-    outline: 'none',
-    marginTop: '0.5rem',
-  }
-
-  const labelStyle = {
-    color: 'rgba(238,242,255,0.7)',
-    fontSize: '0.85rem',
-    fontWeight: 600,
-  }
-
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#05080f' }}>
-      <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.5 }} style={{ color: '#00d4ff' }}>{t('loading')}</motion.div>
+    <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div className="flex items-center gap-3 text-cyan-400">
+        <Loader2 className="w-6 h-6 animate-spin" />
+        <span className="text-xl font-medium">{t.loading}</span>
+      </div>
     </div>
   )
 
   return (
-    <main style={{ minHeight: '100vh', background: '#05080f' }}>
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
-        <div style={{ position: 'absolute', width: '700px', height: '700px', borderRadius: '50%', background: 'rgba(0,212,255,0.14)', filter: 'blur(110px)', top: '-200px', right: '-180px' }}></div>
-        <div style={{ position: 'absolute', width: '550px', height: '550px', borderRadius: '50%', background: 'rgba(0,80,255,0.11)', filter: 'blur(110px)', bottom: '-150px', left: '-150px' }}></div>
-      </div>
-
-      {/* Navbar */}
-      <nav style={{ position: 'fixed', top: 0, width: '100%', zIndex: 100, padding: '0.85rem 5%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(5,8,15,0.75)', backdropFilter: 'blur(30px)', borderBottom: '1px solid rgba(0,212,255,0.15)' }}>
-        <Link href="/" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.5rem', fontWeight: 900, color: '#00d4ff', textDecoration: 'none' }}>IryChat</Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <LanguageSwitcher />
-          <Link href="/dashboard/flows" style={{ color: 'rgba(238,242,255,0.6)', textDecoration: 'none', fontSize: '0.9rem' }}>{t('backToAutomations')}</Link>
-        </div>
-      </nav>
-
-      <div style={{ padding: '7rem 5% 5rem', position: 'relative', zIndex: 1, maxWidth: '680px', margin: '0 auto' }}>
-
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '2rem', fontWeight: 700, background: 'linear-gradient(135deg, #fff, #00d4ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.3rem' }}>
-            {t('editAutomationTitle')}
+    <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
+      <Navbar />
+      
+      <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+        
+        {/* Header */}
+        <div className="mb-8">
+          <Link href="/dashboard/flows" className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition-colors">
+            <ArrowLeft size={16} />
+            {t.backToAutomations}
+          </Link>
+          
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+            {t.editAutomationTitle}
           </h1>
-          <p style={{ color: 'rgba(238,242,255,0.5)' }}>{t('editAutomationSubtitle')}</p>
-        </motion.div>
+          <p className="text-gray-400">{t.editAutomationSubtitle}</p>
+        </div>
 
         {error && (
-          <div style={{ background: 'rgba(255,80,80,0.1)', border: '1px solid rgba(255,80,80,0.3)', borderRadius: '12px', padding: '0.75rem 1rem', marginBottom: '1.5rem', color: '#ff6b6b', fontSize: '0.85rem' }}>
+          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 mb-6 flex items-center gap-3 text-red-400">
+            <X size={20} />
             {error}
           </div>
         )}
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ background: 'rgba(255,255,255,0.035)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '20px', padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-
+        {/* Form Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 md:p-8 flex flex-col gap-8"
+        >
+          
+          {/* Section 1: Basic Info */}
           <div>
-            <div style={{ color: '#00d4ff', fontSize: '0.8rem', fontWeight: 700, marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('basicInfo')}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-6">
+              <Zap size={16} />
+              {t.basicInfo}
+            </div>
+            <div className="space-y-6">
               <div>
-                <label style={labelStyle}>{t('automationName')}</label>
-                <input type="text" value={form.name} onChange={e => update('name', e.target.value)} style={inputStyle}
-                  onFocus={e => e.target.style.borderColor = '#00d4ff'}
-                  onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
+                <label className="block text-sm font-medium text-gray-400 mb-2">{t.automationName}</label>
+                <input 
+                  type="text" 
+                  value={form.name} 
+                  onChange={e => update('name', e.target.value)} 
+                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                />
               </div>
               <div>
-                <label style={labelStyle}>{t('linkedAccount')}</label>
-                <select value={form.account_id} onChange={e => update('account_id', e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
-                  <option value="">{t('selectAccount')}</option>
+                <label className="block text-sm font-medium text-gray-400 mb-2">{t.linkedAccount}</label>
+                <select 
+                  value={form.account_id} 
+                  onChange={e => update('account_id', e.target.value)} 
+                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 cursor-pointer appearance-none"
+                >
+                  <option value="">{t.selectAccount}</option>
                   {accounts.map(acc => (
                     <option key={acc.id} value={acc.id}>{acc.account_name} ({acc.account_type === 'instagram' ? 'Instagram' : 'Facebook'})</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label style={labelStyle}>{t('postUrl')}</label>
-                <input type="text" value={form.post_url} onChange={e => update('post_url', e.target.value)} placeholder={t('postUrlPlaceholder')} style={inputStyle}
-                  onFocus={e => e.target.style.borderColor = '#00d4ff'}
-                  onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
+                <label className="block text-sm font-medium text-gray-400 mb-2">{t.postUrl}</label>
+                <input 
+                  type="text" 
+                  value={form.post_url} 
+                  onChange={e => update('post_url', e.target.value)} 
+                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                />
               </div>
             </div>
           </div>
 
-          <div style={{ height: '1px', background: 'rgba(255,255,255,0.07)' }} />
+          <div className="h-px bg-white/10 w-full"></div>
 
+          {/* Section 2: Trigger */}
           <div>
-            <div style={{ color: '#00d4ff', fontSize: '0.8rem', fontWeight: 700, marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('triggerWord')}</div>
+            <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-6">
+              <Zap size={16} />
+              {t.triggerWord}
+            </div>
             <div>
-              <label style={labelStyle}>{t('triggerKeyword')}</label>
-              <input type="text" value={form.trigger_keyword} onChange={e => update('trigger_keyword', e.target.value)} style={inputStyle}
-                onFocus={e => e.target.style.borderColor = '#00d4ff'}
-                onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
-              <p style={{ color: 'rgba(238,242,255,0.4)', fontSize: '0.75rem', marginTop: '0.4rem' }}>{t('triggerHint')}</p>
+              <label className="block text-sm font-medium text-gray-400 mb-2">{t.triggerKeyword}</label>
+              <input 
+                type="text" 
+                value={form.trigger_keyword} 
+                onChange={e => update('trigger_keyword', e.target.value)} 
+                className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+              />
+              <p className="text-gray-500 text-xs mt-2">{t.triggerHint}</p>
             </div>
           </div>
 
-          <div style={{ height: '1px', background: 'rgba(255,255,255,0.07)' }} />
+          <div className="h-px bg-white/10 w-full"></div>
 
+          {/* Section 3: Responses */}
           <div>
-            <div style={{ color: '#00d4ff', fontSize: '0.8rem', fontWeight: 700, marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{t('responses')}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-6">
+              <MessageSquare size={16} />
+              {t.responses}
+            </div>
+            <div className="space-y-6">
               <div>
-                <label style={labelStyle}>{t('commentReply')}</label>
-                <textarea value={form.comment_reply} onChange={e => update('comment_reply', e.target.value)} rows={3}
-                  style={{ ...inputStyle, resize: 'vertical' }}
-                  onFocus={e => e.target.style.borderColor = '#00d4ff'}
-                  onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
+                <label className="block text-sm font-medium text-gray-400 mb-2">{t.commentReply}</label>
+                <textarea 
+                  value={form.comment_reply} 
+                  onChange={e => update('comment_reply', e.target.value)} 
+                  rows={4}
+                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all resize-vertical"
+                />
               </div>
               <div>
-                <label style={labelStyle}>{t('dmMessage')}</label>
-                <textarea value={form.dm_message} onChange={e => update('dm_message', e.target.value)} rows={3}
-                  style={{ ...inputStyle, resize: 'vertical' }}
-                  onFocus={e => e.target.style.borderColor = '#00d4ff'}
-                  onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'} />
+                <label className="block text-sm font-medium text-gray-400 mb-2">{t.dmMessage}</label>
+                <textarea 
+                  value={form.dm_message} 
+                  onChange={e => update('dm_message', e.target.value)} 
+                  rows={4}
+                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all resize-vertical"
+                />
               </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleSave} disabled={saving}
-              style={{ flex: 1, padding: '1rem', background: saving ? 'rgba(0,212,255,0.4)' : '#00d4ff', color: '#05080f', border: 'none', borderRadius: '99px', fontSize: '1rem', fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer' }}>
-              {saving ? t('saving') : t('saveBtn')}
+          {/* Action Buttons */}
+          <div className="flex gap-4">
+            <motion.button 
+              whileHover={{ scale: 1.02 }} 
+              whileTap={{ scale: 0.98 }} 
+              onClick={handleSave} 
+              disabled={saving}
+              className="flex-1 py-4 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full transition-all duration-200 shadow-lg shadow-cyan-500/20 disabled:opacity-70 flex items-center justify-center gap-2"
+            >
+              {saving ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Save size={20} />
+              )}
+              {saving ? t.saving : t.saveBtn}
             </motion.button>
-            <Link href="/dashboard/flows"
-              style={{ flex: 1, padding: '1rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#eef2ff', borderRadius: '99px', fontSize: '1rem', textAlign: 'center', textDecoration: 'none' }}>
-              {t('cancelBtn')}
+            
+            <Link 
+              href="/dashboard/flows"
+              className="flex-1 py-4 bg-white/5 hover:bg-white/10 text-white font-bold rounded-full transition-all duration-200 flex items-center justify-center gap-2"
+            >
+              <X size={20} />
+              {t.cancelBtn}
             </Link>
           </div>
         </motion.div>
-      </div>
-    </main>
+      </main>
+    </PageLayoutWith3D>
   )
 }

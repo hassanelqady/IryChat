@@ -3,15 +3,45 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { ArrowRight, CheckCircle } from 'lucide-react'
+import Navbar from '@/components/Navbar'
+import PageLayoutWith3D from '@/components/PageLayoutWith3D'
+import { useLanguage } from '@/context/LanguageContext'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
+  
+  const { lang } = useLanguage()
+  const isRTL = lang === 'ar'
+
+  const content = {
+    en: {
+      title: "Reset Password",
+      subtitle: "Enter your email and we'll send you a reset link.",
+      emailPlaceholder: "Enter your email address",
+      submitBtn: "Send Reset Link",
+      sending: "Sending...",
+      successMsg: "✅ Reset link sent to your email!",
+      backToLogin: "Back to Login",
+    },
+    ar: {
+      title: "نسيت كلمة المرور",
+      subtitle: "أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين.",
+      emailPlaceholder: "أدخل بريدك الإلكتروني",
+      submitBtn: "إرسال رابط إعادة التعيين",
+      sending: "جاري الإرسال...",
+      successMsg: "✅ تم إرسال رابط إعادة التعيين لبريدك!",
+      backToLogin: "العودة لتسجيل الدخول",
+    }
+  }
+
+  const t = content[lang]
 
   const fadeUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
   }
 
   const staggerContainer = {
@@ -21,8 +51,11 @@ export default function ForgotPasswordPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
+    // Basic validation logic (simulated)
     if (!email || !email.includes('@')) return
+    
     setLoading(true)
+    // Simulate API call
     setTimeout(() => {
       setSent(true)
       setLoading(false)
@@ -30,49 +63,87 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <main style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', background: '#05080f' }}>
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
-        <div style={{ position: 'absolute', width: '700px', height: '700px', borderRadius: '50%', background: 'rgba(0,212,255,0.14)', filter: 'blur(110px)', top: '-200px', right: '-180px', animation: 'float 12s infinite alternate' }}></div>
-        <div style={{ position: 'absolute', width: '550px', height: '550px', borderRadius: '50%', background: 'rgba(0,80,255,0.11)', filter: 'blur(110px)', bottom: '-150px', left: '-150px', animation: 'float 12s infinite alternate', animationDelay: '-5s' }}></div>
-      </div>
-
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={staggerContainer}
-        style={{ maxWidth: '420px', width: '100%', padding: '2.5rem', borderRadius: '28px', textAlign: 'center', zIndex: 1, background: 'rgba(5,8,15,0.7)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)' }}
-      >
-        <motion.div variants={fadeUp}>
-          <Link href="/" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.8rem', fontWeight: 900, color: '#00d4ff', textDecoration: 'none' }}>IryChat</Link>
-        </motion.div>
-        
-        <motion.h1 variants={fadeUp} style={{ fontSize: '1.8rem', fontWeight: 700, marginBottom: '0.5rem', background: 'linear-gradient(135deg, #fff, #00d4ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>نسيت كلمة المرور</motion.h1>
-        
-        <motion.p variants={fadeUp} style={{ color: 'rgba(238,242,255,0.6)', marginBottom: '2rem' }}>أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة تعيين كلمة المرور</motion.p>
-
-        {sent ? (
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} style={{ background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)', borderRadius: '12px', padding: '1rem', color: '#4ade80' }}>
-            ✅ تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني
+    <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
+      <Navbar />
+      
+      <main className="min-h-screen pt-32 pb-20 px-4 flex items-center justify-center">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+          className="w-full max-w-md bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8 shadow-2xl"
+        >
+          {/* Logo/Brand */}
+          <motion.div variants={fadeUp} className="text-center mb-6">
+            <Link href="/" className="text-3xl font-black dark:text-white text-cyan-400 tracking-tight">
+              IryChat
+            </Link>
           </motion.div>
-        ) : (
-          <form onSubmit={handleSubmit}>
-            <motion.div variants={fadeUp} style={{ marginBottom: '1.5rem' }}>
-              <input type="email" placeholder="البريد الإلكتروني" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', padding: '0.9rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', color: '#eef2ff' }} />
+          
+          <motion.h1 variants={fadeUp} className="text-2xl font-bold mb-2 text-white text-center bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+            {t.title}
+          </motion.h1>
+          
+          <motion.p variants={fadeUp} className="text-gray-400 mb-8 text-center">
+            {t.subtitle}
+          </motion.p>
+
+          {/* Success Message */}
+          {sent && (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }} 
+              animate={{ opacity: 1, scale: 1 }} 
+              className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 mb-6 text-sm text-green-400 text-center flex items-center justify-center gap-2"
+            >
+              <CheckCircle size={20} />
+              {t.successMsg}
             </motion.div>
-            <motion.button variants={fadeUp} whileHover={{ scale: 1.02 }} type="submit" disabled={loading} style={{ width: '100%', padding: '0.9rem', background: '#00d4ff', color: '#05080f', border: 'none', borderRadius: '99px', fontWeight: 700, cursor: 'pointer', opacity: loading ? 0.7 : 1 }}>
-              {loading ? 'جاري الإرسال...' : 'إرسال رابط إعادة التعيين'}
-            </motion.button>
-          </form>
-        )}
+          )}
 
-        <motion.div variants={fadeUp} style={{ marginTop: '1.5rem' }}>
-          <Link href="/login" style={{ color: '#00d4ff', textDecoration: 'none' }}>العودة إلى تسجيل الدخول</Link>
+          {/* Form */}
+          {!sent && (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <motion.div variants={fadeUp}>
+                <input 
+                  type="email" 
+                  placeholder={t.emailPlaceholder} 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  required 
+                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                />
+              </motion.div>
+              
+              <motion.button 
+                variants={fadeUp} 
+                whileHover={{ scale: 1.02 }} 
+                whileTap={{ scale: 0.98 }} 
+                type="submit" 
+                disabled={loading}
+                className="w-full py-4 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full transition-all duration-200 shadow-lg shadow-cyan-500/20 disabled:opacity-70 flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <span>{t.sending}</span>
+                ) : (
+                  <>
+                    <span>{t.submitBtn}</span>
+                    <ArrowRight size={18} />
+                  </>
+                )}
+              </motion.button>
+            </form>
+          )}
+
+          {/* Back Link */}
+          <motion.div variants={fadeUp} className="mt-8 text-center">
+            <Link href="/login" className="text-cyan-400 hover:text-cyan-300 font-medium transition-colors flex items-center justify-center gap-1">
+              <ArrowRight size={16} className={isRTL ? 'rotate-180' : ''} />
+              {t.backToLogin}
+            </Link>
+          </motion.div>
+
         </motion.div>
-      </motion.div>
-
-      <style jsx>{`
-        @keyframes float { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(35px,25px) scale(1.08); } }
-      `}</style>
-    </main>
+      </main>
+    </PageLayoutWith3D>
   )
 }
