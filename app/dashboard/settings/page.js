@@ -1,21 +1,13 @@
-cat > app/forgot-password/page.js << 'EOF'
-import { redirect } from 'next/navigation'
+'use client'
 
-export default function ForgotPasswordPage() {
-  redirect('/login')
-}
-EOF
-cat > app/reset-password/page.js << 'EOF'
-import { redirect } from 'next/navigation'
-
-export default function ResetPasswordPage() {
-  redirect('/login')
-}
-EOF
-git add .
-git commit -m "refactor: remove password auth, redirect to login"
-git push
-age } from '@/context/LanguageContext'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { User, Link as LinkIcon, LogOut, CheckCircle, Save, RefreshCw, ExternalLink, Facebook } from 'lucide-react'
+import Navbar from '@/components/Navbar'
+import PageLayoutWith3D from '@/components/PageLayoutWith3D'
+import { useLanguage } from '@/context/LanguageContext'
 import { createClient } from '@/lib/supabase/client'
 
 export default function SettingsPage() {
@@ -42,7 +34,6 @@ export default function SettingsPage() {
       saveBtn: "Save Changes",
       saved: "Changes saved successfully!",
       loading: "Loading...",
-      manageAccounts: "Manage Connected Accounts",
       manageAccountsDesc: "Add or remove your Instagram and Facebook accounts from the Accounts page.",
       goToAccounts: "Go to Accounts",
       noAccounts: "No accounts connected yet.",
@@ -65,7 +56,6 @@ export default function SettingsPage() {
       saveBtn: "حفظ التغييرات",
       saved: "تم حفظ التغييرات بنجاح!",
       loading: "جاري التحميل...",
-      manageAccounts: "إدارة الحسابات المتصلة",
       manageAccountsDesc: "أضف أو احذف حسابات إنستجرام وفيسبوك من صفحة الحسابات.",
       goToAccounts: "الذهاب للحسابات",
       noAccounts: "لا توجد حسابات متصلة بعد.",
@@ -184,13 +174,10 @@ export default function SettingsPage() {
         {activeTab === 'profile' && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8 mb-6">
-
-              {/* Meta badge */}
               <div className="flex items-center gap-2 mb-6 px-4 py-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl w-fit">
                 <Facebook size={16} className="text-blue-400" />
                 <span className="text-blue-400 text-sm font-medium">{t.connectedAs}</span>
               </div>
-
               <form onSubmit={handleProfileUpdate} className="space-y-6 max-w-xl">
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-2">{t.nameLabel}</label>
@@ -221,7 +208,6 @@ export default function SettingsPage() {
               </form>
             </div>
 
-            {/* Delete Data */}
             <div className="bg-red-500/5 border border-red-500/10 rounded-3xl p-6">
               <h3 className="text-white font-bold mb-1">{t.deleteAccount}</h3>
               <p className="text-gray-500 text-sm mb-4">{t.deleteAccountDesc}</p>
@@ -241,8 +227,6 @@ export default function SettingsPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8 mb-6">
               <p className="text-gray-400 text-sm mb-6">{t.manageAccountsDesc}</p>
-
-              {/* Accounts preview */}
               {accounts.length === 0 ? (
                 <p className="text-gray-600 text-sm mb-6">{t.noAccounts}</p>
               ) : (
@@ -263,15 +247,12 @@ export default function SettingsPage() {
                         </p>
                       </div>
                       <div className="ms-auto">
-                        <span className="text-xs text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-1 rounded-full">
-                          ✓
-                        </span>
+                        <span className="text-xs text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-1 rounded-full">✓</span>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
-
               <Link
                 href="/dashboard/accounts"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full transition-all text-sm"
