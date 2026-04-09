@@ -4,305 +4,354 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { createClient } from '@/lib/supabase/client'
+import { useLanguage } from '@/context/LanguageContext'
+import { BarChart2, Zap, Grid, LogOut, TrendingUp, MessageSquare, CheckCircle2, XCircle, Bot } from 'lucide-react'
+import Navbar from '@/components/Navbar'
+import PageLayoutWith3D from '@/components/PageLayoutWith3D'
 
 export default function AnalyticsPage() {
   const router = useRouter()
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [flows, setFlows] = useState([])
-  const [selectedPeriod, setSelectedPeriod] = useState('week')
-  const [animated, setAnimated] = useState(false)
+  const [automations, setAutomations] = useState([])
+  const [logs, setLogs] = useState([])
+  const [period, setPeriod] = useState('week')
+  const { lang } = useLanguage()
+  const isRTL = lang === 'ar'
+
+  const content = {
+    en: {
+      title: "Analytics",
+      desc: "Track performance of your automations.",
+      totalReplies: "Total Replies",
+      totalOps: "Total operations",
+      activeAutomations: "Active Automations",
+      successRate: "Success Rate",
+      topAutomation: "Top Automation",
+      noData: "No data yet",
+      noDataDesc: "Create automations and start getting replies to see analytics here.",
+      week: "Last 7 days",
+      month: "Last 30 days",
+      automationPerf: "Automation Performance",
+      name: "Name",
+      keywords: "Keywords",
+      replies: "Replies",
+      status: "Status",
+      active: "Active",
+      inactive: "Inactive",
+      commentReply: "Comment Reply",
+      dmSent: "DM Sent",
+      failed: "Failed",
+      dashboard: "Dashboard",
+      accounts: "Accounts",
+      flows: "Automations",
+      logout: "Logout",
+      loading: "Loading...",
+      recentActivity: "Recent Activity",
+      noActivity: "No activity yet.",
+      operations: "operations",
+    },
+    ar: {
+      title: "التحليلات",
+      desc: "تتبع أداء أتمتاتك ومعدلات الردود.",
+      totalReplies: "إجمالي الردود",
+      totalOps: "إجمالي العمليات",
+      activeAutomations: "أتمتات نشطة",
+      successRate: "معدل النجاح",
+      topAutomation: "أفضل أتمتة",
+      noData: "لا توجد بيانات بعد",
+      noDataDesc: "أنشئ أتمتات وابدأ في الحصول على ردود لرؤية التحليلات هنا.",
+      week: "آخر 7 أيام",
+      month: "آخر 30 يوم",
+      automationPerf: "أداء الأتمتات",
+      name: "الاسم",
+      keywords: "الكلمات المفتاحية",
+      replies: "الردود",
+      status: "الحالة",
+      active: "نشط",
+      inactive: "غير نشط",
+      commentReply: "رد تعليق",
+      dmSent: "DM أُرسل",
+      failed: "فشل",
+      dashboard: "لوحة التحكم",
+      accounts: "الحسابات",
+      flows: "الأتمتات",
+      logout: "تسجيل الخروج",
+      loading: "جاري التحميل...",
+      recentActivity: "النشاط الأخير",
+      noActivity: "لا يوجد نشاط بعد.",
+      operations: "عملية",
+    }
+  }
+
+  const t = content[lang]
 
   useEffect(() => {
-    const loggedUser = localStorage.getItem('irychat_user')
-    if (!loggedUser) {
-      router.push('/login')
-    } else {
-      setUser(JSON.parse(loggedUser))
-      const savedFlows = localStorage.getItem('irychat_flows')
-      if (savedFlows) {
-        setFlows(JSON.parse(savedFlows))
+    const init = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { router.push('/login'); return }
+      setUser(user)
+
+      const { data: automationsData } = await supabase
+        .from('automations')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+
+      const automationsList = automationsData || []
+      setAutomations(automationsList)
+
+      if (automationsList.length > 0) {
+        const ids = automationsList.map(a => a.id)
+        const dateFilter = period === 'week'
+          ? new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+          : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+
+        const { data: logsData } = await supabase
+          .from('automation_logs')
+          .select('*')
+          .in('automation_id', ids)
+          .gte('created_at', dateFilter)
+          .order('created_at', { ascending: false })
+
+        setLogs(logsData || [])
       }
+
       setLoading(false)
     }
-  }, [router])
+    init()
+  }, [period])
 
-  useEffect(() => {
-    setTimeout(() => setAnimated(true), 500)
-  }, [])
-
-  const handleLogout = () => {
-    localStorage.removeItem('irychat_user')
+  const handleLogout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
     router.push('/')
   }
 
-  const totalConversations = flows.reduce((sum, flow) => sum + flow.stats.uses, 0)
-  const totalConversions = flows.reduce((sum, flow) => sum + flow.stats.conversions, 0)
-  const totalRevenue = totalConversions * 24
-  const averageConversionRate = totalConversations > 0 
-    ? Math.round((totalConversions / totalConversations) * 100) 
-    : 0
+  // Stats calculations
+  const totalLogs = logs.length
+  const successLogs = logs.filter(l => l.action_taken && l.action_taken !== 'failed').length
+  const successRate = totalLogs > 0 ? Math.round((successLogs / totalLogs) * 100) : 0
+  const activeCount = automations.filter(a => a.is_active).length
 
-  const bestFlow = flows.length > 0 
-    ? flows.reduce((best, flow) => 
-        (flow.stats.conversions > best.stats.conversions) ? flow : best, flows[0])
-    : null
+  // Top automation by log count
+  const logsByAutomation = logs.reduce((acc, log) => {
+    acc[log.automation_id] = (acc[log.automation_id] || 0) + 1
+    return acc
+  }, {})
+  const topAutomationId = Object.entries(logsByAutomation).sort((a, b) => b[1] - a[1])[0]?.[0]
+  const topAutomation = automations.find(a => a.id === topAutomationId)
 
-  const weeklyData = {
-    labels: ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'],
-    conversations: [45, 52, 68, 74, 89, 112, 98],
-    conversions: [8, 12, 15, 18, 24, 31, 28]
-  }
+  const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } }
+  const stagger = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } }
 
-  const monthlyData = {
-    labels: ['الأسبوع 1', 'الأسبوع 2', 'الأسبوع 3', 'الأسبوع 4'],
-    conversations: [320, 380, 420, 490],
-    conversions: [45, 58, 72, 89]
-  }
-
-  const currentData = selectedPeriod === 'week' ? weeklyData : monthlyData
-  const maxValue = Math.max(...currentData.conversations)
-
-  // Animation variants
-  const fadeUp = {
-    hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] } }
-  }
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
-  }
-
-  const numberVariants = {
-    hidden: { scale: 0, opacity: 0 },
-    visible: { scale: 1, opacity: 1, transition: { type: 'spring', duration: 0.5 } }
-  }
-
-  const tableRowVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0, transition: { duration: 0.4 } }
-  }
-
-  if (loading) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#05080f' }}>
-        <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.5 }} style={{ color: '#00d4ff' }}>
-          جاري التحميل...
-        </motion.div>
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="flex items-center gap-3 text-cyan-400 animate-pulse">
+        <BarChart2 className="w-6 h-6" />
+        <span className="text-xl font-medium">{t.loading}</span>
       </div>
-    )
-  }
+    </div>
+  )
 
   return (
-    <main style={{ minHeight: '100vh', background: '#05080f' }}>
-      {/* Background Effects */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
-        <div style={{
-          position: 'absolute', width: '700px', height: '700px', borderRadius: '50%',
-          background: 'rgba(0,212,255,0.14)', filter: 'blur(110px)',
-          top: '-200px', right: '-180px', animation: 'float 12s infinite alternate'
-        }}></div>
-        <div style={{
-          position: 'absolute', width: '550px', height: '550px', borderRadius: '50%',
-          background: 'rgba(0,80,255,0.11)', filter: 'blur(110px)',
-          bottom: '-150px', left: '-150px', animation: 'float 12s infinite alternate',
-          animationDelay: '-5s'
-        }}></div>
-      </div>
-      <div style={{
-        position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
-        backgroundImage: 'linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px)',
-        backgroundSize: '64px 64px'
-      }}></div>
+    <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
+      <Navbar />
+      <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
 
-      {/* Navbar - تم تعديله ليصبح احترافي */}
-      <motion.nav
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.5 }}
-        style={{
-          position: 'fixed', top: 0, width: '100%', zIndex: 100,
-          padding: '0.85rem 5%', display: 'flex', alignItems: 'center',
-          justifyContent: 'space-between', background: 'rgba(5,8,15,0.75)',
-          backdropFilter: 'blur(30px)', borderBottom: '1px solid rgba(0,212,255,0.15)'
-        }}
-      >
-        <Link href="/" style={{ fontFamily: "'Outfit', sans-serif", fontSize: '1.5rem', fontWeight: 900, color: '#00d4ff', textDecoration: 'none' }}>IryChat</Link>
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-          {/* روابط النافبار */}
-          <div style={{ display: 'flex', gap: '1rem' }}>
-            <Link href="/dashboard" style={{ color: '#eef2ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', transition: 'all 0.3s', fontSize: '0.9rem' }} onMouseEnter={(e) => e.target.style.background = 'rgba(0,212,255,0.1)'} onMouseLeave={(e) => e.target.style.background = 'transparent'}>
-              الرئيسية
-            </Link>
-            <Link href="/dashboard/flows" style={{ color: '#eef2ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', transition: 'all 0.3s', fontSize: '0.9rem' }} onMouseEnter={(e) => e.target.style.background = 'rgba(0,212,255,0.1)'} onMouseLeave={(e) => e.target.style.background = 'transparent'}>
-              الردود التلقائية
-            </Link>
-            <Link href="/dashboard/settings" style={{ color: '#eef2ff', textDecoration: 'none', padding: '0.5rem 0.8rem', borderRadius: '8px', transition: 'all 0.3s', fontSize: '0.9rem' }} onMouseEnter={(e) => e.target.style.background = 'rgba(0,212,255,0.1)'} onMouseLeave={(e) => e.target.style.background = 'transparent'}>
-              الإعدادات
-            </Link>
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">{t.title}</h1>
+            <p className="text-gray-400">{t.desc}</p>
           </div>
-          
-          {/* قسم الترحيب والخروج */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(0,212,255,0.05)', padding: '0.3rem 0.8rem 0.3rem 1rem', borderRadius: '99px', border: '1px solid rgba(0,212,255,0.15)' }}>
-            <span style={{ color: '#00d4ff', fontSize: '0.9rem' }}>مرحباً, {user?.name || 'مستخدم'}</span>
-            <div style={{ width: '1px', height: '20px', background: 'rgba(0,212,255,0.2)' }}></div>
-            <motion.button 
-              whileHover={{ scale: 1.05 }} 
-              whileTap={{ scale: 0.95 }} 
-              onClick={handleLogout} 
-              style={{ 
-                background: 'transparent', 
-                padding: '0.4rem 1rem', 
-                borderRadius: '99px', 
-                color: '#eef2ff', 
-                cursor: 'pointer',
-                border: '1px solid rgba(255,255,255,0.1)',
-                fontSize: '0.8rem',
-                transition: 'all 0.3s'
-              }}
-              onMouseEnter={(e) => e.target.style.background = 'rgba(255,80,80,0.2)'}
-              onMouseLeave={(e) => e.target.style.background = 'transparent'}
-            >
-              تسجيل خروج
-            </motion.button>
+          <div className="flex items-center gap-3">
+            <Link href="/dashboard" className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all">
+              <Zap size={18} /> {t.dashboard}
+            </Link>
+            <Link href="/dashboard/flows" className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all">
+              <Grid size={18} /> {t.flows}
+            </Link>
+            <div className="h-6 w-px bg-white/20 mx-1 hidden md:block" />
+            <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg text-red-400 text-sm font-medium transition-all">
+              <LogOut size={18} /> {t.logout}
+            </button>
           </div>
         </div>
-      </motion.nav>
-
-      {/* Main Content - باقي الكود كما هو بدون تغيير */}
-      <div style={{ padding: '7rem 5% 5rem', position: 'relative', zIndex: 1 }}>
-        {/* Header */}
-        <motion.div initial="hidden" animate="visible" variants={fadeUp} style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.2rem)', fontWeight: 700, background: 'linear-gradient(135deg, #fff, #00d4ff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '0.5rem' }}>التحليلات والتقارير</h1>
-          <p style={{ color: 'rgba(238,242,255,0.6)' }}>تحليل أداء الردود التلقائية ومعدلات التحويل</p>
-        </motion.div>
 
         {/* Period Selector */}
-        <motion.div initial="hidden" animate="visible" variants={fadeUp} style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', justifyContent: 'center' }}>
-          <button onClick={() => setSelectedPeriod('week')} style={{ padding: '0.5rem 1.5rem', borderRadius: '99px', border: 'none', background: selectedPeriod === 'week' ? '#00d4ff' : 'rgba(255,255,255,0.1)', color: selectedPeriod === 'week' ? '#05080f' : '#eef2ff', cursor: 'pointer' }}>آخر 7 أيام</button>
-          <button onClick={() => setSelectedPeriod('month')} style={{ padding: '0.5rem 1.5rem', borderRadius: '99px', border: 'none', background: selectedPeriod === 'month' ? '#00d4ff' : 'rgba(255,255,255,0.1)', color: selectedPeriod === 'month' ? '#05080f' : '#eef2ff', cursor: 'pointer' }}>آخر 30 يوم</button>
-        </motion.div>
-
-        {/* Stats Cards */}
-        <motion.div initial="hidden" animate="visible" variants={staggerContainer} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
-          <motion.div variants={fadeUp} whileHover={{ y: -5 }} style={{ background: 'rgba(255,255,255,0.035)', borderRadius: '20px', padding: '1.5rem', textAlign: 'center' }}>
-            <div style={{ fontSize: '2rem' }}>💬</div>
-            <motion.div variants={numberVariants} style={{ fontSize: '1.8rem', fontWeight: 700, color: '#00d4ff' }}>{totalConversations.toLocaleString()}</motion.div>
-            <div style={{ color: 'rgba(238,242,255,0.6)' }}>إجمالي المحادثات</div>
-          </motion.div>
-          <motion.div variants={fadeUp} whileHover={{ y: -5 }} style={{ background: 'rgba(255,255,255,0.035)', borderRadius: '20px', padding: '1.5rem', textAlign: 'center' }}>
-            <div style={{ fontSize: '2rem' }}>🎯</div>
-            <motion.div variants={numberVariants} style={{ fontSize: '1.8rem', fontWeight: 700, color: '#00d4ff' }}>{totalConversions.toLocaleString()}</motion.div>
-            <div style={{ color: 'rgba(238,242,255,0.6)' }}>إجمالي التحويلات</div>
-          </motion.div>
-          <motion.div variants={fadeUp} whileHover={{ y: -5 }} style={{ background: 'rgba(255,255,255,0.035)', borderRadius: '20px', padding: '1.5rem', textAlign: 'center' }}>
-            <div style={{ fontSize: '2rem' }}>📊</div>
-            <motion.div variants={numberVariants} style={{ fontSize: '1.8rem', fontWeight: 700, color: '#ffd700' }}>{averageConversionRate}%</motion.div>
-            <div style={{ color: 'rgba(238,242,255,0.6)' }}>متوسط التحويل</div>
-          </motion.div>
-          <motion.div variants={fadeUp} whileHover={{ y: -5 }} style={{ background: 'rgba(255,255,255,0.035)', borderRadius: '20px', padding: '1.5rem', textAlign: 'center' }}>
-            <div style={{ fontSize: '2rem' }}>💰</div>
-            <motion.div variants={numberVariants} style={{ fontSize: '1.8rem', fontWeight: 700, color: '#00d4ff' }}>${totalRevenue.toLocaleString()}</motion.div>
-            <div style={{ color: 'rgba(238,242,255,0.6)' }}>الإيرادات المتوقعة</div>
-          </motion.div>
-        </motion.div>
-
-        {/* Chart Section */}
-        <div style={{ background: 'rgba(255,255,255,0.035)', borderRadius: '20px', padding: '1.5rem', marginBottom: '2rem' }}>
-          <h3 style={{ marginBottom: '1.5rem' }}>📈 المحادثات والتحويلات</h3>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            {currentData.labels.map((label, index) => (
-              <div key={index} style={{ textAlign: 'center', width: '60px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: animated ? `${(currentData.conversations[index] / maxValue) * 150}px` : 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    style={{ width: '30px', background: '#00d4ff', borderRadius: '8px 8px 0 0' }}
-                  />
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: animated ? `${(currentData.conversions[index] / maxValue) * 150}px` : 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 + 0.2 }}
-                    style={{ width: '30px', background: '#4ade80', borderRadius: '8px 8px 0 0' }}
-                  />
-                </div>
-                <div style={{ fontSize: '0.7rem', marginTop: '0.5rem', color: 'rgba(238,242,255,0.6)' }}>{label}</div>
-                <div style={{ fontSize: '0.65rem', color: '#00d4ff' }}>{currentData.conversations[index]}</div>
-                <div style={{ fontSize: '0.65rem', color: '#4ade80' }}>{currentData.conversions[index]}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '1.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <div style={{ width: '12px', height: '12px', background: '#00d4ff' }}></div>
-              <span>المحادثات</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <div style={{ width: '12px', height: '12px', background: '#4ade80' }}></div>
-              <span>التحويلات</span>
-            </div>
-          </div>
+        <div className="flex gap-2 mb-8">
+          {['week', 'month'].map(p => (
+            <button key={p} onClick={() => setPeriod(p)}
+              className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${period === p ? 'bg-cyan-500 text-black' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}>
+              {p === 'week' ? t.week : t.month}
+            </button>
+          ))}
         </div>
 
-        {/* Best Flow */}
-        {bestFlow && (
-          <motion.div initial="hidden" animate="visible" variants={fadeUp} whileHover={{ y: -5 }} style={{ background: 'rgba(0,212,255,0.05)', borderRadius: '20px', padding: '1.5rem', textAlign: 'center', marginBottom: '2rem' }}>
-            <div style={{ fontSize: '2rem' }}>🏆</div>
-            <h3>أفضل Flow أداءً</h3>
-            <p style={{ fontSize: '1.2rem', fontWeight: 700, color: '#00d4ff' }}>{bestFlow.name}</p>
-            <p>{bestFlow.stats.conversions} تحويل من {bestFlow.stats.uses} محادثة ({Math.round((bestFlow.stats.conversions / bestFlow.stats.uses) * 100)}% نسبة تحويل)</p>
+        {/* No automations state */}
+        {automations.length === 0 ? (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+            className="bg-white/5 border border-white/10 rounded-3xl p-12 text-center">
+            <div className="inline-flex p-6 rounded-full bg-white/5 text-gray-400 mb-6">
+              <Bot size={48} />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-3">{t.noData}</h3>
+            <p className="text-gray-400 max-w-md mx-auto mb-8">{t.noDataDesc}</p>
+            <Link href="/dashboard/automations/new"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full transition-all">
+              <Zap size={20} />
+              {lang === 'ar' ? 'إنشاء أتمتة' : 'Create Automation'}
+            </Link>
           </motion.div>
+        ) : (
+          <>
+            {/* Stats Cards */}
+            <motion.div initial="hidden" animate="visible" variants={stagger}
+              className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
+              <motion.div variants={fadeUp} className="bg-white/5 border border-white/10 rounded-2xl p-5 text-center">
+                <div className="inline-flex p-2.5 rounded-xl bg-cyan-500/10 text-cyan-400 mb-3">
+                  <MessageSquare size={22} />
+                </div>
+                <div className="text-3xl font-bold text-white mb-1">{totalLogs}</div>
+                <div className="text-gray-400 text-sm">{t.totalReplies}</div>
+                <div className="text-gray-600 text-xs mt-1">{t.totalOps}</div>
+              </motion.div>
+
+              <motion.div variants={fadeUp} className="bg-white/5 border border-white/10 rounded-2xl p-5 text-center">
+                <div className="inline-flex p-2.5 rounded-xl bg-green-500/10 text-green-400 mb-3">
+                  <Zap size={22} />
+                </div>
+                <div className="text-3xl font-bold text-white mb-1">{activeCount}</div>
+                <div className="text-gray-400 text-sm">{t.activeAutomations}</div>
+                <div className="text-gray-600 text-xs mt-1">{lang === 'ar' ? `من ${automations.length}` : `of ${automations.length}`}</div>
+              </motion.div>
+
+              <motion.div variants={fadeUp} className="bg-white/5 border border-white/10 rounded-2xl p-5 text-center">
+                <div className="inline-flex p-2.5 rounded-xl bg-purple-500/10 text-purple-400 mb-3">
+                  <TrendingUp size={22} />
+                </div>
+                <div className={`text-3xl font-bold mb-1 ${successRate >= 80 ? 'text-green-400' : successRate >= 50 ? 'text-yellow-400' : 'text-red-400'}`}>
+                  {successRate}%
+                </div>
+                <div className="text-gray-400 text-sm">{t.successRate}</div>
+                <div className="text-gray-600 text-xs mt-1">{successLogs}/{totalLogs}</div>
+              </motion.div>
+
+              <motion.div variants={fadeUp} className="bg-white/5 border border-white/10 rounded-2xl p-5 text-center">
+                <div className="inline-flex p-2.5 rounded-xl bg-orange-500/10 text-orange-400 mb-3">
+                  <BarChart2 size={22} />
+                </div>
+                <div className="text-lg font-bold text-white mb-1 truncate px-2">
+                  {topAutomation ? topAutomation.name : '—'}
+                </div>
+                <div className="text-gray-400 text-sm">{t.topAutomation}</div>
+                {topAutomation && (
+                  <div className="text-gray-600 text-xs mt-1">{logsByAutomation[topAutomation.id]} {t.operations}</div>
+                )}
+              </motion.div>
+            </motion.div>
+
+            {/* Automation Performance Table */}
+            <motion.div initial="hidden" animate="visible" variants={fadeUp}
+              className="bg-white/5 border border-white/10 rounded-3xl p-6 mb-6">
+              <h2 className="text-lg font-bold text-white mb-6">{t.automationPerf}</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-white/10 text-left">
+                      <th className="pb-3 text-gray-400 text-sm font-medium">{t.name}</th>
+                      <th className="pb-3 text-gray-400 text-sm font-medium">{t.keywords}</th>
+                      <th className="pb-3 text-gray-400 text-sm font-medium text-center">{t.replies}</th>
+                      <th className="pb-3 text-gray-400 text-sm font-medium text-center">{t.status}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {automations.map((automation, i) => {
+                      const keywords = automation.trigger_keywords?.length > 0
+                        ? automation.trigger_keywords
+                        : automation.trigger_keyword ? [automation.trigger_keyword] : []
+                      const count = logsByAutomation[automation.id] || 0
+
+                      return (
+                        <tr key={automation.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+                          <td className="py-4 text-white font-medium">{automation.name}</td>
+                          <td className="py-4">
+                            <div className="flex flex-wrap gap-1">
+                              {keywords.slice(0, 3).map((kw, ki) => (
+                                <span key={ki} className="text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-full text-xs font-mono">
+                                  {kw}
+                                </span>
+                              ))}
+                              {keywords.length > 3 && (
+                                <span className="text-gray-500 text-xs">+{keywords.length - 3}</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-4 text-center">
+                            <span className="text-white font-bold">{count}</span>
+                          </td>
+                          <td className="py-4 text-center">
+                            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border ${
+                              automation.is_active
+                                ? 'bg-green-500/10 border-green-500/20 text-green-400'
+                                : 'bg-white/5 border-white/10 text-gray-500'
+                            }`}>
+                              {automation.is_active ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
+                              {automation.is_active ? t.active : t.inactive}
+                            </span>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+
+            {/* Recent Activity */}
+            <motion.div initial="hidden" animate="visible" variants={fadeUp}
+              className="bg-white/5 border border-white/10 rounded-3xl p-6">
+              <h2 className="text-lg font-bold text-white mb-6">{t.recentActivity}</h2>
+              {logs.length === 0 ? (
+                <p className="text-gray-500 text-sm text-center py-8">{t.noActivity}</p>
+              ) : (
+                <div className="space-y-3 max-h-80 overflow-y-auto">
+                  {logs.slice(0, 20).map((log, i) => {
+                    const automation = automations.find(a => a.id === log.automation_id)
+                    const isSuccess = log.action_taken && log.action_taken !== 'failed'
+                    return (
+                      <div key={log.id || i} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
+                        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${isSuccess ? 'bg-green-400' : 'bg-red-400'}`} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white text-sm font-medium truncate">
+                            {automation?.name || '—'}
+                          </p>
+                          <p className="text-gray-500 text-xs truncate">
+                            {log.comment_text || log.commenter_name || '—'}
+                          </p>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <span className={`text-xs font-medium ${isSuccess ? 'text-green-400' : 'text-red-400'}`}>
+                            {log.action_taken?.includes('comment') ? t.commentReply :
+                             log.action_taken?.includes('dm') ? t.dmSent : t.failed}
+                          </span>
+                          <p className="text-gray-600 text-xs mt-0.5">
+                            {new Date(log.created_at).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US')}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </motion.div>
+          </>
         )}
-
-        {/* Table */}
-        <motion.div initial="hidden" animate="visible" variants={fadeUp} style={{ background: 'rgba(255,255,255,0.035)', borderRadius: '20px', padding: '1.5rem' }}>
-          <h3 style={{ marginBottom: '1rem' }}>📋 أداء الردود التلقائية</h3>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                  <th style={{ textAlign: 'right', padding: '0.75rem' }}>الاسم</th>
-                  <th style={{ textAlign: 'right', padding: '0.75rem' }}>النوع</th>
-                  <th style={{ textAlign: 'right', padding: '0.75rem' }}>الاستخدامات</th>
-                  <th style={{ textAlign: 'right', padding: '0.75rem' }}>التحويلات</th>
-                  <th style={{ textAlign: 'right', padding: '0.75rem' }}>نسبة التحويل</th>
-                  <th style={{ textAlign: 'right', padding: '0.75rem' }}>الحالة</th>
-                </tr>
-              </thead>
-              <tbody>
-                {flows.map((flow, idx) => (
-                  <motion.tr key={flow.id} initial="hidden" animate="visible" variants={tableRowVariants} transition={{ delay: idx * 0.05 }} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                    <td style={{ padding: '0.75rem' }}>{flow.name}</td>
-                    <td style={{ padding: '0.75rem' }}>
-                      <span style={{ padding: '0.2rem 0.5rem', borderRadius: '99px', fontSize: '0.7rem', background: flow.type === 'DM' ? 'rgba(0,212,255,0.2)' : 'rgba(255,165,0,0.2)', color: flow.type === 'DM' ? '#00d4ff' : '#ffa500' }}>
-                        {flow.type === 'DM' ? 'رسائل خاصة' : 'تعليقات'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '0.75rem' }}>{flow.stats.uses}</td>
-                    <td style={{ padding: '0.75rem' }}>{flow.stats.conversions}</td>
-                    <td style={{ padding: '0.75rem', color: '#ffd700' }}>{flow.stats.uses > 0 ? Math.round((flow.stats.conversions / flow.stats.uses) * 100) : 0}%</td>
-                    <td style={{ padding: '0.75rem' }}>
-                      <span style={{ padding: '0.2rem 0.5rem', borderRadius: '99px', fontSize: '0.7rem', background: flow.active ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.1)', color: flow.active ? '#4ade80' : '#aaa' }}>
-                        {flow.active ? 'نشط' : 'غير نشط'}
-                      </span>
-                    </td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </motion.div>
-      </div>
-
-      <style jsx>{`
-        @keyframes float {
-          0% { transform: translate(0,0) scale(1); }
-          100% { transform: translate(35px,25px) scale(1.08); }
-        }
-      `}</style>
-    </main>
+      </main>
+    </PageLayoutWith3D>
   )
 }
