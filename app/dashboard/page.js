@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { LogOut, Settings, Grid, Zap, MessageSquare, Link as LinkIcon, ArrowRight } from 'lucide-react'
+import { LogOut, Settings, Grid, Zap, MessageSquare, Link as LinkIcon, ArrowRight, BarChart2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/context/LanguageContext'
 import Navbar from '@/components/Navbar'
@@ -25,6 +25,8 @@ export default function Dashboard() {
 
   const content = {
     en: {
+      analytics: "Analytics",
+      analyticsDesc: "View performance reports",
       dashboard: "Dashboard",
       hello: "Hello,",
       dashboardSubtitle: "Here is what's happening with your automations today.",
@@ -34,8 +36,6 @@ export default function Dashboard() {
       totalOps: "Total operations",
       connectedAccounts: "Connected Accounts",
       connectAccount: "Connect Account",
-      noAccountWarning: "No Connected Accounts",
-      noAccountDesc: "Connect your Instagram or Facebook account to start automating.",
       quickActions: "Quick Actions",
       accounts: "Accounts",
       connectIG: "Connect Instagram",
@@ -47,6 +47,8 @@ export default function Dashboard() {
       loading: "Loading...",
     },
     ar: {
+      analytics: "التحليلات",
+      analyticsDesc: "عرض تقارير الأداء",
       dashboard: "لوحة التحكم",
       hello: "مرحباً،",
       dashboardSubtitle: "إليك ما يحدث مع أتمتتك اليوم.",
@@ -56,8 +58,6 @@ export default function Dashboard() {
       totalOps: "إجمالي العمليات",
       connectedAccounts: "حسابات متصلة",
       connectAccount: "ربط الحساب",
-      noAccountWarning: "لا توجد حسابات متصلة",
-      noAccountDesc: "قم بربط حساب إنستجرام أو فيسبوك لبدء الأتمتة.",
       quickActions: "إجراءات سريعة",
       accounts: "الحسابات",
       connectIG: "ربط انستجرام",
@@ -95,7 +95,6 @@ export default function Dashboard() {
       if (!user) { router.push('/login'); return }
       setUser(user)
 
-      // Fetching stats (Keeping original logic)
       const [
         { count: totalLogs },
         { count: activeAutomations },
@@ -140,10 +139,10 @@ export default function Dashboard() {
   return (
     <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
       <Navbar />
-      
+
       <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        
-        {/* Dashboard Header / Sub-nav */}
+
+        {/* Sub-nav */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
@@ -151,26 +150,33 @@ export default function Dashboard() {
             </h1>
             <p className="text-gray-400">{t.dashboardSubtitle}</p>
           </div>
-          
-          <div className="flex items-center gap-3">
-            <Link 
-              href="/dashboard/accounts" 
+
+          <div className="flex items-center gap-3 flex-wrap">
+            <Link
+              href="/dashboard/accounts"
               className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
             >
               <Grid size={18} />
               {t.accounts}
             </Link>
-            <Link 
-              href="/dashboard/flows" 
+            <Link
+              href="/dashboard/flows"
               className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
             >
               <Zap size={18} />
               {t.allAutomations}
             </Link>
-            
-            <div className="h-6 w-px bg-white/20 mx-1 hidden md:block"></div>
+            <Link
+              href="/dashboard/analytics"
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
+            >
+              <BarChart2 size={18} />
+              {t.analytics}
+            </Link>
 
-            <button 
+            <div className="h-6 w-px bg-white/20 mx-1 hidden md:block" />
+
+            <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg text-red-400 text-sm font-medium transition-all"
             >
@@ -183,8 +189,7 @@ export default function Dashboard() {
         {/* Stats Cards */}
         <motion.div initial="hidden" animate="visible" variants={staggerContainer}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            
-          {/* Active Automations */}
+
           <motion.div variants={fadeUp} {...cardHover} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 text-center">
             <div className="inline-flex p-3 rounded-2xl bg-cyan-500/10 text-cyan-400 mb-4">
               <Zap size={28} />
@@ -194,7 +199,6 @@ export default function Dashboard() {
             <div className="text-xs text-gray-500">{t.fromTotal} {stats.totalAutomations}</div>
           </motion.div>
 
-          {/* Total Replies */}
           <motion.div variants={fadeUp} {...cardHover} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 text-center">
             <div className="inline-flex p-3 rounded-2xl bg-purple-500/10 text-purple-400 mb-4">
               <MessageSquare size={28} />
@@ -204,7 +208,6 @@ export default function Dashboard() {
             <div className="text-xs text-gray-500">{t.totalOps}</div>
           </motion.div>
 
-          {/* Connected Accounts */}
           <motion.div variants={fadeUp} {...cardHover} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 text-center">
             <div className="inline-flex p-3 rounded-2xl bg-green-500/10 text-green-400 mb-4">
               <LinkIcon size={28} />
@@ -213,21 +216,16 @@ export default function Dashboard() {
               {stats.connectedAccounts}
             </motion.div>
             <div className="text-gray-400 font-medium mb-1">{t.connectedAccounts}</div>
-            <div className="text-xs text-gray-500">
-  Instagram / Facebook
-</div>
-
+            <div className="text-xs text-gray-500">Instagram / Facebook</div>
           </motion.div>
         </motion.div>
-
-       
 
         {/* Quick Actions */}
         <motion.div initial="hidden" animate="visible" variants={fadeUp}>
           <h2 className="text-xl font-bold text-white mb-6">{t.quickActions}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            
-            {/* Connect Account Card */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            {/* Accounts */}
             <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ duration: 0.2 }}>
               <Link href="/dashboard/accounts" className="block h-full bg-white/5 border border-white/10 hover:border-white/20 rounded-3xl p-8 text-center text-white transition-all">
                 <div className="inline-flex p-4 rounded-2xl bg-blue-500/10 text-blue-400 mb-4">
@@ -238,7 +236,7 @@ export default function Dashboard() {
               </Link>
             </motion.div>
 
-            {/* New Automation Card */}
+            {/* New Automation */}
             <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ duration: 0.2 }}>
               <Link href="/dashboard/automations/new" className="block h-full bg-cyan-500/10 border border-cyan-500/20 hover:bg-cyan-500/20 rounded-3xl p-8 text-center text-white transition-all">
                 <div className="inline-flex p-4 rounded-2xl bg-cyan-500/20 text-cyan-400 mb-4">
@@ -249,7 +247,7 @@ export default function Dashboard() {
               </Link>
             </motion.div>
 
-            {/* View All Automations Card */}
+            {/* All Automations */}
             <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ duration: 0.2 }}>
               <Link href="/dashboard/flows" className="block h-full bg-white/5 border border-white/10 hover:border-white/20 rounded-3xl p-8 text-center text-white transition-all">
                 <div className="inline-flex p-4 rounded-2xl bg-purple-500/10 text-purple-400 mb-4">
@@ -257,6 +255,17 @@ export default function Dashboard() {
                 </div>
                 <div className="text-xl font-bold mb-2">{t.allAutomations}</div>
                 <div className="text-sm text-gray-400">{t.manageView}</div>
+              </Link>
+            </motion.div>
+
+            {/* Analytics */}
+            <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ duration: 0.2 }}>
+              <Link href="/dashboard/analytics" className="block h-full bg-white/5 border border-white/10 hover:border-white/20 rounded-3xl p-8 text-center text-white transition-all">
+                <div className="inline-flex p-4 rounded-2xl bg-orange-500/10 text-orange-400 mb-4">
+                  <BarChart2 size={32} />
+                </div>
+                <div className="text-xl font-bold mb-2">{t.analytics}</div>
+                <div className="text-sm text-gray-400">{t.analyticsDesc}</div>
               </Link>
             </motion.div>
 
