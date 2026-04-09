@@ -1,82 +1,145 @@
+// app/not-found.js
 'use client'
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { Home, Zap, ArrowRight, HelpCircle } from 'lucide-react'
+import { useLanguage } from '@/context/LanguageContext'
+import PageLayoutWith3D from '@/components/PageLayoutWith3D'
+
+const translations = {
+  en: {
+    badge: "Page Not Found",
+    title: "Sorry, the page you're looking for",
+    highlight: "is not available",
+    description: "The page may have been deleted, renamed, or is temporarily unavailable.",
+    btnHome: "Back to Home",
+    btnContact: "Contact Support",
+    linkLogin: "Login",
+    linkSignup: "Sign Up"
+  },
+  ar: {
+    badge: "الصفحة غير موجودة",
+    title: "عذراً، الصفحة التي تبحث عنها",
+    highlight: "غير متاحة",
+    description: "ربما تم حذف الصفحة أو تغيير اسمها أو أنها غير متاحة مؤقتاً.",
+    btnHome: "العودة للرئيسية",
+    btnContact: "تواصل مع الدعم",
+    linkLogin: "تسجيل الدخول",
+    linkSignup: "إنشاء حساب"
+  }
+}
 
 export default function NotFound() {
-  const fadeUp = {
-    hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] } }
-  }
+  const { lang } = useLanguage();
+  const t = translations[lang];
+  const dir = lang === 'ar' ? 'rtl' : 'ltr';
 
-  const staggerContainer = {
+  const fadeUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+  }
+  
+  const stagger = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
   }
 
-  const floatVariants = {
-    initial: { y: 0 },
-    animate: {
-      y: [-10, 10, -10],
-      transition: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+  // انيميشن الطيران المحسن (أكثر وضوحاً)
+  const floatAnimation = {
+    y: [0, -40, 0],        // يتحرك لفوق 40 بيكسل (مكان واضح)
+    rotate: [0, 3, -3, 0], // ميلان يمين وشمال (عشان يبان طبيعي)
+    transition: {
+      duration: 6,         // أبطأ شوية عشان يكون مريح للعين
+      repeat: Infinity,
+      ease: "easeInOut"
     }
   }
 
   return (
-    <main style={{ minHeight: '100vh', background: '#05080f', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-      {/* Background Effects */}
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
-        <div style={{ position: 'absolute', width: '700px', height: '700px', borderRadius: '50%', background: 'rgba(0,212,255,0.14)', filter: 'blur(110px)', top: '-200px', right: '-180px', animation: 'float 12s infinite alternate' }}></div>
-        <div style={{ position: 'absolute', width: '550px', height: '550px', borderRadius: '50%', background: 'rgba(0,80,255,0.11)', filter: 'blur(110px)', bottom: '-150px', left: '-150px', animation: 'float 12s infinite alternate', animationDelay: '-5s' }}></div>
-      </div>
-      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', backgroundImage: 'linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px)', backgroundSize: '64px 64px' }}></div>
-
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={staggerContainer}
-        style={{ textAlign: 'center', position: 'relative', zIndex: 1, padding: '2rem' }}
-      >
+    <PageLayoutWith3D>
+      <main dir={dir} className="min-h-[80vh] flex items-center justify-center px-4 py-20 overflow-hidden">
         <motion.div
-          variants={floatVariants}
-          initial="initial"
-          animate="animate"
-          style={{ fontSize: '8rem', fontWeight: 900, marginBottom: '1rem', background: 'linear-gradient(135deg, #00d4ff, #fff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+          initial="hidden"
+          animate="visible"
+          variants={stagger}
+          className="text-center max-w-2xl mx-auto relative z-10"
         >
-          404
-        </motion.div>
-        
-        <motion.h1 variants={fadeUp} style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '1rem', color: '#eef2ff' }}>
-          الصفحة غير موجودة
-        </motion.h1>
-        
-        <motion.p variants={fadeUp} style={{ color: 'rgba(238,242,255,0.6)', marginBottom: '2rem', maxWidth: '500px' }}>
-          عذراً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها
-        </motion.p>
-        
-        <motion.div variants={fadeUp}>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Link href="/" style={{ background: '#00d4ff', color: '#05080f', padding: '0.88rem 2.2rem', borderRadius: '99px', textDecoration: 'none', fontWeight: 700, display: 'inline-block', boxShadow: '0 0 20px rgba(0,212,255,0.3)' }}>
-              العودة إلى الرئيسية
+          {/* --- قسم الانيميشن المعدل --- */}
+          <motion.div variants={fadeUp} className="relative mb-8 cursor-default">
+            
+            {/* هذا العنصر الداخلي هو اللي بيحرك فقط */}
+            <motion.div
+              animate={floatAnimation}
+              className="inline-block"
+            >
+              <div className="text-[150px] md:text-[200px] font-black leading-none select-none">
+                <span className="bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+                  404
+                </span>
+              </div>
+            </motion.div>
+
+            {/* الخلفية الضبابية تتحرك معاه */}
+            <motion.div 
+              animate={floatAnimation}
+              className="absolute inset-0 flex items-center justify-center opacity-30 blur-3xl pointer-events-none -z-10"
+            >
+              <div className="text-[150px] md:text-[200px] font-black text-cyan-500 select-none">404</div>
+            </motion.div>
+          </motion.div>
+          {/* ---------------------------- */}
+
+          {/* Badge */}
+          <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-sm font-medium mb-6">
+            <Zap size={16} />
+            {t.badge}
+          </motion.div>
+
+          {/* Title */}
+          <motion.h1 variants={fadeUp} className="text-3xl md:text-4xl font-bold text-white mb-4">
+            {t.title}{' '}
+            <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              {t.highlight}
+            </span>
+          </motion.h1>
+
+          {/* Description */}
+          <motion.p variants={fadeUp} className="text-gray-400 text-lg mb-10 leading-relaxed">
+            {t.description}
+          </motion.p>
+
+          {/* Buttons */}
+          <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full transition-all shadow-lg shadow-cyan-500/30 text-lg"
+            >
+              <Home size={20} />
+              {t.btnHome}
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/20 text-white font-bold rounded-full transition-all text-lg"
+            >
+              <HelpCircle size={20} />
+              {t.btnContact}
+              <ArrowRight size={20} className={lang === 'ar' ? 'rotate-180' : ''} />
+            </Link>
+          </motion.div>
+
+          {/* Additional Links */}
+          <motion.div variants={fadeUp} className="mt-10 flex flex-wrap gap-4 justify-center text-sm">
+            <Link href="/login" className="text-gray-500 hover:text-cyan-400 transition">
+              {t.linkLogin}
+            </Link>
+            <span className="text-gray-600">•</span>
+            <Link href="/signup" className="text-gray-500 hover:text-cyan-400 transition">
+              {t.linkSignup}
             </Link>
           </motion.div>
         </motion.div>
-        
-        <motion.div variants={fadeUp} style={{ marginTop: '2rem', display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link href="/dashboard" style={{ color: 'rgba(238,242,255,0.6)', textDecoration: 'none', fontSize: '0.9rem' }}>لوحة التحكم</Link>
-          <span style={{ color: 'rgba(238,242,255,0.3)' }}>•</span>
-          <Link href="/login" style={{ color: 'rgba(238,242,255,0.6)', textDecoration: 'none', fontSize: '0.9rem' }}>تسجيل الدخول</Link>
-          <span style={{ color: 'rgba(238,242,255,0.3)' }}>•</span>
-          <Link href="/signup" style={{ color: 'rgba(238,242,255,0.6)', textDecoration: 'none', fontSize: '0.9rem' }}>إنشاء حساب</Link>
-        </motion.div>
-      </motion.div>
-
-      <style jsx>{`
-        @keyframes float {
-          0% { transform: translate(0,0) scale(1); }
-          100% { transform: translate(35px,25px) scale(1.08); }
-        }
-      `}</style>
-    </main>
+      </main>
+    </PageLayoutWith3D>
   )
 }

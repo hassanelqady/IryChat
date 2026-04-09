@@ -125,7 +125,6 @@ const Navbar = () => {
     { code: 'en', label: t.english },
   ];
 
-  // ✅ Logout صحيح مع Supabase signOut
   const handleLogout = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
@@ -196,9 +195,12 @@ const Navbar = () => {
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="flex justify-between items-center">
             
-            {/* Logo */}
+            {/* Logo - تم إضافة style لإلغاء التوهج القسري */}
             <Link href="/" className="flex-shrink-0 cursor-pointer z-40" onClick={closeMenu}>
-              <span className="text-xl md:text-3xl font-bold tracking-tight text-white">
+              <span 
+                className="text-xl md:text-3xl font-bold tracking-tight text-gray-200"
+                style={{ textShadow: 'none', filter: 'none' }}
+              >
                 IryChat
               </span>
             </Link>
@@ -254,7 +256,7 @@ const Navbar = () => {
               {/* Language Dropdown (Desktop Only) */}
               <div className="relative group hidden md:block">
                 <button className={`
-                  hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white transition-all duration-300
+                  hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white transition-all duration-300 shadow-none
                 `}>
                   <Settings size={16} className="text-current" />
                   <span className="text-xs font-bold uppercase tracking-wider">{lang === 'ar' ? 'AR' : 'EN'}</span>
@@ -290,6 +292,7 @@ const Navbar = () => {
                     text-red-400 hover:text-red-300 hover:bg-red-500/20
                     text-sm font-medium
                     transition-all duration-200
+                    shadow-none
                   "
                 >
                   <LogOut size={16} />
@@ -314,8 +317,10 @@ const Navbar = () => {
                     hover:scale-105
                     transition-all 
                     duration-200
-                    shadow-[0_0_15px_rgba(255,255,255,0.3)]
+                    shadow-none
                   `}
+                  // إضافة style لإلغاء أي تأثير توهج للنص داخل الزر
+                  style={{ textShadow: 'none', boxShadow: 'none' }}
                 >
                   {t.getStarted}
                 </Link>
@@ -354,7 +359,13 @@ const Navbar = () => {
         <div className="flex flex-col h-full max-w-md mx-auto px-4 sm:px-6 py-6">
           
           <div className="flex justify-center items-center h-16 border-b border-white/10 mb-6">
-            <span className="text-2xl font-bold text-white">IryChat</span>
+            {/* Logo في الموبايل - تم إضافة style لإلغاء التوهج */}
+            <span 
+              className="text-2xl font-bold text-gray-200"
+              style={{ textShadow: 'none', filter: 'none' }}
+            >
+              IryChat
+            </span>
           </div>
 
           <div className="flex-1 overflow-y-auto space-y-2">
@@ -442,6 +453,7 @@ const Navbar = () => {
                   transition-all duration-300 
                   active:scale-[0.98]
                 "
+                style={{ textShadow: 'none' }}
               >
                 {t.getStarted}
               </Link>
