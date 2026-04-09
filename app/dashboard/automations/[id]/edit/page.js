@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/context/LanguageContext'
-import { ArrowLeft, Save, X, Zap, MessageSquare, Loader2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Save, X, Zap, MessageSquare, Loader2 } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import PageLayoutWith3D from '@/components/PageLayoutWith3D'
 
@@ -85,7 +85,6 @@ export default function EditAutomationPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
 
-      // Fetch automation details and accounts simultaneously
       const [{ data: automation }, { data: accountsData }] = await Promise.all([
         supabase.from('automations').select('*').eq('id', id).single(),
         supabase.from('connected_accounts').select('*').eq('user_id', user.id)
@@ -110,14 +109,8 @@ export default function EditAutomationPage() {
   const update = (field, value) => setForm({ ...form, [field]: value })
 
   const handleSave = async () => {
-    if (!form.name || !form.trigger_keyword) {
-      setError(t.fillRequired)
-      return
-    }
-    if (!form.comment_reply && !form.dm_message) {
-      setError(t.addReply)
-      return
-    }
+    if (!form.name || !form.trigger_keyword) { setError(t.fillRequired); return }
+    if (!form.comment_reply && !form.dm_message) { setError(t.addReply); return }
 
     setSaving(true)
     setError('')
@@ -133,12 +126,7 @@ export default function EditAutomationPage() {
       updated_at: new Date().toISOString(),
     }).eq('id', id)
 
-    if (error) {
-      setError(t.genericError)
-      setSaving(false)
-      return
-    }
-
+    if (error) { setError(t.genericError); setSaving(false); return }
     router.push('/dashboard/flows')
   }
 
@@ -154,19 +142,16 @@ export default function EditAutomationPage() {
   return (
     <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
       <Navbar />
-      
+
       <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
-        
+
         {/* Header */}
         <div className="mb-8">
           <Link href="/dashboard/flows" className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition-colors">
-            <ArrowLeft size={16} />
+            {isRTL ? <ArrowRight size={16} /> : <ArrowLeft size={16} />}
             {t.backToAutomations}
           </Link>
-          
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-            {t.editAutomationTitle}
-          </h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">{t.editAutomationTitle}</h1>
           <p className="text-gray-400">{t.editAutomationSubtitle}</p>
         </div>
 
@@ -177,97 +162,95 @@ export default function EditAutomationPage() {
           </div>
         )}
 
-        {/* Form Card */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }} 
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 md:p-8 flex flex-col gap-8"
         >
-          
+
           {/* Section 1: Basic Info */}
           <div>
             <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-6">
-              <Zap size={16} />
-              {t.basicInfo}
+              <Zap size={16} /> {t.basicInfo}
             </div>
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-2">{t.automationName}</label>
-                <input 
-                  type="text" 
-                  value={form.name} 
-                  onChange={e => update('name', e.target.value)} 
+                <input
+                  type="text"
+                  value={form.name}
+                  onChange={e => update('name', e.target.value)}
                   className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-2">{t.linkedAccount}</label>
-                <select 
-                  value={form.account_id} 
-                  onChange={e => update('account_id', e.target.value)} 
+                <select
+                  value={form.account_id}
+                  onChange={e => update('account_id', e.target.value)}
                   className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 cursor-pointer appearance-none"
                 >
                   <option value="">{t.selectAccount}</option>
                   {accounts.map(acc => (
-                    <option key={acc.id} value={acc.id}>{acc.account_name} ({acc.account_type === 'instagram' ? 'Instagram' : 'Facebook'})</option>
+                    <option key={acc.id} value={acc.id}>
+                      {acc.account_name} ({acc.account_type === 'instagram' ? 'Instagram' : 'Facebook'})
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-2">{t.postUrl}</label>
-                <input 
-                  type="text" 
-                  value={form.post_url} 
-                  onChange={e => update('post_url', e.target.value)} 
+                <input
+                  type="text"
+                  value={form.post_url}
+                  onChange={e => update('post_url', e.target.value)}
                   className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
                 />
               </div>
             </div>
           </div>
 
-          <div className="h-px bg-white/10 w-full"></div>
+          <div className="h-px bg-white/10 w-full" />
 
           {/* Section 2: Trigger */}
           <div>
             <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-6">
-              <Zap size={16} />
-              {t.triggerWord}
+              <Zap size={16} /> {t.triggerWord}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-400 mb-2">{t.triggerKeyword}</label>
-              <input 
-                type="text" 
-                value={form.trigger_keyword} 
-                onChange={e => update('trigger_keyword', e.target.value)} 
+              <input
+                type="text"
+                value={form.trigger_keyword}
+                onChange={e => update('trigger_keyword', e.target.value)}
                 className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
               />
               <p className="text-gray-500 text-xs mt-2">{t.triggerHint}</p>
             </div>
           </div>
 
-          <div className="h-px bg-white/10 w-full"></div>
+          <div className="h-px bg-white/10 w-full" />
 
           {/* Section 3: Responses */}
           <div>
             <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-6">
-              <MessageSquare size={16} />
-              {t.responses}
+              <MessageSquare size={16} /> {t.responses}
             </div>
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-2">{t.commentReply}</label>
-                <textarea 
-                  value={form.comment_reply} 
-                  onChange={e => update('comment_reply', e.target.value)} 
+                <textarea
+                  value={form.comment_reply}
+                  onChange={e => update('comment_reply', e.target.value)}
                   rows={4}
                   className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all resize-vertical"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-400 mb-2">{t.dmMessage}</label>
-                <textarea 
-                  value={form.dm_message} 
-                  onChange={e => update('dm_message', e.target.value)} 
+                <textarea
+                  value={form.dm_message}
+                  onChange={e => update('dm_message', e.target.value)}
                   rows={4}
                   className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all resize-vertical"
                 />
@@ -277,22 +260,18 @@ export default function EditAutomationPage() {
 
           {/* Action Buttons */}
           <div className="flex gap-4">
-            <motion.button 
-              whileHover={{ scale: 1.02 }} 
-              whileTap={{ scale: 0.98 }} 
-              onClick={handleSave} 
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleSave}
               disabled={saving}
               className="flex-1 py-4 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full transition-all duration-200 shadow-lg shadow-cyan-500/20 disabled:opacity-70 flex items-center justify-center gap-2"
             >
-              {saving ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <Save size={20} />
-              )}
+              {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save size={20} />}
               {saving ? t.saving : t.saveBtn}
             </motion.button>
-            
-            <Link 
+
+            <Link
               href="/dashboard/flows"
               className="flex-1 py-4 bg-white/5 hover:bg-white/10 text-white font-bold rounded-full transition-all duration-200 flex items-center justify-center gap-2"
             >

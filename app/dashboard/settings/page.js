@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { User, Link as LinkIcon, LogOut, CheckCircle, Save, RefreshCw, ExternalLink, Facebook } from 'lucide-react'
+import { User, Link as LinkIcon, CheckCircle, Save, RefreshCw, ExternalLink, Facebook, ArrowLeft, ArrowRight } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import PageLayoutWith3D from '@/components/PageLayoutWith3D'
 import { useLanguage } from '@/context/LanguageContext'
@@ -38,12 +38,12 @@ export default function SettingsPage() {
       goToAccounts: "Go to Accounts",
       noAccounts: "No accounts connected yet.",
       connectedAs: "Connected via Meta",
-      logout: "Logout",
       deleteAccount: "Delete My Data",
       deleteAccountDesc: "Request deletion of all your data from IryChat.",
       deleteAccountLink: "Submit Deletion Request",
       instagram: "Instagram Business",
       facebook: "Facebook Page",
+      back: "Back",
     },
     ar: {
       settings: "الإعدادات",
@@ -60,21 +60,16 @@ export default function SettingsPage() {
       goToAccounts: "الذهاب للحسابات",
       noAccounts: "لا توجد حسابات متصلة بعد.",
       connectedAs: "متصل عبر Meta",
-      logout: "تسجيل الخروج",
       deleteAccount: "حذف بياناتي",
       deleteAccountDesc: "طلب حذف جميع بياناتك من منصة IryChat.",
       deleteAccountLink: "تقديم طلب الحذف",
       instagram: "Instagram Business",
       facebook: "Facebook Page",
+      back: "رجوع",
     }
   }
 
   const t = content[lang]
-
-  const fadeUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
-  }
 
   useEffect(() => {
     const init = async () => {
@@ -101,12 +96,6 @@ export default function SettingsPage() {
     setTimeout(() => setSaved(false), 3000)
   }
 
-  const handleLogout = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/')
-  }
-
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-black">
       <div className="flex items-center gap-3 text-cyan-400">
@@ -128,13 +117,14 @@ export default function SettingsPage() {
             <h1 className="text-4xl font-bold text-white mb-2">{t.settings}</h1>
             <p className="text-gray-400">{t.subtitle}</p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg text-red-400 text-sm font-medium transition-all"
+          {/* Back Button */}
+          <Link
+            href="/dashboard"
+            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
           >
-            <LogOut size={18} />
-            {t.logout}
-          </button>
+            {isRTL ? <ArrowRight size={18} /> : <ArrowLeft size={18} />}
+            {t.back}
+          </Link>
         </div>
 
         {/* Success Alert */}

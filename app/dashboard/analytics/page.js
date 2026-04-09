@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/context/LanguageContext'
-import { BarChart2, Zap, Grid, LogOut, TrendingUp, MessageSquare, CheckCircle2, XCircle, Bot } from 'lucide-react'
+import { BarChart2, Zap, Grid, TrendingUp, MessageSquare, CheckCircle2, XCircle, Bot, ArrowLeft, ArrowRight } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import PageLayoutWith3D from '@/components/PageLayoutWith3D'
 
@@ -44,13 +44,12 @@ export default function AnalyticsPage() {
       dmSent: "DM Sent",
       failed: "Failed",
       dashboard: "Dashboard",
-      accounts: "Accounts",
       flows: "Automations",
-      logout: "Logout",
       loading: "Loading...",
       recentActivity: "Recent Activity",
       noActivity: "No activity yet.",
       operations: "operations",
+      back: "Back",
     },
     ar: {
       title: "التحليلات",
@@ -75,13 +74,12 @@ export default function AnalyticsPage() {
       dmSent: "DM أُرسل",
       failed: "فشل",
       dashboard: "لوحة التحكم",
-      accounts: "الحسابات",
       flows: "الأتمتات",
-      logout: "تسجيل الخروج",
       loading: "جاري التحميل...",
       recentActivity: "النشاط الأخير",
       noActivity: "لا يوجد نشاط بعد.",
       operations: "عملية",
+      back: "رجوع",
     }
   }
 
@@ -124,19 +122,11 @@ export default function AnalyticsPage() {
     init()
   }, [period])
 
-  const handleLogout = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/')
-  }
-
-  // Stats calculations
   const totalLogs = logs.length
   const successLogs = logs.filter(l => l.action_taken && l.action_taken !== 'failed').length
   const successRate = totalLogs > 0 ? Math.round((successLogs / totalLogs) * 100) : 0
   const activeCount = automations.filter(a => a.is_active).length
 
-  // Top automation by log count
   const logsByAutomation = logs.reduce((acc, log) => {
     acc[log.automation_id] = (acc[log.automation_id] || 0) + 1
     return acc
@@ -168,16 +158,16 @@ export default function AnalyticsPage() {
             <p className="text-gray-400">{t.desc}</p>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all">
-              <Zap size={18} /> {t.dashboard}
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
+            >
+              {isRTL ? <ArrowRight size={18} /> : <ArrowLeft size={18} />}
+              {t.back}
             </Link>
             <Link href="/dashboard/flows" className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all">
               <Grid size={18} /> {t.flows}
             </Link>
-            <div className="h-6 w-px bg-white/20 mx-1 hidden md:block" />
-            <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg text-red-400 text-sm font-medium transition-all">
-              <LogOut size={18} /> {t.logout}
-            </button>
           </div>
         </div>
 
@@ -327,12 +317,8 @@ export default function AnalyticsPage() {
                       <div key={log.id || i} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl">
                         <div className={`w-2 h-2 rounded-full flex-shrink-0 ${isSuccess ? 'bg-green-400' : 'bg-red-400'}`} />
                         <div className="flex-1 min-w-0">
-                          <p className="text-white text-sm font-medium truncate">
-                            {automation?.name || '—'}
-                          </p>
-                          <p className="text-gray-500 text-xs truncate">
-                            {log.comment_text || log.commenter_name || '—'}
-                          </p>
+                          <p className="text-white text-sm font-medium truncate">{automation?.name || '—'}</p>
+                          <p className="text-gray-500 text-xs truncate">{log.comment_text || log.commenter_name || '—'}</p>
                         </div>
                         <div className="text-right flex-shrink-0">
                           <span className={`text-xs font-medium ${isSuccess ? 'text-green-400' : 'text-red-400'}`}>

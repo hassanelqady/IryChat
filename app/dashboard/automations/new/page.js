@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/context/LanguageContext'
-import { ArrowLeft, Zap, MessageSquare, CheckCircle, AlertCircle, Plus, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Zap, MessageSquare, CheckCircle, AlertCircle, Plus, X } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import PageLayoutWith3D from '@/components/PageLayoutWith3D'
 
@@ -25,7 +25,6 @@ export default function NewAutomationPage() {
     post_url: '',
   })
 
-  // Keywords & Replies as arrays
   const [keywords, setKeywords] = useState([])
   const [keywordInput, setKeywordInput] = useState('')
   const [commentReplies, setCommentReplies] = useState([])
@@ -117,7 +116,6 @@ export default function NewAutomationPage() {
     init()
   }, [])
 
-  // Keyword helpers
   const addKeyword = () => {
     const kw = keywordInput.trim()
     if (!kw || keywords.includes(kw)) return
@@ -127,7 +125,6 @@ export default function NewAutomationPage() {
   }
   const removeKeyword = (kw) => setKeywords(keywords.filter(k => k !== kw))
 
-  // Comment reply helpers
   const addCommentReply = () => {
     const r = commentInput.trim()
     if (!r) return
@@ -137,7 +134,6 @@ export default function NewAutomationPage() {
   }
   const removeCommentReply = (i) => setCommentReplies(commentReplies.filter((_, idx) => idx !== i))
 
-  // DM helpers
   const addDm = () => {
     const d = dmInput.trim()
     if (!d) return
@@ -166,7 +162,6 @@ export default function NewAutomationPage() {
       trigger_keywords: keywords,
       comment_replies: commentReplies,
       dm_messages: dmMessages,
-      // للتوافق مع الكود القديم
       trigger_keyword: keywords[0],
       comment_reply: commentReplies[0] || null,
       dm_message: dmMessages[0] || null,
@@ -177,12 +172,9 @@ export default function NewAutomationPage() {
     router.push('/dashboard/flows')
   }
 
-  const fadeUp = { hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } }
-
   const TagInput = ({ items, onRemove, input, setInput, onAdd, placeholder, hint }) => (
     <div>
       <p className="text-gray-500 text-xs mb-3">{hint}</p>
-      {/* Tags */}
       {items.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
           <AnimatePresence>
@@ -195,7 +187,7 @@ export default function NewAutomationPage() {
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 rounded-full text-sm font-medium"
               >
                 {item}
-                <button onClick={() => onRemove(i)} className="text-cyan-600 hover:text-red-400 transition-colors">
+                <button onClick={() => onRemove(item)} className="text-cyan-600 hover:text-red-400 transition-colors">
                   <X size={12} />
                 </button>
               </motion.span>
@@ -203,7 +195,6 @@ export default function NewAutomationPage() {
           </AnimatePresence>
         </div>
       )}
-      {/* Input */}
       <div className="flex gap-2">
         <input
           type="text"
@@ -272,7 +263,7 @@ export default function NewAutomationPage() {
         {/* Header */}
         <div className="mb-8">
           <Link href="/dashboard/flows" className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition-colors">
-            <ArrowLeft size={16} />
+            {isRTL ? <ArrowRight size={16} /> : <ArrowLeft size={16} />}
             {t.back}
           </Link>
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">{t.title}</h1>

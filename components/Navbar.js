@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
 import { ChevronDown, Instagram, Facebook, MessageCircle, Music, Settings, LogOut } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 // مكون زر القائمة
 const AnimatedMenuButton = ({ isOpen, toggle, size = 26 }) => {
@@ -59,17 +60,8 @@ const Navbar = () => {
 
   const isRTL = lang === 'ar';
 
-  // -----------------------------------------------------------
-  // تعديل منطق تسجيل الدخول
-  // هذا شرط تجريبي: إذا كان المستخدم في صفحة الداش بورد، نعتبره مسجل دخول
-  // -----------------------------------------------------------
   const isDashboard = pathname.startsWith('/dashboard');
   const isLoggedIn = isDashboard;
-
-  // في المستقبل ستحتاج لاستبدال السطر أعلاه بـ:
-  // const { user } = useAuth(); 
-  // const isLoggedIn = !!user;
-  // -----------------------------------------------------------
 
   const content = {
     ar: {
@@ -133,11 +125,12 @@ const Navbar = () => {
     { code: 'en', label: t.english },
   ];
 
-  const handleLogout = () => {
-    // هنا تضع كود تسجيل الخروج الفعلي
-    console.log("Logging out...");
-    router.push('/'); // التوجيه للرئيسية
+  // ✅ Logout صحيح مع Supabase signOut
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
     closeMenu();
+    router.push('/');
   };
 
   useEffect(() => {
@@ -258,7 +251,7 @@ const Navbar = () => {
             {/* --- Right Side Actions --- */}
             <div className="flex items-center gap-3 rtl:gap-3">
               
-              {/* Language Dropdown (Desktop Only) - Gear Icon */}
+              {/* Language Dropdown (Desktop Only) */}
               <div className="relative group hidden md:block">
                 <button className={`
                   hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white transition-all duration-300
@@ -328,7 +321,7 @@ const Navbar = () => {
                 </Link>
               )}
 
-              {/* Mobile Hamburger Button */}
+              {/* Mobile Hamburger */}
               <AnimatedMenuButton 
                 isOpen={isOpen} 
                 toggle={toggleMenu} 
@@ -360,7 +353,6 @@ const Navbar = () => {
       >
         <div className="flex flex-col h-full max-w-md mx-auto px-4 sm:px-6 py-6">
           
-          {/* Header */}
           <div className="flex justify-center items-center h-16 border-b border-white/10 mb-6">
             <span className="text-2xl font-bold text-white">IryChat</span>
           </div>
@@ -402,10 +394,9 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* --- Mobile Footer Buttons --- */}
+          {/* Mobile Footer */}
           <div className="mt-auto pt-10 pb-6 border-t border-white/10 space-y-4">
             
-            {/* Language Button - Gear Icon */}
             <button 
               onClick={toggleLanguage} 
               className="
@@ -422,7 +413,6 @@ const Navbar = () => {
               <span>{t.langBtn}</span>
             </button>
 
-            {/* --- Auth Button (Mobile) --- */}
             {isLoggedIn ? (
               <button 
                 onClick={handleLogout}
@@ -449,7 +439,6 @@ const Navbar = () => {
                   bg-white text-black 
                   text-base font-bold 
                   hover:bg-gray-200 
-                  hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] 
                   transition-all duration-300 
                   active:scale-[0.98]
                 "

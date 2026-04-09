@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/context/LanguageContext'
-import { Plus, Play, Pause, Pencil, Trash2, Bot, LogOut, Zap, Grid, CheckCircle2, XCircle } from 'lucide-react'
+import { Plus, Play, Pause, Pencil, Trash2, Bot, Zap, Grid, CheckCircle2, XCircle, ArrowLeft, ArrowRight } from 'lucide-react'
 import Navbar from '@/components/Navbar'
 import PageLayoutWith3D from '@/components/PageLayoutWith3D'
 
@@ -37,9 +37,9 @@ export default function FlowsPage() {
       deleteConfirm: "Are you sure you want to delete this automation?",
       dashboard: "Dashboard",
       accounts: "Accounts",
-      logout: "Logout",
       loading: "Loading...",
       any: "Any post",
+      back: "Back",
     },
     ar: {
       title: "كل الأتمتات",
@@ -59,9 +59,9 @@ export default function FlowsPage() {
       deleteConfirm: "هل أنت متأكد من حذف هذه الأتمتة؟",
       dashboard: "لوحة التحكم",
       accounts: "الحسابات",
-      logout: "تسجيل الخروج",
       loading: "جاري التحميل...",
       any: "كل المنشورات",
+      back: "رجوع",
     }
   }
 
@@ -83,12 +83,6 @@ export default function FlowsPage() {
     }
     init()
   }, [])
-
-  const handleLogout = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/')
-  }
 
   const toggleStatus = async (id, currentStatus) => {
     const supabase = createClient()
@@ -124,16 +118,16 @@ export default function FlowsPage() {
             <p className="text-gray-400">{t.desc}</p>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all">
-              <Zap size={18} /> {t.dashboard}
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
+            >
+              {isRTL ? <ArrowRight size={18} /> : <ArrowLeft size={18} />}
+              {t.back}
             </Link>
             <Link href="/dashboard/accounts" className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all">
               <Grid size={18} /> {t.accounts}
             </Link>
-            <div className="h-6 w-px bg-white/20 mx-1 hidden md:block" />
-            <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg text-red-400 text-sm font-medium transition-all">
-              <LogOut size={18} /> {t.logout}
-            </button>
           </div>
         </div>
 
@@ -189,8 +183,6 @@ export default function FlowsPage() {
                           </span>
                         )}
                       </div>
-
-                      {/* Keywords tags */}
                       <div className="flex flex-wrap gap-1.5 mb-2">
                         <span className="text-gray-500 text-xs">{t.keywords}:</span>
                         {keywords.map((kw, ki) => (
@@ -199,19 +191,9 @@ export default function FlowsPage() {
                           </span>
                         ))}
                       </div>
-
-                      {/* Replies & DMs count */}
                       <div className="flex gap-3 text-xs text-gray-500">
-                        {repliesCount > 0 && (
-                          <span className="flex items-center gap-1">
-                            💬 {repliesCount} {t.replies}
-                          </span>
-                        )}
-                        {dmsCount > 0 && (
-                          <span className="flex items-center gap-1">
-                            ✉️ {dmsCount} {t.dms}
-                          </span>
-                        )}
+                        {repliesCount > 0 && <span className="flex items-center gap-1">💬 {repliesCount} {t.replies}</span>}
+                        {dmsCount > 0 && <span className="flex items-center gap-1">✉️ {dmsCount} {t.dms}</span>}
                         <span className="flex items-center gap-1">
                           🔗 {automation.post_url ? automation.post_url.slice(0, 30) + '...' : t.any}
                         </span>

@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Link as LinkIcon, Trash2, Plus, LogOut, Grid, Zap, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Link as LinkIcon, Trash2, Plus, Grid, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import Navbar from '@/components/Navbar'
 import PageLayoutWith3D from '@/components/PageLayoutWith3D'
@@ -32,10 +32,9 @@ function AccountsContent() {
       connected: "Connected",
       disconnect: "Disconnect",
       dashboard: "Dashboard",
-      accounts: "Accounts",
       automations: "Automations",
-      logout: "Logout",
       loading: "Loading...",
+      back: "Back",
     },
     ar: {
       connectAccounts: "الحسابات المتصلة",
@@ -48,10 +47,9 @@ function AccountsContent() {
       connected: "متصل",
       disconnect: "فصل",
       dashboard: "لوحة التحكم",
-      accounts: "الحسابات",
       automations: "الأتمتات",
-      logout: "تسجيل الخروج",
       loading: "جاري التحميل...",
+      back: "رجوع",
     }
   }
 
@@ -69,12 +67,6 @@ function AccountsContent() {
     }
     init()
   }, [])
-
-  const handleLogout = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/')
-  }
 
   const connectMeta = () => {
     const params = new URLSearchParams({
@@ -107,7 +99,7 @@ function AccountsContent() {
       
       <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
         
-        {/* Dashboard Sub-nav */}
+        {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">{t.connectAccounts}</h1>
@@ -116,11 +108,11 @@ function AccountsContent() {
           
           <div className="flex items-center gap-3">
             <Link 
-              href="/dashboard" 
+              href="/dashboard"
               className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
             >
-              <Zap size={18} />
-              {t.dashboard}
+              {isRTL ? <ArrowRight size={18} /> : <ArrowLeft size={18} />}
+              {t.back}
             </Link>
             <Link 
               href="/dashboard/flows" 
@@ -129,16 +121,6 @@ function AccountsContent() {
               <Grid size={18} />
               {t.automations}
             </Link>
-            
-            <div className="h-6 w-px bg-white/20 mx-1 hidden md:block"></div>
-
-            <button 
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg text-red-400 text-sm font-medium transition-all"
-            >
-              <LogOut size={18} />
-              {t.logout}
-            </button>
           </div>
         </div>
 
@@ -178,13 +160,11 @@ function AccountsContent() {
             {accounts.map(account => (
               <div key={account.id} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 transition-all hover:border-white/20">
                 <div className="flex items-center gap-4 w-full md:w-auto">
-                  <div 
-                    className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-lg ${
-                      account.account_type === 'instagram' 
-                        ? 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400' 
-                        : 'bg-blue-600'
-                    }`}
-                  >
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-lg ${
+                    account.account_type === 'instagram' 
+                      ? 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400' 
+                      : 'bg-blue-600'
+                  }`}>
                     {account.account_type === 'instagram' ? '📸' : '📘'}
                   </div>
                   <div>

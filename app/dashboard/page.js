@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { LogOut, Settings, Grid, Zap, MessageSquare, Link as LinkIcon, ArrowRight, BarChart2 } from 'lucide-react'
+import { Settings, Grid, Zap, MessageSquare, Link as LinkIcon, BarChart2, ArrowRight, ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/context/LanguageContext'
 import Navbar from '@/components/Navbar'
@@ -43,8 +43,8 @@ export default function Dashboard() {
       autoReplyDM: "Auto-reply to DMs",
       allAutomations: "All Automations",
       manageView: "Manage and view all flows",
-      logout: "Logout",
       loading: "Loading...",
+      backHome: "Home",
     },
     ar: {
       analytics: "التحليلات",
@@ -65,8 +65,8 @@ export default function Dashboard() {
       autoReplyDM: "رد آلي على الرسائل",
       allAutomations: "كل الأتمتات",
       manageView: "إدارة وعرض جميع المسارات",
-      logout: "تسجيل الخروج",
       loading: "جاري التحميل...",
+      backHome: "الرئيسية",
     }
   }
 
@@ -119,12 +119,6 @@ export default function Dashboard() {
     init()
   }, [router])
 
-  const handleLogout = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/')
-  }
-
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-black">
       <div className="flex items-center gap-3 text-cyan-400">
@@ -152,6 +146,15 @@ export default function Dashboard() {
           </div>
 
           <div className="flex items-center gap-3 flex-wrap">
+            {/* Back to Home */}
+            <Link
+              href="/"
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
+            >
+              {isRTL ? <ArrowRight size={18} /> : <ArrowLeft size={18} />}
+              {t.backHome}
+            </Link>
+
             <Link
               href="/dashboard/accounts"
               className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
@@ -173,16 +176,6 @@ export default function Dashboard() {
               <BarChart2 size={18} />
               {t.analytics}
             </Link>
-
-            <div className="h-6 w-px bg-white/20 mx-1 hidden md:block" />
-
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-lg text-red-400 text-sm font-medium transition-all"
-            >
-              <LogOut size={18} />
-              {t.logout}
-            </button>
           </div>
         </div>
 
@@ -225,7 +218,6 @@ export default function Dashboard() {
           <h2 className="text-xl font-bold text-white mb-6">{t.quickActions}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
-            {/* Accounts */}
             <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ duration: 0.2 }}>
               <Link href="/dashboard/accounts" className="block h-full bg-white/5 border border-white/10 hover:border-white/20 rounded-3xl p-8 text-center text-white transition-all">
                 <div className="inline-flex p-4 rounded-2xl bg-blue-500/10 text-blue-400 mb-4">
@@ -236,7 +228,6 @@ export default function Dashboard() {
               </Link>
             </motion.div>
 
-            {/* New Automation */}
             <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ duration: 0.2 }}>
               <Link href="/dashboard/automations/new" className="block h-full bg-cyan-500/10 border border-cyan-500/20 hover:bg-cyan-500/20 rounded-3xl p-8 text-center text-white transition-all">
                 <div className="inline-flex p-4 rounded-2xl bg-cyan-500/20 text-cyan-400 mb-4">
@@ -247,7 +238,6 @@ export default function Dashboard() {
               </Link>
             </motion.div>
 
-            {/* All Automations */}
             <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ duration: 0.2 }}>
               <Link href="/dashboard/flows" className="block h-full bg-white/5 border border-white/10 hover:border-white/20 rounded-3xl p-8 text-center text-white transition-all">
                 <div className="inline-flex p-4 rounded-2xl bg-purple-500/10 text-purple-400 mb-4">
@@ -258,7 +248,6 @@ export default function Dashboard() {
               </Link>
             </motion.div>
 
-            {/* Analytics */}
             <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ duration: 0.2 }}>
               <Link href="/dashboard/analytics" className="block h-full bg-white/5 border border-white/10 hover:border-white/20 rounded-3xl p-8 text-center text-white transition-all">
                 <div className="inline-flex p-4 rounded-2xl bg-orange-500/10 text-orange-400 mb-4">
