@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useLanguage } from '@/context/LanguageContext';
-import { ChevronDown, Instagram, Facebook, MessageCircle, Music } from 'lucide-react';
+import { ChevronDown, Instagram, Facebook, MessageCircle, Music, Settings, LogOut } from 'lucide-react';
 
-// مكون زر القائمة (النسخة السابقة - الحجم 26 مع تحرك عمودي)
+// مكون زر القائمة
 const AnimatedMenuButton = ({ isOpen, toggle, size = 26 }) => {
   return (
     <button
@@ -33,29 +33,13 @@ const AnimatedMenuButton = ({ isOpen, toggle, size = 26 }) => {
         strokeLinejoin="round"
         className="transition-all duration-300"
       >
-        {/* الخط العلوي */}
         <line 
-          x1="4" 
-          y1="8" 
-          x2="20" 
-          y2="8" 
-          className={`
-            origin-center 
-            transition-transform duration-300 
-            ${isOpen ? 'rotate-45 translate-y-3.5' : ''}
-          `} 
+          x1="4" y1="8" x2="20" y2="8" 
+          className={`origin-center transition-transform duration-300 ${isOpen ? 'rotate-45 translate-y-3.5' : ''}`} 
         />
-        {/* الخط السفلي */}
         <line 
-          x1="4" 
-          y1="16" 
-          x2="20" 
-          y2="16" 
-          className={`
-            origin-center 
-            transition-transform duration-300 
-            ${isOpen ? '-rotate-45 -translate-y-3.5' : ''}
-          `} 
+          x1="4" y1="16" x2="20" y2="16" 
+          className={`origin-center transition-transform duration-300 ${isOpen ? '-rotate-45 -translate-y-3.5' : ''}`} 
         />
       </svg>
     </button>
@@ -63,6 +47,7 @@ const AnimatedMenuButton = ({ isOpen, toggle, size = 26 }) => {
 };
 
 const Navbar = () => {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   
@@ -74,9 +59,22 @@ const Navbar = () => {
 
   const isRTL = lang === 'ar';
 
+  // -----------------------------------------------------------
+  // تعديل منطق تسجيل الدخول
+  // هذا شرط تجريبي: إذا كان المستخدم في صفحة الداش بورد، نعتبره مسجل دخول
+  // -----------------------------------------------------------
+  const isDashboard = pathname.startsWith('/dashboard');
+  const isLoggedIn = isDashboard;
+
+  // في المستقبل ستحتاج لاستبدال السطر أعلاه بـ:
+  // const { user } = useAuth(); 
+  // const isLoggedIn = !!user;
+  // -----------------------------------------------------------
+
   const content = {
     ar: {
       getStarted: 'ابدأ مجاناً',
+      logout: 'تسجيل الخروج',
       product: 'المنتج',
       about: 'حول',
       pricing: 'خطط الأسعار',
@@ -95,6 +93,7 @@ const Navbar = () => {
     },
     en: {
       getStarted: 'Get Started',
+      logout: 'Log Out',
       product: 'Product',
       about: 'About',
       pricing: 'Pricing',
@@ -130,9 +129,16 @@ const Navbar = () => {
   ];
 
   const languageOptions = [
-    { code: 'ar', label: t.arabic, flag: '🇸🇦' },
-    { code: 'en', label: t.english, flag: '🇺🇸' },
+    { code: 'ar', label: t.arabic },
+    { code: 'en', label: t.english },
   ];
+
+  const handleLogout = () => {
+    // هنا تضع كود تسجيل الخروج الفعلي
+    console.log("Logging out...");
+    router.push('/'); // التوجيه للرئيسية
+    closeMenu();
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -189,6 +195,9 @@ const Navbar = () => {
         ${isNavHidden ? '-translate-y-full' : 'translate-y-0'}
         md:translate-y-0
         bg-transparent
+        md:bg-black/40
+        md:backdrop-blur-md
+        md:border-b md:border-white/10
         py-4
       `}>
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-12">
@@ -249,10 +258,13 @@ const Navbar = () => {
             {/* --- Right Side Actions --- */}
             <div className="flex items-center gap-3 rtl:gap-3">
               
-              {/* Language Dropdown (Desktop Only) */}
+              {/* Language Dropdown (Desktop Only) - Gear Icon */}
               <div className="relative group hidden md:block">
-                <button className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white transition-all duration-300`}>
-                  <span>{isRTL ? '🇸🇦' : '🇺🇸'}</span>
+                <button className={`
+                  hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white transition-all duration-300
+                `}>
+                  <Settings size={16} className="text-current" />
+                  <span className="text-xs font-bold uppercase tracking-wider">{lang === 'ar' ? 'AR' : 'EN'}</span>
                   <ChevronDown className="w-3 h-3" />
                 </button>
                 
@@ -262,13 +274,11 @@ const Navbar = () => {
                       <button
                         key={opt.code}
                         onClick={() => handleLanguageSelect(opt.code)}
-                        className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                          lang === opt.code
-                            ? 'bg-white/10 text-white'
-                            : 'text-gray-300 hover:text-white hover:bg-white/5'
-                        }`}
+                        className={`
+                          w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+                          ${lang === opt.code ? 'bg-white/10 text-white' : 'text-gray-300 hover:text-white hover:bg-white/5'}
+                        `}
                       >
-                        <span>{opt.flag}</span>
                         <span>{opt.label}</span>
                       </button>
                     ))}
@@ -276,30 +286,47 @@ const Navbar = () => {
                 </div>
               </div>
 
-              {/* CTA Button (Desktop Only) */}
-              <Link 
-                href="/signup" 
-                className={`
-                  hidden 
-                  md:inline-flex 
-                  items-center 
-                  justify-center 
-                  px-6 
-                  py-2.5 
-                  bg-white 
-                  text-black 
-                  text-sm 
-                  font-bold 
-                  rounded-full 
-                  hover:bg-gray-200 
-                  hover:scale-105
-                  transition-all 
-                  duration-200
-                  shadow-[0_0_15px_rgba(255,255,255,0.3)]
-                `}
-              >
-                {t.getStarted}
-              </Link>
+              {/* --- Auth Button (Desktop) --- */}
+              {isLoggedIn ? (
+                <button 
+                  onClick={handleLogout}
+                  className="
+                    hidden md:flex items-center justify-center gap-2
+                    px-5 py-2.5 rounded-full
+                    border border-red-500/30 bg-red-500/10
+                    text-red-400 hover:text-red-300 hover:bg-red-500/20
+                    text-sm font-medium
+                    transition-all duration-200
+                  "
+                >
+                  <LogOut size={16} />
+                  {t.logout}
+                </button>
+              ) : (
+                <Link 
+                  href="/signup" 
+                  className={`
+                    hidden 
+                    md:inline-flex 
+                    items-center 
+                    justify-center 
+                    px-6 
+                    py-2.5 
+                    bg-white 
+                    text-black 
+                    text-sm 
+                    font-bold 
+                    rounded-full 
+                    hover:bg-gray-200 
+                    hover:scale-105
+                    transition-all 
+                    duration-200
+                    shadow-[0_0_15px_rgba(255,255,255,0.3)]
+                  `}
+                >
+                  {t.getStarted}
+                </Link>
+              )}
 
               {/* Mobile Hamburger Button */}
               <AnimatedMenuButton 
@@ -375,14 +402,62 @@ const Navbar = () => {
             </div>
           </div>
 
-          <div className="mt-auto pt-6 border-t border-white/10 space-y-4">
-             <button onClick={toggleLanguage} className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-white/10 text-white font-medium hover:bg-white/10 transition-colors">
-               <span>{isRTL ? '🇸🇦' : '🇺🇸'}</span>
-               {t.langBtn}
-             </button>
-             <Link href="/signup" onClick={closeMenu} className="w-full flex items-center justify-center px-6 py-4 bg-white text-black text-lg font-bold hover:bg-gray-200 transition-all duration-200 shadow-lg">
-               {t.getStarted}
-             </Link>
+          {/* --- Mobile Footer Buttons --- */}
+          <div className="mt-auto pt-10 pb-6 border-t border-white/10 space-y-4">
+            
+            {/* Language Button - Gear Icon */}
+            <button 
+              onClick={toggleLanguage} 
+              className="
+                w-full flex items-center justify-center gap-3 
+                py-3.5 rounded-full 
+                border border-white/20 bg-white/5 
+                text-gray-300 font-medium 
+                hover:bg-white/10 hover:border-white/40 hover:text-white 
+                transition-all duration-300 
+                active:scale-[0.98]
+              "
+            >
+              <Settings size={20} className="text-white/70" />
+              <span>{t.langBtn}</span>
+            </button>
+
+            {/* --- Auth Button (Mobile) --- */}
+            {isLoggedIn ? (
+              <button 
+                onClick={handleLogout}
+                className="
+                  w-full flex items-center justify-center gap-3
+                  py-4 rounded-full 
+                  border border-red-500/30 bg-red-500/10
+                  text-red-400 hover:text-red-300 hover:bg-red-500/20
+                  text-base font-bold
+                  transition-all duration-300 
+                  active:scale-[0.98]
+                "
+              >
+                <LogOut size={20} />
+                {t.logout}
+              </button>
+            ) : (
+              <Link 
+                href="/signup" 
+                onClick={closeMenu} 
+                className="
+                  w-full flex items-center justify-center 
+                  py-4 rounded-full 
+                  bg-white text-black 
+                  text-base font-bold 
+                  hover:bg-gray-200 
+                  hover:shadow-[0_0_20px_rgba(255,255,255,0.4)] 
+                  transition-all duration-300 
+                  active:scale-[0.98]
+                "
+              >
+                {t.getStarted}
+              </Link>
+            )}
+
           </div>
 
         </div>
