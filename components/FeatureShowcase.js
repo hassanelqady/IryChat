@@ -135,11 +135,9 @@ const FEATURES = {
   ],
 }
 
+// ─── SHARED CHAT FRAME ─────────────────────────────────────────────────────
 
-
-// ─── CHAT FRAME (MODIFIED) ─────────────────────────────────────────────────────
-
-function PhoneMockup({ feature, isRTL }) {
+function PhoneMockup({ feature, isRTL, scrollDirection }) {
   const [visibleMessages, setVisibleMessages] = useState([])
   const [showTyping, setShowTyping] = useState(false)
   const timersRef = useRef([])
@@ -172,10 +170,14 @@ function PhoneMockup({ feature, isRTL }) {
     return () => timersRef.current.forEach(clearTimeout)
   }, [runAnimation])
 
+  const enterAnimation = scrollDirection === 'next' 
+    ? 'slideInFromBottom' 
+    : 'slideInFromTop'
+
   return (
     <div style={{
-      width: 320,
-      height: 480,
+      width: '100%', 
+      height: '100%',
       borderRadius: 28,
       background: '#000000',
       border: '1px solid rgba(255,255,255,0.1)',
@@ -186,8 +188,8 @@ function PhoneMockup({ feature, isRTL }) {
       flexShrink: 0,
       zIndex: 10,
       boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
+      animation: `${enterAnimation} 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards`,
     }}>
-      {/* Chat area */}
       <div
         style={{
           flex: 1,
@@ -199,47 +201,30 @@ function PhoneMockup({ feature, isRTL }) {
           background: '#000000',
         }}
       >
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 12,
-        }}>
+        <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
           {visibleMessages.map((msg) => {
             const isBot = msg.from === 'bot'
             return (
-              <div
-                key={msg.key}
-                style={{
-                  display: 'flex',
-                  justifyContent: isBot
-                    ? (isRTL ? 'flex-end' : 'flex-start')
-                    : (isRTL ? 'flex-start' : 'flex-end'),
-                  width: '100%',
-                }}
-              >
-                {/* Bubble Container */}
+              <div key={msg.key} style={{
+                display: 'flex',
+                justifyContent: isBot
+                  ? (isRTL ? 'flex-end' : 'flex-start')
+                  : (isRTL ? 'flex-start' : 'flex-end'),
+                width: '100%',
+              }}>
                 <div style={{
                   maxWidth: '75%',
                   padding: '12px 18px',
                   borderRadius: 20,
-                  // Background Animation Here
                   animation: 'bubblePopIn 0.6s cubic-bezier(0.12, 0, 0.12, 1) forwards',
                   background: isBot ? '#262626' : '#8B5CF6',
-                  color: '#ffffff', // Default text color (will be overridden by inner span)
-                  overflow: 'hidden', // Ensures text stays inside radius
+                  color: '#ffffff',
+                  overflow: 'hidden',
                 }}>
-                  {/* Text Container (Animated Separately) */}
                   <span style={{
-                    fontSize: 14,
-                    lineHeight: 1.6,
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-word',
-                    direction: isRTL ? 'rtl' : 'ltr',
-                    textAlign: isRTL ? 'right' : 'left',
-                    display: 'block',
-                    // Text Animation Here: Starts later (0.1s delay) and fades in
-                    animation: 'textFadeIn 0.5s ease-out 0.1s forwards',
-                    opacity: 0, // Start invisible
+                    fontSize: 14, lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                    direction: isRTL ? 'rtl' : 'ltr', textAlign: isRTL ? 'right' : 'left', display: 'block',
+                    animation: 'textFadeIn 0.5s ease-out 0.1s forwards', opacity: 0,
                   }}>
                     {msg.text}
                   </span>
@@ -248,27 +233,16 @@ function PhoneMockup({ feature, isRTL }) {
             )
           })}
 
-          {/* Typing Indicator with Same Premium Bubble Animation */}
           {showTyping && (
-            <div style={{
-              display: 'flex',
-              justifyContent: isRTL ? 'flex-end' : 'flex-start',
-            }}>
+            <div style={{ display: 'flex', justifyContent: isRTL ? 'flex-end' : 'flex-start' }}>
               <div style={{
-                padding: '12px 18px',
-                borderRadius: 20,
-                background: '#262626',
-                display: 'flex',
-                gap: 6,
-                alignItems: 'center',
+                padding: '12px 18px', borderRadius: 20, background: '#262626',
+                display: 'flex', gap: 6, alignItems: 'center',
                 animation: 'bubblePopIn 0.5s cubic-bezier(0.12, 0, 0.12, 1) forwards',
               }}>
                 {[0, 1, 2].map(j => (
                   <div key={j} style={{
-                    width: 6,
-                    height: 6,
-                    borderRadius: '50%',
-                    background: '#8e8e8e',
+                    width: 6, height: 6, borderRadius: '50%', background: '#8e8e8e',
                     animation: `typingDot 1.2s infinite ${j * 0.2}s`,
                   }} />
                 ))}
@@ -281,51 +255,152 @@ function PhoneMockup({ feature, isRTL }) {
   )
 }
 
-// ─── MAIN COMPONENT & STYLES ───────────────────────────────────────────────────
+// ─── MOBILE VIEW COMPONENT ───────────────────────────────────────────────────
 
-function FeatureShowcase() {
-  const { lang } = useLanguage()
-  const isRTL = lang === 'ar'
-  const features = FEATURES[lang] ?? FEATURES.ar
+function MobileView({ features, isRTL, lang }) {
+  return (
+    <div dir={isRTL ? 'rtl' : 'ltr'} style={{ width: '100%' }}>
+      {features.map((feature, index) => (
+        <div
+          key={feature.id}
+          style={{
+            minHeight: '100vh', 
+            width: '100%',
+            background: feature.bgGradient,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '40px 20px',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          <div style={{
+             position: 'absolute', inset: 0, zIndex: 0, opacity: 0.1,
+             backgroundSize: '40px 40px',
+             backgroundImage: `linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)`
+          }} />
 
+          <div style={{ zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+            
+            <div style={{ textAlign: 'center', marginBottom: 40, width: '100%' }}>
+               <div style={{
+                  fontSize: '0.75rem', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase',
+                  color: 'rgba(0,0,0,0.6)', marginBottom: 20
+               }}>
+                  {lang === 'ar' ? 'المميزات' : 'Features'} {index + 1}
+               </div>
+               <h2 style={{
+                 color: feature.textColor,
+                 fontSize: 'clamp(2rem, 8vw, 3rem)', 
+                 fontWeight: 900,
+                 lineHeight: 1.1,
+                 marginBottom: 20,
+                 whiteSpace: 'pre-line',
+                 fontFamily: isRTL ? 'Tajawal, sans-serif' : 'Inter, sans-serif'
+               }}>
+                 {feature.headline}
+               </h2>
+               <p style={{
+                 color: 'rgba(0,0,0,0.8)',
+                 fontSize: '1.1rem',
+                 lineHeight: 1.6,
+                 maxWidth: 500,
+                 margin: '0 auto',
+               }}>
+                 {feature.body}
+               </p>
+            </div>
+
+            <div style={{ 
+                width: '100%', 
+                maxWidth: 320, 
+                height: 480, // Fixed height for mobile too to prevent layout shift
+                transform: 'scale(0.9)' 
+            }}>
+               <PhoneMockup feature={feature} isRTL={isRTL} scrollDirection="next" />
+            </div>
+
+            {index === features.length - 1 && (
+               <div style={{ marginTop: 40, width: '100%', display: 'flex', justifyContent: 'center' }}>
+                  <Link 
+                    href="/signup"
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      padding: '16px 40px', backgroundColor: '#000000', color: '#ffffff',
+                      borderRadius: '50px', fontSize: '1rem', fontWeight: 700,
+                      textDecoration: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.3)',
+                      width: '100%', maxWidth: 300
+                  }}>
+                    {isRTL ? 'ابدأ مجاناً' : 'Get Started Free'}
+                    <span style={{ fontSize: 18, display:'flex', alignItems:'center', marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }}>
+                      {isRTL ? '←' : '→'}
+                    </span>
+                  </Link>
+               </div>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ─── DESKTOP VIEW COMPONENT ───────────────────────────────────────────────────
+
+function DesktopView({ features, isRTL, lang }) {
   const sectionRef = useRef(null)
   const [activeIndex, setActiveIndex] = useState(0)
   const [textVisible, setTextVisible] = useState(true)
   const [phoneVisible, setPhoneVisible] = useState(true)
+  const [scrollDir, setScrollDir] = useState('next')
+  
+  const isProgrammaticScrollRef = useRef(false)
+
+  const triggerTransition = useCallback((newIndex) => {
+    if (newIndex === activeIndex) return
+    setScrollDir(newIndex > activeIndex ? 'next' : 'prev')
+    setTextVisible(false)
+    setPhoneVisible(false)
+    setTimeout(() => {
+      setActiveIndex(newIndex)
+      setTextVisible(true)
+      setPhoneVisible(true)
+    }, 500)
+  }, [activeIndex])
 
   useEffect(() => {
     const section = sectionRef.current
     if (!section) return
 
     const onScroll = () => {
+      if (isProgrammaticScrollRef.current) return
       const rect = section.getBoundingClientRect()
       const totalScroll = section.offsetHeight - window.innerHeight
+      if (totalScroll <= 0) return
       const scrolled = Math.max(0, -rect.top)
       const progress = Math.min(1, scrolled / totalScroll)
       const newIndex = Math.min(features.length - 1, Math.floor(progress * features.length))
 
       if (newIndex !== activeIndex) {
-        setTextVisible(false)
-        setPhoneVisible(false)
-        
-        setTimeout(() => {
-          setActiveIndex(newIndex)
-          setTextVisible(true)
-          setPhoneVisible(true)
-        }, 300)
+        triggerTransition(newIndex)
       }
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [activeIndex, features.length])
+  }, [activeIndex, features.length, triggerTransition])
 
   const goTo = (i) => {
+    isProgrammaticScrollRef.current = true
+    if (i !== activeIndex) triggerTransition(i)
     const section = sectionRef.current
     if (!section) return
     const totalScroll = section.offsetHeight - window.innerHeight
     const target = section.offsetTop + (i / features.length) * totalScroll + 10
     window.scrollTo({ top: target, behavior: 'smooth' })
+    setTimeout(() => { isProgrammaticScrollRef.current = false }, 1000)
   }
 
   const active = features[activeIndex]
@@ -334,232 +409,103 @@ function FeatureShowcase() {
   const buttonText = isDarkBg ? '#ffffff' : '#ffffff'
 
   return (
-    <>
-      <style>{`
-        /* Premium Bubble Animation: Fast start, very smooth ease-out */
-        @keyframes bubblePopIn {
-          0% {
-            opacity: 0;
-            transform: scale(0.85) translateY(20px);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
-        }
-
-        /* Text Animation: Fades in slightly after the bubble starts */
-        @keyframes textFadeIn {
-          0% {
-            opacity: 0;
-            transform: translateY(8px);
-            filter: blur(4px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0);
-            filter: blur(0);
-          }
-        }
-
-        @keyframes typingDot {
-          0%,60%,100% { transform:translateY(0); opacity:0.4; }
-          30%          { transform:translateY(-4px); opacity:1; }
-        }
-        
-        @keyframes fadeSlideUp {
-          from { opacity:0; transform:translateY(20px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        
-        .text-panel-in {
-          animation: fadeSlideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
-        }
-        
-        .scrollbar-hide::-webkit-scrollbar { display:none; }
-        .scrollbar-hide { -ms-overflow-style:none; scrollbar-width:none; }
-      `}</style>
-
-      <div
-        ref={sectionRef}
-        style={{ height: `${features.length * 100}vh`, position:'relative' }}
-        dir={isRTL ? 'rtl' : 'ltr'}
-      >
-        <div style={{
-          position:'sticky',
-          top:0,
-          height:'100vh',
-          display:'flex',
-          overflow:'hidden',
-          background: active.bgGradient,
-          transition: 'background 0.8s ease-in-out', 
-        }}>
-          {/* LEFT / TEXT SIDE */}
-          <div style={{
-            flex:1,
-            display:'flex',
-            flexDirection:'column',
-            padding: '5%',
-            position:'relative',
-          }}>
-            <div style={{ 
-              flex: 1, 
-              display:'flex', 
-              flexDirection:'column', 
-              justifyContent:'center' 
-            }}>
-               <div style={{ 
-                 fontSize: '0.75rem', 
-                 fontWeight: 800, 
-                 letterSpacing: '3px', 
-                 textTransform: 'uppercase', 
-                 color: isDarkBg ? 'rgba(0, 0, 0, 0.7)' : 'rgba(0,0,0,0.6)', 
-                 marginBottom: 28 
-               }}>
-                {lang === 'ar' ? 'المميزات' : 'Features'}
-              </div>
-
-              <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:36 }}>
-                {features.map((f, i) => (
-                  <button
-                    key={f.id}
-                    onClick={() => goTo(i)}
-                    style={{
-                      display:'flex',
-                      alignItems:'center',
-                      gap:10,
-                      background:'none',
-                      border:'none',
-                      cursor:'pointer',
-                      padding:'4px 0',
-                      opacity: activeIndex === i ? 1 : 0.4,
-                      transition:'opacity 0.3s',
-                      textAlign: isRTL ? 'right' : 'left',
-                    }}
-                  >
-                    <div style={{
-                      width: activeIndex === i ? 24 : 6,
-                      height:6,
-                      borderRadius:3,
-                      background: active.textColor,
-                      transition:'all 0.3s ease',
-                      flexShrink:0,
-                    }} />
-                    <span style={{ 
-                      color: active.textColor, 
-                      fontSize:12, 
-                      fontWeight: activeIndex === i ? 800 : 400, 
-                      transition:'color 0.3s', 
-                      whiteSpace:'nowrap' 
-                    }}>
-                      {f.tag}
-                    </span>
-                  </button>
-                ))}
-              </div>
-
-              <div
-                key={active.id}
-                className="text-panel-in"
-                style={{ opacity: textVisible ? 1 : 0, transition:'opacity 0.2s', maxWidth:480 }}
-              >
-                <h2 style={{
-                  color: active.textColor,
-                  fontSize: 'clamp(2.5rem, 5vw, 4rem)',
-                  fontWeight: 900,
-                  lineHeight:1.1,
-                  marginBottom:20,
-                  whiteSpace:'pre-line',
-                  fontFamily: isRTL ? 'Tajawal, sans-serif' : 'Inter, sans-serif'
-                }}>
-                  {active.headline}
-                </h2>
-                <p style={{
-                  color: isDarkBg ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0,0,0,0.7)',
-                  fontSize: 'clamp(1rem, 1.3vw, 1.2rem)',
-                  lineHeight:1.6,
-                  maxWidth:420,
-                }}>
-                  {active.body}
-                </p>
-              </div>
+    <div ref={sectionRef} style={{ height: `${features.length * 100}vh`, position:'relative' }} dir={isRTL ? 'rtl' : 'ltr'}>
+      <div style={{
+        position:'sticky', top:0, height:'100vh', display:'flex', overflow:'hidden',
+        background: active.bgGradient, transition: 'background 0.8s ease-in-out', 
+      }}>
+        {/* LEFT / TEXT SIDE */}
+        <div style={{ flex:1, display:'flex', flexDirection:'column', padding: '5%', position:'relative' }}>
+          <div style={{ flex: 1, display:'flex', flexDirection:'column', justifyContent:'center' }}>
+             <div style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '3px', textTransform: 'uppercase', color: isDarkBg ? 'rgba(0, 0, 0, 0.7)' : 'rgba(0,0,0,0.6)', marginBottom: 28 }}>
+              {lang === 'ar' ? 'المميزات' : 'Features'}
             </div>
-
-            <div style={{ 
-              width: '100%',
-              marginTop: 'auto',
-              marginBottom: '40px',
-            }}>
-               <Link 
-                 href="/signup"
-                 style={{
-                   display: 'flex',
-                   alignItems: 'center',
-                   justifyContent: 'center',
-                   width: '100%',
-                   padding: '16px 32px',
-                   backgroundColor: buttonBg,
-                   color: buttonText,
-                   border: 'none',
-                   borderRadius: '50px',
-                   fontSize: '1rem',
-                   fontWeight: 700,
-                   cursor: 'pointer',
-                   textDecoration: 'none',
-                   transition: 'all 0.3s ease',
-                   boxShadow: '0 10px 25px -5px rgba(0,0,0,0.2)'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
-                  e.currentTarget.style.boxShadow = '0 20px 30px -5px rgba(0,0,0,0.3)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                  e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(0,0,0,0.2)';
-                }}
-              >
-                {isRTL ? 'ابدأ مجاناً' : 'Get Started Free'}
-                <span style={{
-                  fontSize: 18, 
-                  display:'flex', 
-                  alignItems:'center',
-                  marginRight: isRTL ? 0 : 8, 
-                  marginLeft: isRTL ? 8 : 0
+            <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:36 }}>
+              {features.map((f, i) => (
+                <button key={f.id} onClick={() => goTo(i)} style={{
+                  display:'flex', alignItems:'center', gap:10, background:'none', border:'none', cursor:'pointer', padding:'4px 0',
+                  opacity: activeIndex === i ? 1 : 0.4, transition:'opacity 0.3s', textAlign: isRTL ? 'right' : 'left',
                 }}>
-                  {isRTL ? '←' : '→'}
-                </span>
-              </Link>
+                  <div style={{ width: activeIndex === i ? 24 : 6, height:6, borderRadius:3, background: active.textColor, transition:'all 0.3s ease', flexShrink:0 }} />
+                  <span style={{ color: active.textColor, fontSize:12, fontWeight: activeIndex === i ? 800 : 400, transition:'color 0.3s', whiteSpace:'nowrap' }}>{f.tag}</span>
+                </button>
+              ))}
+            </div>
+            <div key={active.id} className="text-panel-in" style={{ opacity: textVisible ? 1 : 0, transition:'opacity 0.2s', maxWidth:480 }}>
+              <h2 style={{ color: active.textColor, fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 900, lineHeight:1.1, marginBottom:20, whiteSpace:'pre-line', fontFamily: isRTL ? 'Tajawal, sans-serif' : 'Inter, sans-serif' }}>
+                {active.headline}
+              </h2>
+              <p style={{ color: isDarkBg ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0,0,0,0.7)', fontSize: 'clamp(1rem, 1.3vw, 1.2rem)', lineHeight:1.6, maxWidth:420 }}>
+                {active.body}
+              </p>
             </div>
           </div>
+          <div style={{ width: '100%', marginTop: 'auto', marginBottom: '40px' }}>
+             <Link href="/signup" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '16px 32px', backgroundColor: buttonBg, color: buttonText, border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', textDecoration: 'none', transition: 'all 0.3s ease', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.2)' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)'; e.currentTarget.style.boxShadow = '0 20px 30px -5px rgba(0,0,0,0.3)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(0,0,0,0.2)'; }}>
+              {isRTL ? 'ابدأ مجاناً' : 'Get Started Free'}
+              <span style={{ fontSize: 18, display:'flex', alignItems:'center', marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }}>{isRTL ? '←' : '→'}</span>
+            </Link>
+          </div>
+        </div>
 
-          {/* RIGHT / CHAT FRAME SIDE */}
-          <div style={{
-            flex:1,
-            display:'flex',
-            alignItems:'center',
-            justifyContent:'center',
-            position:'relative',
-            padding: '5%',
-            backgroundSize: '100px 100px',
-            backgroundImage: `
-              linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px)
-            `,
+        {/* RIGHT / CHAT FRAME SIDE */}
+        <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', position:'relative', padding: '5%', backgroundSize: '100px 100px', backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px)` }}>
+          <div style={{ position:'absolute', inset:0, background: `radial-gradient(ellipse 80% 70% at 50% 50%, rgba(0,0,0,0.05) 0%, transparent 65%)`, pointerEvents:'none', zIndex:1 }} />
+          
+          {/* FIXED SIZE CONTAINER to prevent resizing/thinning */}
+          <div style={{ 
+            width: 320, 
+            height: 480, 
+            opacity: phoneVisible ? 1 : 0, 
+            transform: `translateY(${phoneVisible ? '0%' : (scrollDir === 'next' ? '-150%' : '150%')})`, 
+            transition: phoneVisible ? 'none' : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease',
+            zIndex: 10,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
           }}>
-            <div style={{ position:'absolute', inset:0, background: `radial-gradient(ellipse 80% 70% at 50% 50%, rgba(0,0,0,0.05) 0%, transparent 65%)`, pointerEvents:'none', zIndex:1 }} />
-            
-            <div style={{
-              opacity: phoneVisible ? 1 : 0,
-              transform: `translateY(${phoneVisible ? '0px' : '100px'})`,
-              filter: `blur(${phoneVisible ? '0px' : '12px'})`, 
-              transition: 'opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), filter 0.6s ease',
-              zIndex: 10,
-            }}>
-              <PhoneMockup key={active.id} feature={active} isRTL={isRTL} />
-            </div>
+            <PhoneMockup key={active.id} feature={active} isRTL={isRTL} scrollDirection={scrollDir} />
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+// ─── MAIN COMPONENT ─────────────────────────────────────────────────────────
+
+function FeatureShowcase() {
+  const { lang } = useLanguage()
+  const isRTL = lang === 'ar'
+  const features = FEATURES[lang] ?? FEATURES.ar
+
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 900)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  return (
+    <>
+      <style>{`
+        /* Global Animations */
+        @keyframes slideInFromBottom { 0% { opacity: 0; transform: translateY(150%); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInFromTop { 0% { opacity: 0; transform: translateY(-150%); } 100% { opacity: 1; transform: translateY(0); } }
+        @keyframes bubblePopIn { 0% { opacity: 0; transform: scale(0.85) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes textFadeIn { 0% { opacity: 0; transform: translateY(8px); filter: blur(4px); } 100% { opacity: 1; transform: translateY(0); filter: blur(0); } }
+        @keyframes typingDot { 0%,60%,100% { transform:translateY(0); opacity:0.4; } 30% { transform:translateY(-4px); opacity:1; } }
+        @keyframes fadeSlideUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        .text-panel-in { animation: fadeSlideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+        .scrollbar-hide::-webkit-scrollbar { display:none; }
+        .scrollbar-hide { -ms-overflow-style:none; scrollbar-width:none; }
+      `}</style>
+      
+      {isMobile 
+        ? <MobileView features={features} isRTL={isRTL} lang={lang} />
+        : <DesktopView features={features} isRTL={isRTL} lang={lang} />
+      }
     </>
   )
 }
