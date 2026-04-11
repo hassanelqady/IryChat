@@ -67,9 +67,22 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="text-center max-w-4xl mx-auto">
             
-            <motion.div variants={fadeUp} className="inline-block px-4 py-1.5 bg-white text-black rounded-full text-sm font-bold mb-6">
-              {lang === 'ar' ? ' الجيل الجديد من التسويق عبر المحادثة  ' : 'The new generation of conversational marketing'}
-            </motion.div>
+            {/* Updated: Glassmorphism Style */}
+            <motion.div
+  variants={fadeUp}
+  className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-full text-sm font-bold mb-6 shadow-lg shadow-black/50"
+>
+  {/* Pulsing Dot */}
+  <span className="relative flex h-3 w-3">
+    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+    <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
+  </span>
+
+  {/* Text in Cyan */}
+  <span className="text-cyan-400">
+    {lang === 'ar' ? ' الجيل الجديد من التسويق عبر المحادثة  ' : 'The new generation of conversational marketing'}
+  </span>
+</motion.div>
 
             <motion.h1 variants={fadeUp} className="text-5xl md:text-7xl font-bold mb-6 tracking-tight text-white leading-tight">
               {lang === 'ar'
