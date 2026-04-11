@@ -13,7 +13,7 @@ const FEATURES = {
       tag: 'الردود التلقائية على DM',
       headline: 'كل رسالة خاصة\nفرصة بيع حقيقية',
       body: 'حدد كلمة مفتاحية واحدة — بالعربي أو بالعامية — وIryChat يتولى المحادثة كاملةً حتى إتمام الشراء.',
-      bgGradient: 'linear-gradient(135deg, #FFF200 0%, #FFD700 100%)', 
+      bgGradient: 'linear-gradient(135deg, #FFF200 0%, #FFF200 100%)', 
       textColor: '#000000',
       messages: [
         { from: 'user', text: 'السعر كام؟', delay: 400 },
@@ -29,7 +29,7 @@ const FEATURES = {
       tag: 'أتمتة التعليقات',
       headline: 'تعليق واحد\nيشعل رحلة البيع',
       body: 'أي تعليق يحتوي كلمة مفتاحية — "السعر" أو "رابط" — يُحوَّل فوراً لرسالة خاصة.',
-      bgGradient: 'linear-gradient(135deg, #CCFF00 0%, #A3E635 100%)', 
+      bgGradient: 'linear-gradient(135deg, #CCFF00 0%, #CCFF00 100%)', 
       textColor: '#000000',
       messages: [
         { from: 'user', text: '🔥🔥 محتاج البرنامج ده!', delay: 400 },
@@ -44,7 +44,7 @@ const FEATURES = {
       tag: 'إشارات القصص',
       headline: 'كل منشن\nعميل محتمل',
       body: 'حين يذكرك أحد في قصته، يصله رد تلقائي فوري — شكر حقيقي وعرض ذو قيمة.',
-      bgGradient: 'linear-gradient(135deg, #D946EF 0%, #A855F7 100%)', 
+      bgGradient: 'linear-gradient(135deg, #e040fb 0%, #e040fb  100%)', 
       textColor: '#000000',
       messages: [
         { from: 'bot',  text: 'شكراً جزيلاً على المنشن! يسعدنا ثقتك بينا', delay: 400 },
@@ -60,7 +60,7 @@ const FEATURES = {
       tag: 'البث الجماعي',
       headline: 'رسالة واحدة\nلآلاف العملاء',
       body: 'أرسل حملاتك وعروضك لجميع المشتركين دفعةً واحدة — مع تخصيص بالاسم والاهتمام.',
-      bgGradient: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)', 
+      bgGradient: 'linear-gradient(135deg, #3B82F6 0%, #3B82F6 100%)', 
       textColor: '#000000',
       messages: [
         { from: 'bot',  text: 'أهلاً يا أحمد!\nعروض الجمعة البيضاء وصلتك قبل الكل', delay: 400 },
@@ -76,7 +76,7 @@ const FEATURES = {
       tag: 'Auto DM Replies',
       headline: 'Every DM\na Sale Waiting',
       body: 'Set one keyword — in Arabic or any dialect — and IryChat handles the full conversation until purchase.',
-      bgGradient: 'linear-gradient(135deg, #FFF200 0%, #FFD700 100%)',
+      bgGradient: 'linear-gradient(135deg, #FFF200 0%, #FFF200 100%)',
       textColor: '#000000',
       messages: [
         { from: 'user', text: 'How much is the dress?', delay: 400 },
@@ -92,7 +92,7 @@ const FEATURES = {
       tag: 'Comment Automation',
       headline: 'One Comment\nStarts the Sale',
       body: 'Any comment with a keyword — "price", "link", or even a 🔥 emoji — instantly triggers a private message.',
-      bgGradient: 'linear-gradient(135deg, #CCFF00 0%, #A3E635 100%)',
+      bgGradient: 'linear-gradient(135deg, #CCFF00 0%, #CCFF00 100%)',
       textColor: '#000000',
       messages: [
         { from: 'user', text: '🔥🔥 I need this program!', delay: 400 },
@@ -107,8 +107,8 @@ const FEATURES = {
       tag: 'Story Mentions',
       headline: 'Every Mention\na Potential Client',
       body: 'When someone mentions you in their story, they instantly get a genuine thank-you and a value offer.',
-      bgGradient: 'linear-gradient(135deg, #D946EF 0%, #A855F7 100%)',
-      textColor: '#ffffff',
+      bgGradient: 'linear-gradient(135deg, #e040fb 0%, #e040fb 100%)',
+      textColor: '#000000',
       messages: [
         { from: 'bot',  text: 'Thank you so much for the mention! Really means a lot', delay: 400 },
         { from: 'bot',  text: 'Special gift for you:\n20% off your next session.', delay: 1400 },
@@ -123,8 +123,8 @@ const FEATURES = {
       tag: 'Broadcast',
       headline: 'One Message\nThousands of Sales',
       body: 'Send campaigns to all your subscribers at once — personalized by name and interest.',
-      bgGradient: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
-      textColor: '#ffffff',
+      bgGradient: 'linear-gradient(135deg, #3B82F6 0%, #3B82F6 100%)',
+      textColor: '#000000',
       messages: [
         { from: 'bot',  text: 'Hey Ahmed!\nYou get early access to Black Friday deals', delay: 400 },
         { from: 'bot',  text: 'Up to 60% OFF\nFirst 100 subscribers only!', delay: 1400 },
@@ -277,9 +277,10 @@ function MobileView({ features, isRTL, lang }) {
           }}
         >
           <div style={{
-             position: 'absolute', inset: 0, zIndex: 0, opacity: 0.1,
-             backgroundSize: '40px 40px',
-             backgroundImage: `linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)`
+             position: 'absolute', inset: 0, zIndex: 0, opacity: 0.40, // Increased opacity from 0.1 to 0.15
+             backgroundSize: '150px 150px',
+             // Increased gradient opacity from 0.1 to 0.15 for better visibility
+             backgroundImage: `linear-gradient(rgba(0,0,0,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px)`
           }} />
 
           <div style={{ zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
