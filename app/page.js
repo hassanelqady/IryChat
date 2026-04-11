@@ -68,19 +68,19 @@ export default function Home() {
           <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="text-center max-w-4xl mx-auto">
             
             <motion.div variants={fadeUp} className="inline-block px-4 py-1.5 bg-white text-black rounded-full text-sm font-bold mb-6">
-              {lang === 'ar' ? 'أذكى حلول الأتمتة' : 'The Smartest Automation Solution'}
+              {lang === 'ar' ? ' الجيل الجديد من التسويق عبر المحادثة  ' : 'The new generation of conversational marketing'}
             </motion.div>
 
             <motion.h1 variants={fadeUp} className="text-5xl md:text-7xl font-bold mb-6 tracking-tight text-white leading-tight">
               {lang === 'ar'
-                ? <span>استفد إلى أقصى حد من كل <span className="text-cyan-400 border-b-2 border-cyan-400">محادثة</span></span>
-                : <span>Make the most out of every <span className="text-cyan-400 border-b-2 border-cyan-400">conversation</span></span>}
+                ? <span>المنصة العربية الأولى لأتمتة المحادثات<span className="text-cyan-400 border-b-2 border-cyan-400"></span></span>
+                : <span>The first Arabic platform for chat automation <span className="text-cyan-400 border-b-2 border-cyan-400"></span></span>}
             </motion.h1>
 
             <motion.p variants={fadeUp} className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
               {lang === 'ar'
-                ? 'قم بزيادة مبيعاتك، وعزز تفاعلك، ووسع جمهورك من خلال أتمتة قوية لمنصات إنستجرام وواتساب وتيك توك وماسنجر.'
-                : 'Sell more, engage better, and grow your audience with powerful automations for Instagram, WhatsApp, TikTok, and Messenger.'}
+                ? 'استخدم قوة الذكاء الاصطناعي لأتمتة الردود، إغلاق المبيعات، وتوفير الوقت. IryChat هو فريق المبيعات الذي لا ينام أبداً. '
+                : 'Leverage the power of AI to automate replies, close sales, and save time. IryChat is the sales team that never sleeps.'}
             </motion.p>
 
             <motion.div variants={fadeUp} className="flex flex-col md:flex-row gap-4 justify-center">
@@ -100,7 +100,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={fadeUp} className="text-center mb-16">
             <div className="text-cyan-400 text-sm font-bold tracking-widest uppercase mb-2">{lang === 'ar' ? 'اكتشف آلية العمل' : 'Discover How It Works'}</div>
-            <h2 className="text-4xl font-bold mb-4 text-white">{lang === 'ar' ? 'ابدأ في 3 خطوات' : 'Get Started in 3 Steps'}</h2>
+            <h2 className="text-4xl font-bold mb-4 text-white">{lang === 'ar' ? 'حول متابعيك إلى عملاء    ' : 'Turn your followers into customers'}</h2>
             <p className="text-gray-400 max-w-2xl mx-auto">{lang === 'ar' ? 'من ربط الحساب لأول بيع تلقائي — في أقل من 10 دقايق' : 'From account connection to your first automated sale — in under 10 minutes'}</p>
           </motion.div>
 
@@ -116,6 +116,32 @@ export default function Home() {
                 <p className="text-gray-400">{lang === 'ar' ? step.ar[1] : step.en[1]}</p>
               </motion.div>
             ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* NEW SECTION: Introduction to Features (Corrected Order) */}
+      <section className="py-24 px-4 bg-white text-center relative">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+            viewport={{ once: true, amount: 0.3 }}
+          >
+            {/* Title 1 (Big) */}
+            <h2 className="text-3xl md:text-5xl font-bold text-black mb-8 leading-tight">
+              {lang === 'ar' 
+                ? 'انضم إلى آلاف أصحاب المتاجر والكوتشز والإيجنسيز في العالم العربي'
+                : 'Join thousands of store owners, coaches, and agencies across the Arab world'}
+            </h2>
+            
+            {/* Title 2 (Small) */}
+            <h3 className="text-xl md:text-2xl font-semibold text-gray-600 mb-6 leading-relaxed">
+              {lang === 'ar' 
+                ? 'إليك بعض الأشياء التي يمكنك القيام بها باستخدام أدوات الأتمتة المذهلة لدينا!'
+                : 'Here are some things you can do with our amazing automation tools!'}
+            </h3>
           </motion.div>
         </div>
       </section>
@@ -191,7 +217,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer - Updated Design */}
+      {/* Footer - Original State Restored */}
       <footer className="relative mt-20 bg-black/60 backdrop-blur-xl border-t border-white/10 pt-16 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
@@ -283,9 +309,7 @@ export default function Home() {
             <p className="text-gray-500 text-sm">
               © {new Date().getFullYear()} IryChat. {lang === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}
             </p>
-            <div className="flex gap-4">
-               <Link href="/cookies" className="text-gray-500 hover:text-gray-300 text-xs">{lang === 'ar' ? 'إعدادات الكوكيز' : 'Cookie Settings'}</Link>
-            </div>
+            
           </div>
         </div>
       </footer>
