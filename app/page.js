@@ -1,5 +1,5 @@
 'use client'
-
+import FeatureShowcase from '@/components/FeatureShowcase'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useLanguage } from '@/context/LanguageContext'
@@ -120,32 +120,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={fadeUp} className="text-center mb-16">
-            <div className="text-cyan-400 text-sm font-bold tracking-widest uppercase mb-2">{lang === 'ar' ? 'المميزات' : 'Features'}</div>
-            <h2 className="text-4xl font-bold text-white">{lang === 'ar' ? 'كل أدوات الأتمتة في مكان واحد' : 'All Automation Tools In One Place'}</h2>
-          </motion.div>
-
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={staggerContainer} className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { icon: '💬', ar: ['رد تلقائي على DMs', 'حدد كلمات مفتاحية وIryChat يرد فوراً ويكمّل المحادثة لحد ما الشخص يشتري.'], en: ['Auto DM Replies', 'Set keywords and IryChat instantly replies, guiding conversations until the sale is done.'] },
-              { icon: '📝', ar: ['أتمتة الكومنتات', 'أي حد يكتب "اسعار" في الكومنتات — IryChat يبعتله رسالة خاصة في ثواني.'], en: ['Comment Automation', 'Anyone who comments "price" gets an instant private message automatically within seconds.'] },
-              { icon: '📸', ar: ['Story Mentions', 'أي حد يمنشنك في ستوريه يوصله رد تلقائي يشكره ويعرض عليه حاجة ذات قيمة.'], en: ['Story Mentions', 'Anyone who mentions you in their story gets an automatic personalized reply with a value offer.'] },
-              { icon: '🏷️', ar: ['تقسيم الجمهور', 'صنّف متابعينك بتاجز تلقائية بناءً على تفاعلهم وابعت لكل شريحة رسالتها الصح.'], en: ['Audience Segmentation', 'Auto-tag subscribers by behavior and send each segment the perfectly tailored message.'] },
-              { icon: '📊', ar: ['Analytics متعمقة', 'تابع معدلات الفتح والكليك والتحويل بالريال تايم. اعرف إيه الـ flow الأكثر تحويلاً.'], en: ['Deep Analytics', 'Track open rates, clicks & conversions in real-time. Know exactly which flow converts best.'] },
-              { icon: '🔗', ar: ['API + Webhooks', 'وصّل IryChat بأي نظام خارجي — CRM أو متجرك — عن طريق REST API كامل.'], en: ['API + Webhooks', 'Connect IryChat to any external system — CRM, your store — via a full REST API.'] },
-            ].map((f) => (
-              <motion.div key={f.en[0]} variants={fadeUp} className="p-6 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm hover:border-white/20 hover:bg-white/10 transition-all">
-                <div className="text-4xl mb-4">{f.icon}</div>
-                <h3 className="text-lg font-bold mb-2 text-white">{lang === 'ar' ? f.ar[0] : f.en[0]}</h3>
-                <p className="text-gray-400 text-sm">{lang === 'ar' ? f.ar[1] : f.en[1]}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
+      <FeatureShowcase />
 
       {/* Highlight Section */}
       <section className="py-20 px-4 bg-black/20">
