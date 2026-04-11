@@ -63,50 +63,80 @@ export default function Home() {
       <Navbar />
       
       {/* Hero Section */}
-      <main className="pt-32 pb-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="text-center max-w-4xl mx-auto">
-            
-            {/* Updated: Glassmorphism Style */}
-            <motion.div
-  variants={fadeUp}
-  className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-full text-sm font-bold mb-6 shadow-lg shadow-black/50"
->
-  {/* Pulsing Dot */}
-  <span className="relative flex h-3 w-3">
-    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-    <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
-  </span>
+{/* Hero Section */}
+<main className="pt-[72px] md:pt-[80px] pb-20 px-5">
 
-  {/* Text in Cyan */}
-  <span className="text-cyan-400">
-    {lang === 'ar' ? ' الجيل الجديد من التسويق عبر المحادثة  ' : 'The new generation of conversational marketing'}
-  </span>
-</motion.div>
+  <div className="max-w-6xl mx-auto">
+    <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="text-center max-w-4xl mx-auto">
+      
+      {/* Badge */}
+      <motion.div
+        variants={fadeUp}
+        className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-full text-[10px] md:text-xs font-semibold mb-6 shadow-lg shadow-black/50 tracking-widest uppercase"
+      >
+        <span className="relative flex h-2 w-2 shrink-0">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+        </span>
+        <span className="text-cyan-400 leading-tight">
+          {lang === 'ar' ? 'الجيل الجديد من التسويق الرقمي' : 'Next-gen conversational marketing'}
+        </span>
+      </motion.div>
 
-            <motion.h1 variants={fadeUp} className="text-5xl md:text-7xl font-bold mb-6 tracking-tight text-white leading-tight">
-              {lang === 'ar'
-                ? <span>المنصة العربية الأولى لأتمتة المحادثات<span className="text-cyan-400 border-b-2 border-cyan-400"></span></span>
-                : <span>The first Arabic platform for chat automation <span className="text-cyan-400 border-b-2 border-cyan-400"></span></span>}
-            </motion.h1>
+      {/* Heading */}
+      <motion.h1 variants={fadeUp} className="mb-6 tracking-tight text-white">
+        {lang === 'ar' ? (
+          <>
+            <span className="block text-[2.6rem] leading-[1.15] md:text-7xl lg:text-8xl font-extrabold mb-3">
+              المنصة العربية الأولى
+            </span>
+            <span className="block text-xl leading-[1.6] md:text-3xl lg:text-4xl font-light text-gray-400">
+              لأتمتة المحادثات وتحويل
+              <br className="hidden md:block" />
+              {' '}متابعيك إلى عملاء حقيقيين
+            </span>
+          </>
+        ) : (
+          <>
+            <span className="block text-[2.8rem] leading-[1.1] md:text-7xl lg:text-8xl font-black mb-3">
+              The #1 Arabic Platform
+            </span>
+            <span className="block text-xl leading-[1.6] md:text-3xl lg:text-4xl font-light text-gray-400">
+              for chat automation & turning
+              <br className="hidden md:block" />
+              {' '}followers into customers
+            </span>
+          </>
+        )}
+      </motion.h1>
 
-            <motion.p variants={fadeUp} className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
-              {lang === 'ar'
-                ? 'استخدم قوة الذكاء الاصطناعي لأتمتة الردود، إغلاق المبيعات، وتوفير الوقت. IryChat هو فريق المبيعات الذي لا ينام أبداً. '
-                : 'Leverage the power of AI to automate replies, close sales, and save time. IryChat is the sales team that never sleeps.'}
-            </motion.p>
+      {/* Subtitle */}
+      <motion.p variants={fadeUp} className="text-sm md:text-base text-gray-500 mb-8 max-w-sm md:max-w-xl mx-auto leading-relaxed font-normal px-2">
+        {lang === 'ar'
+          ? 'IryChat هو فريق مبيعاتك الذي لا ينام — يرد، يقنع، ويغلق الصفقة تلقائياً.'
+          : 'IryChat is your sales team that never sleeps — it replies, persuades, and closes deals.'}
+      </motion.p>
 
-            <motion.div variants={fadeUp} className="flex flex-col md:flex-row gap-4 justify-center">
-              <Link href="/login" className="px-8 py-4 bg-white text-black rounded-full font-bold hover:scale-105 transition-all duration-200 shadow-lg shadow-white/10 text-center">
-                {lang === 'ar' ? 'ابدأ' : 'GET STARTED'}
-              </Link>
-              <button onClick={() => scrollTo('how')} className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-black transition-all duration-200 text-center">
-                {lang === 'ar' ? 'اكتشف آلية العمل ▶' : 'Discover How It Works ▶'}
-              </button>
-            </motion.div>
-          </motion.div>
-        </div>
-      </main>
+      {/* CTAs */}
+      <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-3 justify-center px-4 sm:px-0">
+        <Link
+          href="/login"
+          className="w-full sm:w-auto px-8 py-3.5 bg-white text-black rounded-full font-bold hover:scale-105 transition-all duration-200 shadow-lg shadow-white/10 text-center text-sm tracking-wide"
+        >
+          {lang === 'ar' ? 'ابدأ مجاناً' : 'GET STARTED FREE'}
+        </Link>
+        <button
+          onClick={() => scrollTo('how')}
+          className="w-full sm:w-auto px-8 py-3.5 bg-transparent border border-white/20 text-gray-300 rounded-full font-normal hover:border-white hover:text-white transition-all duration-200 text-center text-sm tracking-wide"
+        >
+          {lang === 'ar' ? 'اكتشف آلية العمل ▶' : 'Discover How It Works ▶'}
+        </button>
+      </motion.div>
+
+    </motion.div>
+  </div>
+</main>
+
 
       {/* How It Works */}
       <section id="how" className="py-20 px-4 bg-black/20">
