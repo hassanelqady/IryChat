@@ -1,13 +1,16 @@
 'use client'
-import { Settings, Grid, Zap, MessageSquare, Link as LinkIcon, BarChart2, ArrowRight, ArrowLeft, Users } from 'lucide-react'
+
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/context/LanguageContext'
-import Navbar from '@/components/Navbar'
-import PageLayoutWith3D from '@/components/PageLayoutWith3D'
+import {
+  Zap, MessageSquare, Link as LinkIcon, BarChart2,
+  Users, Radio, Repeat, CreditCard, Settings,
+  Grid, TrendingUp
+} from 'lucide-react'
 
 export default function Dashboard() {
   const router = useRouter()
@@ -22,70 +25,30 @@ export default function Dashboard() {
   const { lang } = useLanguage()
   const isRTL = lang === 'ar'
 
-  const content = {
-    en: {
-      analytics: "Analytics",
-      analyticsDesc: "View performance reports",
-      dashboard: "Dashboard",
-      hello: "Hello,",
-      dashboardSubtitle: "Here is what's happening with your automations today.",
-      activeAutomations: "Active Automations",
-      fromTotal: "from",
-      totalReplies: "Total Replies",
-      totalOps: "Total operations",
-      connectedAccounts: "Connected Accounts",
-      connectAccount: "Connect Account",
-      quickActions: "Quick Actions",
-      accounts: "Accounts",
-      connectIG: "Connect Instagram",
-      newAutomation: "New Automation",
-      autoReplyDM: "Auto-reply to DMs",
-      allAutomations: "All Automations",
-      manageView: "Manage and view all flows",
-      loading: "Loading...",
-      backHome: "Home",
-    },
+  const t = {
     ar: {
-      analytics: "التحليلات",
-      analyticsDesc: "عرض تقارير الأداء",
-      dashboard: "لوحة التحكم",
-      hello: "مرحباً،",
-      dashboardSubtitle: "إليك ما يحدث مع أتمتتك اليوم.",
-      activeAutomations: "أتمتة نشطة",
-      fromTotal: "من إجمالي",
-      totalReplies: "إجمالي الردود",
-      totalOps: "إجمالي العمليات",
-      connectedAccounts: "حسابات متصلة",
-      connectAccount: "ربط الحساب",
-      quickActions: "إجراءات سريعة",
-      accounts: "الحسابات",
-      connectIG: "ربط انستجرام",
-      newAutomation: "أتمتة جديدة",
-      autoReplyDM: "رد آلي على الرسائل",
-      allAutomations: "كل الأتمتات",
-      manageView: "إدارة وعرض جميع المسارات",
-      loading: "جاري التحميل...",
-      backHome: "الرئيسية",
+      hello: 'مرحباً،',
+      subtitle: 'إليك ما يحدث مع أتمتتك اليوم.',
+      activeAutomations: 'أتمتة نشطة',
+      fromTotal: 'من إجمالي',
+      totalReplies: 'إجمالي الردود',
+      totalOps: 'إجمالي العمليات',
+      connectedAccounts: 'حسابات متصلة',
+      quickActions: 'إجراءات سريعة',
+      loading: 'جاري التحميل...',
+    },
+    en: {
+      hello: 'Hello,',
+      subtitle: "Here is what's happening with your automations today.",
+      activeAutomations: 'Active Automations',
+      fromTotal: 'from',
+      totalReplies: 'Total Replies',
+      totalOps: 'Total operations',
+      connectedAccounts: 'Connected Accounts',
+      quickActions: 'Quick Actions',
+      loading: 'Loading...',
     }
-  }
-
-  const t = content[lang]
-
-  const fadeUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
-  }
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
-  }
-  const cardHover = {
-    whileHover: { y: -5, scale: 1.02, transition: { duration: 0.2 } }
-  }
-  const numberVariants = {
-    hidden: { scale: 0, opacity: 0 },
-    visible: { scale: 1, opacity: 1, transition: { type: 'spring', duration: 0.5, delay: 0.2 } }
-  }
+  }[lang]
 
   useEffect(() => {
     const init = async () => {
@@ -94,14 +57,15 @@ export default function Dashboard() {
       if (!user) { router.push('/login'); return }
       setUser(user)
 
+      const automationIds = (await supabase.from('automations').select('id').eq('user_id', user.id)).data?.map(a => a.id) || []
+
       const [
         { count: totalLogs },
         { count: activeAutomations },
         { count: connectedAccounts },
         { count: totalAutomations },
       ] = await Promise.all([
-        supabase.from('automation_logs').select('*', { count: 'exact', head: true })
-          .in('automation_id', (await supabase.from('automations').select('id').eq('user_id', user.id)).data?.map(a => a.id) || []),
+        supabase.from('automation_logs').select('*', { count: 'exact', head: true }).in('automation_id', automationIds.length ? automationIds : ['none']),
         supabase.from('automations').select('*', { count: 'exact', head: true }).eq('user_id', user.id).eq('is_active', true),
         supabase.from('connected_accounts').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
         supabase.from('automations').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
@@ -118,158 +82,100 @@ export default function Dashboard() {
     init()
   }, [router])
 
+  const quickActions = [
+    { href: '/dashboard/accounts',       icon: LinkIcon,      color: 'bg-blue-500/10 text-blue-400',    label: lang === 'ar' ? 'الحسابات' : 'Accounts',         desc: lang === 'ar' ? 'ربط Instagram / Facebook' : 'Connect Instagram / Facebook' },
+    { href: '/dashboard/automations/new',icon: Zap,           color: 'bg-cyan-500/10 text-cyan-400',    label: lang === 'ar' ? 'أتمتة جديدة' : 'New Automation',  desc: lang === 'ar' ? 'رد آلي على الرسائل' : 'Auto-reply to DMs', highlight: true },
+    { href: '/dashboard/flows',          icon: Grid,          color: 'bg-purple-500/10 text-purple-400', label: lang === 'ar' ? 'كل الأتمتات' : 'All Automations', desc: lang === 'ar' ? 'إدارة وعرض جميع المسارات' : 'Manage all flows' },
+    { href: '/dashboard/subscribers',   icon: Users,         color: 'bg-green-500/10 text-green-400',  label: lang === 'ar' ? 'المشتركون' : 'Subscribers',      desc: lang === 'ar' ? 'إدارة جمهورك' : 'Manage your audience' },
+    { href: '/dashboard/broadcast',     icon: Radio,         color: 'bg-orange-500/10 text-orange-400',label: lang === 'ar' ? 'البث الجماعي' : 'Broadcast',      desc: lang === 'ar' ? 'إرسال رسائل جماعية' : 'Send bulk messages' },
+    { href: '/dashboard/sequences',     icon: Repeat,        color: 'bg-pink-500/10 text-pink-400',    label: lang === 'ar' ? 'التسلسلات' : 'Sequences',        desc: lang === 'ar' ? 'رسائل متسلسلة تلقائية' : 'Automated message series' },
+    { href: '/dashboard/inbox',         icon: MessageSquare, color: 'bg-teal-500/10 text-teal-400',    label: lang === 'ar' ? 'صندوق الوارد' : 'Inbox',          desc: lang === 'ar' ? 'محادثات مباشرة' : 'Live conversations' },
+    { href: '/dashboard/analytics',     icon: BarChart2,     color: 'bg-yellow-500/10 text-yellow-400',label: lang === 'ar' ? 'التحليلات' : 'Analytics',        desc: lang === 'ar' ? 'عرض تقارير الأداء' : 'View performance reports' },
+    { href: '/dashboard/settings',      icon: Settings,      color: 'bg-gray-500/10 text-gray-400',    label: lang === 'ar' ? 'الإعدادات' : 'Settings',         desc: lang === 'ar' ? 'إدارة حسابك' : 'Manage account' },
+    { href: '/dashboard/billing',       icon: CreditCard,    color: 'bg-violet-500/10 text-violet-400',label: lang === 'ar' ? 'الفوترة' : 'Billing',           desc: lang === 'ar' ? 'إدارة اشتراكك' : 'Manage subscription' },
+  ]
+
+  const stagger = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.07 } } }
+  const fadeUp  = { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0, transition: { duration: 0.4 } } }
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="flex items-center gap-3 text-cyan-400">
-        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
-          <Settings className="w-6 h-6" />
-        </motion.div>
-        <span className="text-xl font-medium animate-pulse">{t.loading}</span>
+      <div className="flex items-center gap-3 text-cyan-400 animate-pulse">
+        <Zap className="w-6 h-6" />
+        <span className="text-xl font-medium">{t.loading}</span>
       </div>
     </div>
   )
 
   return (
-    <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
-      <Navbar />
+    <main className="p-6 md:p-8 max-w-6xl mx-auto" dir={isRTL ? 'rtl' : 'ltr'}>
 
-      <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      {/* Header */}
+      <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold text-white mb-1">
+          {t.hello} <span className="text-cyan-400">{user?.email?.split('@')[0]}</span>
+        </h1>
+        <p className="text-gray-400 text-sm">{t.subtitle}</p>
+      </motion.div>
 
-        {/* Sub-nav */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-              {t.hello} <span className="text-cyan-400">{user?.email?.split('@')[0]}</span>
-            </h1>
-            <p className="text-gray-400">{t.dashboardSubtitle}</p>
-          </div>
+      {/* Stats */}
+      <motion.div
+        initial="hidden" animate="visible" variants={stagger}
+        className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10"
+      >
+        {[
+          { icon: Zap,          color: 'bg-cyan-500/10 text-cyan-400',   value: stats.activeAutomations, label: t.activeAutomations, sub: `${t.fromTotal} ${stats.totalAutomations}` },
+          { icon: MessageSquare,color: 'bg-purple-500/10 text-purple-400',value: stats.totalLogs,         label: t.totalReplies,       sub: t.totalOps },
+          { icon: LinkIcon,     color: 'bg-green-500/10 text-green-400', value: stats.connectedAccounts, label: t.connectedAccounts,  sub: 'Instagram / Facebook' },
+        ].map((stat, i) => {
+          const Icon = stat.icon
+          return (
+            <motion.div key={i} variants={fadeUp}
+              whileHover={{ y: -4, scale: 1.02 }}
+              className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 text-center"
+            >
+              <div className={`inline-flex p-3 rounded-2xl ${stat.color} mb-3`}>
+                <Icon size={24} />
+              </div>
+              <div className="text-4xl font-bold text-white mb-1">{stat.value}</div>
+              <div className="text-gray-400 text-sm font-medium mb-0.5">{stat.label}</div>
+              <div className="text-gray-600 text-xs">{stat.sub}</div>
+            </motion.div>
+          )
+        })}
+      </motion.div>
 
-          <div className="flex items-center gap-3 flex-wrap">
-            {/* Back to Home */}
-            <Link
-              href="/"
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
-            >
-              {isRTL ? <ArrowRight size={18} /> : <ArrowLeft size={18} />}
-              {t.backHome}
-            </Link>
-
-            <Link
-              href="/dashboard/accounts"
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
-            >
-              <Grid size={18} />
-              {t.accounts}
-            </Link>
-            <Link
-              href="/dashboard/flows"
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
-            >
-              <Zap size={18} />
-              {t.allAutomations}
-            </Link>
-            <Link
-              href="/dashboard/analytics"
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
-            >
-              <BarChart2 size={18} />
-              {t.analytics}
-            </Link>
-          </div>
+      {/* Quick Actions */}
+      <motion.div initial="hidden" animate="visible" variants={stagger}>
+        <h2 className="text-lg font-bold text-white mb-5 flex items-center gap-2">
+          <TrendingUp size={18} className="text-cyan-400" />
+          {t.quickActions}
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          {quickActions.map((action) => {
+            const Icon = action.icon
+            return (
+              <motion.div key={action.href} variants={fadeUp} whileHover={{ y: -4, scale: 1.03 }}>
+                <Link
+                  href={action.href}
+                  className={`flex flex-col items-center text-center p-5 rounded-2xl border transition-all h-full ${
+                    action.highlight
+                      ? 'bg-cyan-500/10 border-cyan-500/30 hover:bg-cyan-500/20'
+                      : 'bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/8'
+                  }`}
+                >
+                  <div className={`inline-flex p-3 rounded-xl ${action.color} mb-3`}>
+                    <Icon size={22} />
+                  </div>
+                  <div className="text-white font-semibold text-sm mb-1">{action.label}</div>
+                  <div className="text-gray-500 text-xs leading-snug">{action.desc}</div>
+                </Link>
+              </motion.div>
+            )
+          })}
         </div>
+      </motion.div>
 
-        {/* Stats Cards */}
-        <motion.div initial="hidden" animate="visible" variants={staggerContainer}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-
-          <motion.div variants={fadeUp} {...cardHover} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 text-center">
-            <div className="inline-flex p-3 rounded-2xl bg-cyan-500/10 text-cyan-400 mb-4">
-              <Zap size={28} />
-            </div>
-            <motion.div variants={numberVariants} className="text-4xl font-bold text-white mb-1">{stats.activeAutomations}</motion.div>
-            <div className="text-gray-400 font-medium mb-1">{t.activeAutomations}</div>
-            <div className="text-xs text-gray-500">{t.fromTotal} {stats.totalAutomations}</div>
-          </motion.div>
-
-          <motion.div variants={fadeUp} {...cardHover} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 text-center">
-            <div className="inline-flex p-3 rounded-2xl bg-purple-500/10 text-purple-400 mb-4">
-              <MessageSquare size={28} />
-            </div>
-            <motion.div variants={numberVariants} className="text-4xl font-bold text-white mb-1">{stats.totalLogs}</motion.div>
-            <div className="text-gray-400 font-medium mb-1">{t.totalReplies}</div>
-            <div className="text-xs text-gray-500">{t.totalOps}</div>
-          </motion.div>
-
-          <motion.div variants={fadeUp} {...cardHover} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 text-center">
-            <div className="inline-flex p-3 rounded-2xl bg-green-500/10 text-green-400 mb-4">
-              <LinkIcon size={28} />
-            </div>
-            <motion.div variants={numberVariants} className={`text-4xl font-bold mb-1 ${stats.connectedAccounts > 0 ? 'text-green-400' : 'text-cyan-400'}`}>
-              {stats.connectedAccounts}
-            </motion.div>
-            <div className="text-gray-400 font-medium mb-1">{t.connectedAccounts}</div>
-            <div className="text-xs text-gray-500">Instagram / Facebook</div>
-          </motion.div>
-        </motion.div>
-
-        {/* Quick Actions */}
-        <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ duration: 0.2 }}>
-  <Link href="/dashboard/subscribers" className="block h-full bg-white/5 border border-white/10 hover:border-white/20 rounded-3xl p-8 text-center text-white transition-all">
-    <div className="inline-flex p-4 rounded-2xl bg-green-500/10 text-green-400 mb-4">
-      <Users size={32} />
-    </div>
-    <div className="text-xl font-bold mb-2">{lang === 'ar' ? 'المشتركون' : 'Subscribers'}</div>
-    <div className="text-sm text-gray-400">{lang === 'ar' ? 'إدارة جمهورك' : 'Manage your audience'}</div>
-  </Link>
-</motion.div>
-
-        <motion.div initial="hidden" animate="visible" variants={fadeUp}>
-          <h2 className="text-xl font-bold text-white mb-6">{t.quickActions}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-            <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ duration: 0.2 }}>
-              <Link href="/dashboard/accounts" className="block h-full bg-white/5 border border-white/10 hover:border-white/20 rounded-3xl p-8 text-center text-white transition-all">
-                <div className="inline-flex p-4 rounded-2xl bg-blue-500/10 text-blue-400 mb-4">
-                  <LinkIcon size={32} />
-                </div>
-                <div className="text-xl font-bold mb-2">{t.accounts}</div>
-                <div className="text-sm text-gray-400">{t.connectIG}</div>
-              </Link>
-            </motion.div>
-
-            <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ duration: 0.2 }}>
-              <Link href="/dashboard/automations/new" className="block h-full bg-cyan-500/10 border border-cyan-500/20 hover:bg-cyan-500/20 rounded-3xl p-8 text-center text-white transition-all">
-                <div className="inline-flex p-4 rounded-2xl bg-cyan-500/20 text-cyan-400 mb-4">
-                  <Zap size={32} />
-                </div>
-                <div className="text-xl font-bold mb-2">{t.newAutomation}</div>
-                <div className="text-sm text-gray-300">{t.autoReplyDM}</div>
-              </Link>
-            </motion.div>
-
-            <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ duration: 0.2 }}>
-              <Link href="/dashboard/flows" className="block h-full bg-white/5 border border-white/10 hover:border-white/20 rounded-3xl p-8 text-center text-white transition-all">
-                <div className="inline-flex p-4 rounded-2xl bg-purple-500/10 text-purple-400 mb-4">
-                  <Grid size={32} />
-                </div>
-                <div className="text-xl font-bold mb-2">{t.allAutomations}</div>
-                <div className="text-sm text-gray-400">{t.manageView}</div>
-              </Link>
-            </motion.div>
-
-            <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ duration: 0.2 }}>
-              <Link href="/dashboard/analytics" className="block h-full bg-white/5 border border-white/10 hover:border-white/20 rounded-3xl p-8 text-center text-white transition-all">
-                <div className="inline-flex p-4 rounded-2xl bg-orange-500/10 text-orange-400 mb-4">
-                  <BarChart2 size={32} />
-                </div>
-                <div className="text-xl font-bold mb-2">{t.analytics}</div>
-                <div className="text-sm text-gray-400">{t.analyticsDesc}</div>
-              </Link>
-            </motion.div>
-
-          </div>
-        </motion.div>
-      </main>
-    </PageLayoutWith3D>
+    </main>
   )
 }

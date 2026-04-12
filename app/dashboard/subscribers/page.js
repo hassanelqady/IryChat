@@ -12,8 +12,6 @@ import {
   ChevronDown, UserX, RefreshCw, Download,
   Instagram, Facebook, Zap
 } from 'lucide-react'
-import Navbar from '@/components/Navbar'
-import PageLayoutWith3D from '@/components/PageLayoutWith3D'
 
 // ─── Helpers ───────────────────────────────────────────────
 const PLATFORM_COLORS = {
@@ -44,6 +42,7 @@ function timeAgo(date, lang) {
 function TagBadge({ tag, index, onRemove }) {
   const color = TAG_COLORS[index % TAG_COLORS.length]
   return (
+    <>
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${color}`}>
       {tag}
       {onRemove && (
@@ -82,6 +81,7 @@ function SubscriberCard({ sub, lang, t, onAddTag, onBlock, index }) {
     : 'from-cyan-600 to-blue-400'
 
   return (
+    <>
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
@@ -375,8 +375,7 @@ export default function SubscribersPage() {
   )
 
   return (
-    <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
-      <Navbar />
+    <>
       <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
 
         {/* Header */}
@@ -563,6 +562,6 @@ export default function SubscribersPage() {
         )}
 
       </main>
-    </PageLayoutWith3D>
+    </>
   )
 }

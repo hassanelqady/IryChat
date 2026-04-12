@@ -7,8 +7,6 @@ import { motion } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/context/LanguageContext'
 import { Plus, Play, Pause, Pencil, Trash2, Bot, Zap, Grid, CheckCircle2, XCircle, ArrowLeft, ArrowRight } from 'lucide-react'
-import Navbar from '@/components/Navbar'
-import PageLayoutWith3D from '@/components/PageLayoutWith3D'
 
 export default function FlowsPage() {
   const router = useRouter()
@@ -107,8 +105,7 @@ export default function FlowsPage() {
   )
 
   return (
-    <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
-      <Navbar />
+    <>
       <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
 
         {/* Header */}
@@ -242,6 +239,6 @@ export default function FlowsPage() {
           })}
         </div>
       </main>
-    </PageLayoutWith3D>
+    </>
   )
 }

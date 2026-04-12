@@ -7,8 +7,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/context/LanguageContext'
 import { ArrowLeft, ArrowRight, Zap, MessageSquare, CheckCircle, AlertCircle, Plus, X } from 'lucide-react'
-import Navbar from '@/components/Navbar'
-import PageLayoutWith3D from '@/components/PageLayoutWith3D'
 
 export default function NewAutomationPage() {
   const router = useRouter()
@@ -256,8 +254,6 @@ export default function NewAutomationPage() {
   )
 
   return (
-    <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
-      <Navbar />
       <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
 
         {/* Header */}
@@ -404,6 +400,5 @@ export default function NewAutomationPage() {
 
         </motion.div>
       </main>
-    </PageLayoutWith3D>
   )
 }

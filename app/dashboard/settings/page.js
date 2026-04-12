@@ -4,9 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { User, Link as LinkIcon, CheckCircle, Save, RefreshCw, ExternalLink, Facebook, ArrowLeft, ArrowRight } from 'lucide-react'
-import Navbar from '@/components/Navbar'
-import PageLayoutWith3D from '@/components/PageLayoutWith3D'
+import { User, Link as LinkIcon, CheckCircle, Save, RefreshCw, ExternalLink, Facebook, ArrowLeft, ArrowRight, CreditCard } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { createClient } from '@/lib/supabase/client'
 
@@ -106,8 +104,7 @@ export default function SettingsPage() {
   )
 
   return (
-    <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
-      <Navbar />
+    <>
 
       <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
 
@@ -144,6 +141,8 @@ export default function SettingsPage() {
           {[
             { id: 'profile', label: t.profile, icon: User },
             { id: 'accounts', label: t.connectedAccounts, icon: LinkIcon },
+            { id: 'billing', label: lang === 'ar' ? 'الفوترة' : 'Billing', icon: CreditCard }
+
           ].map((tab) => (
             <button
               key={tab.id}
@@ -255,6 +254,6 @@ export default function SettingsPage() {
         )}
 
       </main>
-    </PageLayoutWith3D>
+    </>
   )
 }

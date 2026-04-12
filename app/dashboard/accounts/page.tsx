@@ -6,8 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Link as LinkIcon, Trash2, Plus, Grid, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
-import Navbar from '@/components/Navbar'
-import PageLayoutWith3D from '@/components/PageLayoutWith3D'
 
 function AccountsContent() {
   const [accounts, setAccounts] = useState([])
@@ -94,8 +92,6 @@ function AccountsContent() {
   )
 
   return (
-    <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
-      <Navbar />
       
       <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
         
@@ -193,7 +189,6 @@ function AccountsContent() {
           </div>
         )}
       </main>
-    </PageLayoutWith3D>
   )
 }
 
