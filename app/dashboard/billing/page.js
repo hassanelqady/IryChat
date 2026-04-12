@@ -73,7 +73,6 @@ function UsageBar({ label, used, limit, icon: Icon, color = 'bg-cyan-500' }) {
   const isDanger = pct >= 95 && !isUnlimited
 
   return (
-    <>
     <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
@@ -118,7 +117,6 @@ function PlanOption({ plan, planKey, currentPlan, lang, onSelect }) {
   const planNames = { ar: { free: 'مجاني', pro: 'احترافي', business: 'الأعمال' }, en: { free: 'Free', pro: 'Pro', business: 'Business' } }
 
   return (
-    <>
     <div className={`relative bg-white/5 border ${plan.borderColor} rounded-2xl p-5 transition-all ${isCurrent ? 'ring-1 ring-cyan-500/50' : 'hover:border-white/20'}`}>
       {isCurrent && (
         <div className="absolute -top-2.5 start-4 px-3 py-0.5 bg-cyan-500 text-black text-xs font-bold rounded-full">
@@ -321,7 +319,6 @@ export default function BillingPage() {
   )
 
   return (
-    <>
       <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
 
         {/* Header */}
@@ -531,6 +528,5 @@ export default function BillingPage() {
           </div>
         </div>
       </main>
-    </>
   )
 }

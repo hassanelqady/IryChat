@@ -35,7 +35,6 @@ function initials(name) {
 function ConvItem({ conv, selected, onClick, lang }) {
   const isAr = lang === 'ar'
   return (
-    <>
     <button
       onClick={onClick}
       className={`w-full text-start p-4 border-b border-white/5 transition-all hover:bg-white/5 ${selected ? 'bg-white/10 border-s-2 border-s-cyan-500' : ''}`}
@@ -86,7 +85,6 @@ function MessageBubble({ msg, isRTL }) {
   const isUser = !isBot && !isAgent
 
   return (
-    <>
     <div className={`flex items-end gap-2 mb-3 ${isUser ? (isRTL ? 'justify-end' : 'justify-start') : (isRTL ? 'justify-start' : 'justify-end')}`}>
       {isUser && (
         <div className="w-7 h-7 rounded-full bg-gradient-to-br from-cyan-600 to-purple-600 flex items-center justify-center flex-shrink-0">
@@ -333,7 +331,6 @@ export default function InboxPage() {
   )
 
   return (
-    <>
       <main className="pt-20 pb-0 px-0 h-screen flex flex-col">
 
         {/* Top bar */}
@@ -565,6 +562,5 @@ export default function InboxPage() {
           </div>
         </div>
       </main>
-    </>
   )
 }

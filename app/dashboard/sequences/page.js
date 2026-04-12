@@ -16,7 +16,6 @@ import {
 // ─── Step Card (inside sequence) ───────────────────────────
 function StepCard({ step, index, onRemove, isRTL }) {
   return (
-    <>
     <motion.div
       initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
       animate={{ opacity: 1, x: 0 }}
@@ -78,7 +77,6 @@ function NewSequenceModal({ subscribers, onClose, onCreate, t, lang, isRTL }) {
   }
 
   return (
-    <>
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -208,7 +206,6 @@ function NewSequenceModal({ subscribers, onClose, onCreate, t, lang, isRTL }) {
 // ─── Sequence Card ──────────────────────────────────────────
 function SequenceCard({ sequence, steps, subscriberCount, onToggle, onDelete, onExpand, expanded, t, lang, isRTL, index }) {
   return (
-    <>
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
@@ -490,7 +487,6 @@ export default function SequencesPage() {
   )
 
   return (
-    <>
 
       <AnimatePresence>
         {showModal && (
@@ -593,6 +589,5 @@ export default function SequencesPage() {
         </div>
 
       </main>
-    </>
   )
 }
