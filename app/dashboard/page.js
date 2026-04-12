@@ -1,10 +1,9 @@
 'use client'
-
+import { Settings, Grid, Zap, MessageSquare, Link as LinkIcon, BarChart2, ArrowRight, ArrowLeft, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Settings, Grid, Zap, MessageSquare, Link as LinkIcon, BarChart2, ArrowRight, ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/context/LanguageContext'
 import Navbar from '@/components/Navbar'
@@ -214,6 +213,16 @@ export default function Dashboard() {
         </motion.div>
 
         {/* Quick Actions */}
+        <motion.div whileHover={{ y: -5, scale: 1.02 }} transition={{ duration: 0.2 }}>
+  <Link href="/dashboard/subscribers" className="block h-full bg-white/5 border border-white/10 hover:border-white/20 rounded-3xl p-8 text-center text-white transition-all">
+    <div className="inline-flex p-4 rounded-2xl bg-green-500/10 text-green-400 mb-4">
+      <Users size={32} />
+    </div>
+    <div className="text-xl font-bold mb-2">{lang === 'ar' ? 'المشتركون' : 'Subscribers'}</div>
+    <div className="text-sm text-gray-400">{lang === 'ar' ? 'إدارة جمهورك' : 'Manage your audience'}</div>
+  </Link>
+</motion.div>
+
         <motion.div initial="hidden" animate="visible" variants={fadeUp}>
           <h2 className="text-xl font-bold text-white mb-6">{t.quickActions}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

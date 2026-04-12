@@ -28,6 +28,11 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
+  // استثناء مؤقت لصفحة dev-bypass - احذف هذا قبل production
+  if (pathname.startsWith('/dashboard/dev-bypass')) {
+    return supabaseResponse
+  }
+
   // لو مش مسجل دخول وحاول يدخل الداشبورد → login
   if (!user && pathname.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/login', request.url))
