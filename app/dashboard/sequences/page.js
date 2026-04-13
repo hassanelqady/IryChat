@@ -487,7 +487,7 @@ export default function SequencesPage() {
   )
 
   return (
-
+    <>
       <AnimatePresence>
         {showModal && (
           <NewSequenceModal
@@ -588,6 +588,7 @@ export default function SequencesPage() {
           ))}
         </div>
 
-      </main>
+           </main>
+    </>
   )
 }
