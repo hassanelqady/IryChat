@@ -331,6 +331,7 @@ export default function InboxPage() {
   )
 
   return (
+    <>
       <main className="pt-20 pb-0 px-0 h-screen flex flex-col">
 
         {/* Top bar */}
@@ -561,6 +562,7 @@ export default function InboxPage() {
             )}
           </div>
         </div>
-      </main>
+           </main>
+    </>
   )
 }

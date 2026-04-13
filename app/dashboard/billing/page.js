@@ -319,6 +319,7 @@ export default function BillingPage() {
   )
 
   return (
+    <>
       <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
 
         {/* Header */}
@@ -527,6 +528,7 @@ export default function BillingPage() {
 
           </div>
         </div>
-      </main>
+           </main>
+    </>
   )
 }
