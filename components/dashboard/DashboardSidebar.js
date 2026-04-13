@@ -9,7 +9,7 @@ import {
   LayoutDashboard, Zap, Users, Radio, Repeat,
   MessageSquare, BarChart2, Settings, CreditCard,
   Link as LinkIcon, LogOut, ChevronLeft, ChevronRight,
-  Menu, X, Link2
+  Menu, X, Link2, Bot
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -38,6 +38,7 @@ export default function DashboardSidebar() {
         { href: '/dashboard/sequences', icon: Repeat, label: lang === 'ar' ? 'التسلسلات' : 'Sequences' },
         { href: '/dashboard/inbox', icon: MessageSquare, label: lang === 'ar' ? 'صندوق الوارد' : 'Inbox' },
         { href: '/dashboard/growth', icon: Link2, label: lang === 'ar' ? 'أدوات النمو' : 'Growth Tools' },
+        { href: '/dashboard/ai', icon: Bot, label: lang === 'ar' ? 'ردود AI' : 'AI Replies' },
       ]
     },
     {

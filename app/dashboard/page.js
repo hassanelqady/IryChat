@@ -9,7 +9,7 @@ import { useLanguage } from '@/context/LanguageContext'
 import {
   Zap, MessageSquare, Link as LinkIcon, BarChart2,
   Users, Radio, Repeat, CreditCard, Settings,
-  Grid, TrendingUp, Link2
+  Grid, TrendingUp, Link2, Bot,
 } from 'lucide-react'
 
 export default function Dashboard() {
@@ -91,6 +91,7 @@ export default function Dashboard() {
     { href: '/dashboard/sequences',      icon: Repeat,        color: 'bg-pink-500/10 text-pink-400',    label: lang === 'ar' ? 'التسلسلات' : 'Sequences',        desc: lang === 'ar' ? 'رسائل متسلسلة تلقائية' : 'Automated message series' },
     { href: '/dashboard/inbox',          icon: MessageSquare, color: 'bg-teal-500/10 text-teal-400',    label: lang === 'ar' ? 'صندوق الوارد' : 'Inbox',          desc: lang === 'ar' ? 'محادثات مباشرة' : 'Live conversations' },
     { href: '/dashboard/growth',         icon: Link2,         color: 'bg-cyan-500/10 text-cyan-400',    label: lang === 'ar' ? 'أدوات النمو' : 'Growth Tools',    desc: lang === 'ar' ? 'روابط وQR Code' : 'Links & QR Codes' },
+    { href: '/dashboard/ai',             icon: Bot,           color: 'bg-purple-500/10 text-purple-400',    label: lang === 'ar' ? 'ردود AI' : 'AI Replies',          desc: lang === 'ar' ? 'ردود آلية على الرسائل' : 'AI replies to messages' },
     { href: '/dashboard/analytics',      icon: BarChart2,     color: 'bg-yellow-500/10 text-yellow-400', label: lang === 'ar' ? 'التحليلات' : 'Analytics',       desc: lang === 'ar' ? 'عرض تقارير الأداء' : 'View performance reports' },
     { href: '/dashboard/settings',       icon: Settings,      color: 'bg-gray-500/10 text-gray-400',    label: lang === 'ar' ? 'الإعدادات' : 'Settings',         desc: lang === 'ar' ? 'إدارة حسابك' : 'Manage account' },
     { href: '/dashboard/billing',        icon: CreditCard,    color: 'bg-violet-500/10 text-violet-400', label: lang === 'ar' ? 'الفوترة' : 'Billing',           desc: lang === 'ar' ? 'إدارة اشتراكك' : 'Manage subscription' },
