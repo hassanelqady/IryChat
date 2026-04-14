@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { decrypt } from '@/lib/encryption'
+import { triggerWebhooks } from '@/lib/triggerWebhooks'
 import { NextRequest } from 'next/server'
 
 // ============================================================
@@ -55,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Meta expects 200 OK fast — أي معالجة تانية تبقى async
+  // Meta expects 200 OK fast
   return new Response('OK')
 }
 
@@ -69,27 +70,20 @@ function pickRandom<T>(arr: T[]): T | null {
 
 // ============================================================
 // Helper — check if comment text matches automation keywords
-// Returns true if:
-//   - trigger_keywords array has a match  (new format)
-//   - OR trigger_keyword string matches   (legacy format)
-//   - OR no keywords set → match all comments
 // ============================================================
 function matchesKeywords(text: string, automation: any): boolean {
   const lower = text.toLowerCase()
 
-  // New format — array of keywords
   if (automation.trigger_keywords && automation.trigger_keywords.length > 0) {
     return automation.trigger_keywords.some((kw: string) =>
       lower.includes(kw.toLowerCase())
     )
   }
 
-  // Legacy format — single keyword string
   if (automation.trigger_keyword) {
     return lower.includes(automation.trigger_keyword.toLowerCase())
   }
 
-  // No keywords defined → trigger on any comment
   return true
 }
 
@@ -101,8 +95,6 @@ async function handleNewComment(comment: any, supabase: any) {
 
   if (!text || !media_id) return
 
-  // Find all active automations for this media (post)
-  // Also try automations with no post_id (apply to all posts)
   const { data: automations } = await supabase
     .from('automations')
     .select(`
@@ -110,7 +102,8 @@ async function handleNewComment(comment: any, supabase: any) {
       connected_accounts (
         access_token,
         account_type,
-        account_id
+        account_id,
+        account_name
       )
     `)
     .eq('is_active', true)
@@ -118,7 +111,6 @@ async function handleNewComment(comment: any, supabase: any) {
 
   if (!automations || automations.length === 0) return
 
-  // Find the FIRST matching automation
   const automation = automations.find((a: any) => matchesKeywords(text, a))
   if (!automation) return
 
@@ -139,7 +131,7 @@ async function handleNewComment(comment: any, supabase: any) {
   try {
     // ── A) Reply to Comment (public)
     const commentReply = pickRandom<string>(automation.comment_replies)
-      ?? automation.comment_reply  // fallback to legacy field
+      ?? automation.comment_reply
 
     if (commentReply && commentId) {
       const res = await fetch(
@@ -164,21 +156,16 @@ async function handleNewComment(comment: any, supabase: any) {
 
     // ── B) Send DM to commenter
     const dmText = pickRandom<string>(automation.dm_messages)
-      ?? automation.dm_message  // fallback to legacy field
+      ?? automation.dm_message
 
     if (dmText && from?.id) {
-      // Instagram DMs use the Instagram account ID, Facebook uses page ID
-      const recipientField = account.account_type === 'instagram'
-        ? { id: from.id }
-        : { id: from.id }
-
       const res = await fetch(
         `https://graph.facebook.com/v19.0/me/messages`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            recipient: recipientField,
+            recipient: { id: from.id },
             message: { text: dmText },
             access_token: pageToken,
           }),
@@ -208,19 +195,47 @@ async function handleNewComment(comment: any, supabase: any) {
     error_message:  errorMessage || null,
     event_type:     'comment',
   })
+
+  // ── 🔔 Trigger outgoing webhooks — comment_received + automation_triggered
+  // بنعمل fire-and-forget عشان متأخرش الـ response على Meta
+  triggerWebhooks({
+    userId: automation.user_id,
+    event: 'comment_received',
+    accountName: account.account_name,
+    data: {
+      commenter_id:   from?.id   ?? null,
+      commenter_name: from?.name ?? null,
+      comment_text:   text,
+      comment_id:     commentId,
+      media_id,
+    }
+  }).catch(err => console.error('[triggerWebhooks] comment_received failed:', err))
+
+  if (actionTaken && actionTaken !== 'no_action') {
+    triggerWebhooks({
+      userId: automation.user_id,
+      event: 'automation_triggered',
+      accountName: account.account_name,
+      data: {
+        automation_id:   automation.id,
+        automation_name: automation.name ?? null,
+        action_taken:    actionTaken,
+        trigger_text:    text,
+        commenter_id:    from?.id ?? null,
+      }
+    }).catch(err => console.error('[triggerWebhooks] automation_triggered failed:', err))
+  }
 }
 
 // ============================================================
 // Handler — Incoming Direct Message (Instagram DM)
 // ============================================================
 async function handleDirectMessage(messaging: any, pageId: string, supabase: any) {
-  const senderId  = messaging.sender?.id
+  const senderId    = messaging.sender?.id
   const messageText = messaging.message?.text
 
   if (!senderId || !messageText) return
 
-  // Find automations for this page/account that are active
-  // DM automations: match by account_id (the Instagram/page ID)
   const { data: automations } = await supabase
     .from('automations')
     .select(`
@@ -228,7 +243,8 @@ async function handleDirectMessage(messaging: any, pageId: string, supabase: any
       connected_accounts (
         access_token,
         account_type,
-        account_id
+        account_id,
+        account_name
       )
     `)
     .eq('is_active', true)
@@ -295,4 +311,30 @@ async function handleDirectMessage(messaging: any, pageId: string, supabase: any
     error_message:  errorMessage || null,
     event_type:     'dm',
   })
+
+  // ── 🔔 Trigger outgoing webhooks — dm_received + automation_triggered
+  triggerWebhooks({
+    userId: automation.user_id,
+    event: 'dm_received',
+    accountName: account.account_name,
+    data: {
+      sender_id:    senderId,
+      message_text: messageText,
+    }
+  }).catch(err => console.error('[triggerWebhooks] dm_received failed:', err))
+
+  if (actionTaken === 'dm_sent') {
+    triggerWebhooks({
+      userId: automation.user_id,
+      event: 'automation_triggered',
+      accountName: account.account_name,
+      data: {
+        automation_id:   automation.id,
+        automation_name: automation.name ?? null,
+        action_taken:    actionTaken,
+        trigger_text:    messageText,
+        sender_id:       senderId,
+      }
+    }).catch(err => console.error('[triggerWebhooks] automation_triggered failed:', err))
+  }
 }

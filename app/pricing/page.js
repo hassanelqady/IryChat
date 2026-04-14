@@ -9,7 +9,7 @@ import PageLayoutWith3D from '@/components/PageLayoutWith3D'
 import {
   Check, X, Zap, Crown, Building2, Sparkles,
   ChevronDown, ChevronUp, MessageSquare, Users,
-  Radio, Repeat, BarChart2, Bot, Webhook, Shield
+  Radio, Repeat, BarChart2, Webhook, Shield
 } from 'lucide-react'
 
 // ─── Data ───────────────────────────────────────────────────
@@ -34,7 +34,6 @@ const plans = {
         subscribers: '500 مشترك',
         broadcasts: false,
         sequences: false,
-        ai: false,
         analytics: 'أساسية',
         inbox: false,
         webhooks: false,
@@ -60,7 +59,6 @@ const plans = {
         subscribers: '5,000 مشترك',
         broadcasts: '10 بث/شهر',
         sequences: '10 تسلسلات',
-        ai: false,
         analytics: 'متقدمة',
         inbox: true,
         webhooks: false,
@@ -86,7 +84,6 @@ const plans = {
         subscribers: '50,000 مشترك',
         broadcasts: 'غير محدود',
         sequences: 'غير محدود',
-        ai: true,
         analytics: 'كاملة + تصدير',
         inbox: true,
         webhooks: true,
@@ -114,7 +111,6 @@ const plans = {
         subscribers: '500 subscribers',
         broadcasts: false,
         sequences: false,
-        ai: false,
         analytics: 'Basic',
         inbox: false,
         webhooks: false,
@@ -140,7 +136,6 @@ const plans = {
         subscribers: '5,000 subscribers',
         broadcasts: '10 broadcasts/mo',
         sequences: '10 sequences',
-        ai: false,
         analytics: 'Advanced',
         inbox: true,
         webhooks: false,
@@ -166,7 +161,6 @@ const plans = {
         subscribers: '50,000 subscribers',
         broadcasts: 'Unlimited',
         sequences: 'Unlimited',
-        ai: true,
         analytics: 'Full + Export',
         inbox: true,
         webhooks: true,
@@ -178,28 +172,26 @@ const plans = {
 
 const comparisonFeatures = {
   ar: [
-    { icon: Users, label: 'الحسابات المتصلة', key: 'accounts' },
-    { icon: Zap, label: 'الأتمتات', key: 'automations' },
-    { icon: Users, label: 'المشتركون', key: 'subscribers' },
-    { icon: Radio, label: 'البث الجماعي', key: 'broadcasts' },
-    { icon: Repeat, label: 'التسلسلات', key: 'sequences' },
-    { icon: Bot, label: 'ردود الذكاء الاصطناعي', key: 'ai' },
-    { icon: BarChart2, label: 'التحليلات', key: 'analytics' },
-    { icon: MessageSquare, label: 'صندوق الوارد', key: 'inbox' },
-    { icon: Webhook, label: 'Webhooks', key: 'webhooks' },
-    { icon: Shield, label: 'الدعم الفني', key: 'support' },
+    { icon: Users,      label: 'الحسابات المتصلة', key: 'accounts' },
+    { icon: Zap,        label: 'الأتمتات',          key: 'automations' },
+    { icon: Users,      label: 'المشتركون',          key: 'subscribers' },
+    { icon: Radio,      label: 'البث الجماعي',       key: 'broadcasts' },
+    { icon: Repeat,     label: 'التسلسلات',          key: 'sequences' },
+    { icon: BarChart2,  label: 'التحليلات',          key: 'analytics' },
+    { icon: MessageSquare, label: 'صندوق الوارد',   key: 'inbox' },
+    { icon: Webhook,    label: 'Webhooks',            key: 'webhooks' },
+    { icon: Shield,     label: 'الدعم الفني',        key: 'support' },
   ],
   en: [
-    { icon: Users, label: 'Connected Accounts', key: 'accounts' },
-    { icon: Zap, label: 'Automations', key: 'automations' },
-    { icon: Users, label: 'Subscribers', key: 'subscribers' },
-    { icon: Radio, label: 'Broadcasts', key: 'broadcasts' },
-    { icon: Repeat, label: 'Sequences', key: 'sequences' },
-    { icon: Bot, label: 'AI Replies', key: 'ai' },
-    { icon: BarChart2, label: 'Analytics', key: 'analytics' },
+    { icon: Users,      label: 'Connected Accounts', key: 'accounts' },
+    { icon: Zap,        label: 'Automations',         key: 'automations' },
+    { icon: Users,      label: 'Subscribers',         key: 'subscribers' },
+    { icon: Radio,      label: 'Broadcasts',          key: 'broadcasts' },
+    { icon: Repeat,     label: 'Sequences',           key: 'sequences' },
+    { icon: BarChart2,  label: 'Analytics',           key: 'analytics' },
     { icon: MessageSquare, label: 'Inbox / Live Chat', key: 'inbox' },
-    { icon: Webhook, label: 'Webhooks', key: 'webhooks' },
-    { icon: Shield, label: 'Support', key: 'support' },
+    { icon: Webhook,    label: 'Webhooks',            key: 'webhooks' },
+    { icon: Shield,     label: 'Support',             key: 'support' },
   ]
 }
 
@@ -220,14 +212,12 @@ const faqs = {
   ]
 }
 
-// ─── Feature Value Cell ─────────────────────────────────────
 function FeatureValue({ value }) {
   if (value === false) return <X size={16} className="text-gray-700 mx-auto" />
   if (value === true) return <Check size={16} className="text-green-400 mx-auto" />
   return <span className="text-gray-300 text-sm">{value}</span>
 }
 
-// ─── FAQ Item ───────────────────────────────────────────────
 function FAQItem({ q, a }) {
   const [open, setOpen] = useState(false)
   return (
@@ -256,7 +246,6 @@ function FAQItem({ q, a }) {
   )
 }
 
-// ─── Main Page ──────────────────────────────────────────────
 export default function PricingPage() {
   const { lang } = useLanguage()
   const isRTL = lang === 'ar'
@@ -284,11 +273,7 @@ export default function PricingPage() {
       <main className="pt-28 pb-24 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
 
         {/* Hero */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-cyan-400 text-sm font-medium mb-6">
             <Sparkles size={14} />
             {lang === 'ar' ? 'بدون رسوم خفية' : 'No hidden fees'}
@@ -331,14 +316,11 @@ export default function PricingPage() {
                 transition={{ delay: i * 0.1 }}
                 className={`relative bg-white/5 backdrop-blur-md border ${plan.border} rounded-3xl p-7 flex flex-col ${plan.badge ? 'ring-1 ring-cyan-500/30' : ''}`}
               >
-                {/* Badge */}
                 {plan.badge && (
                   <div className="absolute -top-3 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 px-4 py-1 bg-cyan-500 text-black text-xs font-bold rounded-full whitespace-nowrap">
                     {plan.badge}
                   </div>
                 )}
-
-                {/* Icon + Name */}
                 <div className="flex items-center gap-3 mb-5">
                   <div className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${plan.color} flex items-center justify-center`}>
                     <Icon size={22} className="text-white" />
@@ -348,8 +330,6 @@ export default function PricingPage() {
                     <p className="text-gray-500 text-xs">{plan.description}</p>
                   </div>
                 </div>
-
-                {/* Price */}
                 <div className="mb-6">
                   <div className="flex items-end gap-1">
                     <span className="text-4xl font-bold text-white">${price}</span>
@@ -359,12 +339,9 @@ export default function PricingPage() {
                     <p className="text-gray-600 text-xs mt-1">{billedYearly}</p>
                   )}
                 </div>
-
-                {/* Features list */}
                 <div className="space-y-3 mb-8 flex-1">
                   {features.map(f => {
                     const val = plan.limits[f.key]
-                    const FIcon = f.icon
                     return (
                       <div key={f.key} className="flex items-center gap-2.5">
                         {val === false
@@ -378,8 +355,6 @@ export default function PricingPage() {
                     )
                   })}
                 </div>
-
-                {/* CTA */}
                 <Link
                   href={plan.ctaHref}
                   className={`w-full py-3 rounded-full text-center text-sm font-bold transition-all duration-200 ${plan.ctaStyle}`}
@@ -392,12 +367,7 @@ export default function PricingPage() {
         </div>
 
         {/* Comparison Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="mb-20"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mb-20">
           <h2 className="text-2xl font-bold text-white text-center mb-8">{compareTitle}</h2>
           <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
             <div className="overflow-x-auto">
@@ -446,12 +416,7 @@ export default function PricingPage() {
         </motion.div>
 
         {/* FAQ */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="max-w-2xl mx-auto"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="max-w-2xl mx-auto">
           <h2 className="text-2xl font-bold text-white text-center mb-8">{faqTitle}</h2>
           <div className="space-y-3">
             {faqList.map((faq, i) => (
@@ -461,12 +426,7 @@ export default function PricingPage() {
         </motion.div>
 
         {/* Bottom CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="text-center mt-20"
-        >
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="text-center mt-20">
           <div className="bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-pink-500/10 border border-white/10 rounded-3xl p-10">
             <h3 className="text-2xl font-bold text-white mb-3">
               {lang === 'ar' ? 'جاهز تبدأ؟' : 'Ready to get started?'}

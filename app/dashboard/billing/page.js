@@ -8,9 +8,8 @@ import { createClient } from '@/lib/supabase/client'
 import { useLanguage } from '@/context/LanguageContext'
 import {
   CreditCard, Zap, Crown, Building2, ArrowLeft, ArrowRight,
-  CheckCircle2, Clock, TrendingUp, Users, Radio, Repeat,
-  MessageSquare, Bot, Webhook, BarChart2, Shield,
-  ExternalLink, AlertCircle, Sparkles, ChevronRight
+  CheckCircle2, Users, Radio, Repeat,
+  Shield, ExternalLink, AlertCircle, Sparkles, ChevronRight
 } from 'lucide-react'
 
 // ─── Plan Config ────────────────────────────────────────────
@@ -192,12 +191,10 @@ export default function BillingPage() {
       freeDesc: 'قم بالترقية للوصول لميزات متقدمة',
       upgradeNow: 'ترقية الآن',
       viewPricing: 'عرض خطط الأسعار',
-      managedExternally: 'يُدار الاشتراك خارجياً',
       cancelAnytime: 'إلغاء في أي وقت',
       back: 'رجوع',
       loading: 'جاري التحميل...',
       planFeatures: 'مميزات خطتك',
-      unlimited: 'غير محدود',
       renewsOn: 'يتجدد في',
       monthly: 'شهري',
       billingHistory: 'سجل الفوترة',
@@ -220,12 +217,10 @@ export default function BillingPage() {
       freeDesc: 'Upgrade to access advanced features',
       upgradeNow: 'Upgrade Now',
       viewPricing: 'View Pricing',
-      managedExternally: 'Subscription managed externally',
       cancelAnytime: 'Cancel anytime',
       back: 'Back',
       loading: 'Loading...',
       planFeatures: 'Plan Features',
-      unlimited: 'Unlimited',
       renewsOn: 'Renews on',
       monthly: 'Monthly',
       billingHistory: 'Billing History',
@@ -241,7 +236,6 @@ export default function BillingPage() {
     if (!user) { router.push('/login'); return }
     setUser(user)
 
-    // Load actual usage from DB
     const [
       { count: accountsCount },
       { count: automationsCount },
@@ -264,19 +258,14 @@ export default function BillingPage() {
       sequences: sequencesCount || 0,
     })
 
-    // TODO: load plan from user metadata or subscriptions table
-    // For now default to free
     const plan = user.user_metadata?.plan || 'free'
     setCurrentPlan(plan)
-
     setLoading(false)
   }, [router])
 
   useEffect(() => { load() }, [load])
 
   const handleSelectPlan = (planKey) => {
-    // Redirect to pricing page for now
-    // Later: integrate Stripe/Paddle
     router.push(`/pricing?plan=${planKey}`)
   }
 
@@ -289,23 +278,23 @@ export default function BillingPage() {
   }
 
   const usageItems = [
-    { key: 'accounts', label: t.accounts, icon: Users, color: 'bg-blue-500' },
-    { key: 'automations', label: t.automations, icon: Zap, color: 'bg-cyan-500' },
-    { key: 'subscribers', label: t.subscribers, icon: Users, color: 'bg-green-500' },
-    { key: 'broadcasts', label: t.broadcasts, icon: Radio, color: 'bg-orange-500' },
-    { key: 'sequences', label: t.sequences, icon: Repeat, color: 'bg-purple-500' },
+    { key: 'accounts',    label: t.accounts,    icon: Users,   color: 'bg-blue-500' },
+    { key: 'automations', label: t.automations, icon: Zap,     color: 'bg-cyan-500' },
+    { key: 'subscribers', label: t.subscribers, icon: Users,   color: 'bg-green-500' },
+    { key: 'broadcasts',  label: t.broadcasts,  icon: Radio,   color: 'bg-orange-500' },
+    { key: 'sequences',   label: t.sequences,   icon: Repeat,  color: 'bg-purple-500' },
   ]
 
   const planFeatures = {
     ar: {
-      free: ['3 أتمتات', '500 مشترك', 'تحليلات أساسية', 'دعم المجتمع'],
-      pro: ['30 أتمتة', '5,000 مشترك', '10 بث/شهر', '10 تسلسلات', 'صندوق الوارد', 'تحليلات متقدمة', 'دعم أولوية'],
-      business: ['أتمتات غير محدودة', '50,000 مشترك', 'بث غير محدود', 'تسلسلات غير محدودة', 'ردود الذكاء الاصطناعي', 'Webhooks', 'دعم مخصص 24/7'],
+      free:     ['3 أتمتات', '500 مشترك', 'تحليلات أساسية', 'دعم المجتمع'],
+      pro:      ['30 أتمتة', '5,000 مشترك', '10 بث/شهر', '10 تسلسلات', 'صندوق الوارد', 'تحليلات متقدمة', 'دعم أولوية'],
+      business: ['أتمتات غير محدودة', '50,000 مشترك', 'بث غير محدود', 'تسلسلات غير محدودة', 'Webhooks', 'دعم مخصص 24/7'],
     },
     en: {
-      free: ['3 automations', '500 subscribers', 'Basic analytics', 'Community support'],
-      pro: ['30 automations', '5,000 subscribers', '10 broadcasts/mo', '10 sequences', 'Inbox', 'Advanced analytics', 'Priority support'],
-      business: ['Unlimited automations', '50,000 subscribers', 'Unlimited broadcasts', 'Unlimited sequences', 'AI replies', 'Webhooks', 'Dedicated 24/7 support'],
+      free:     ['3 automations', '500 subscribers', 'Basic analytics', 'Community support'],
+      pro:      ['30 automations', '5,000 subscribers', '10 broadcasts/mo', '10 sequences', 'Inbox', 'Advanced analytics', 'Priority support'],
+      business: ['Unlimited automations', '50,000 subscribers', 'Unlimited broadcasts', 'Unlimited sequences', 'Webhooks', 'Dedicated 24/7 support'],
     }
   }
 
@@ -340,11 +329,7 @@ export default function BillingPage() {
           <div className="lg:col-span-2 space-y-6">
 
             {/* Current Plan Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`bg-white/5 border ${plan.borderColor} rounded-3xl p-6`}
-            >
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className={`bg-white/5 border ${plan.borderColor} rounded-3xl p-6`}>
               <div className="flex items-start justify-between mb-6">
                 <div>
                   <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">{t.currentPlan}</p>
@@ -387,7 +372,6 @@ export default function BillingPage() {
                 </div>
               </div>
 
-              {/* Free plan upgrade CTA */}
               {currentPlan === 'free' && (
                 <div className="bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/20 rounded-2xl p-4 flex items-center justify-between gap-4">
                   <div>
@@ -413,12 +397,7 @@ export default function BillingPage() {
             </motion.div>
 
             {/* Usage */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="bg-white/5 border border-white/10 rounded-3xl p-6"
-            >
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white/5 border border-white/10 rounded-3xl p-6">
               <p className="text-gray-400 text-xs uppercase tracking-widest mb-5">{t.usage}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {usageItems.map(item => (
@@ -435,12 +414,7 @@ export default function BillingPage() {
             </motion.div>
 
             {/* Billing History */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white/5 border border-white/10 rounded-3xl p-6"
-            >
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white/5 border border-white/10 rounded-3xl p-6">
               <p className="text-gray-400 text-xs uppercase tracking-widest mb-5">{t.billingHistory}</p>
               {currentPlan === 'free' ? (
                 <div className="text-center py-8">
@@ -476,12 +450,7 @@ export default function BillingPage() {
           <div className="space-y-6">
 
             {/* Change Plan */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
-              className="bg-white/5 border border-white/10 rounded-3xl p-6"
-            >
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-white/5 border border-white/10 rounded-3xl p-6">
               <p className="text-gray-400 text-xs uppercase tracking-widest mb-4">{t.changePlan}</p>
               <div className="space-y-3">
                 {Object.entries(PLANS).map(([key, planData]) => (
@@ -505,12 +474,7 @@ export default function BillingPage() {
             </motion.div>
 
             {/* Support */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white/5 border border-white/10 rounded-3xl p-6"
-            >
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white/5 border border-white/10 rounded-3xl p-6">
               <p className="text-gray-400 text-xs uppercase tracking-widest mb-4">
                 {lang === 'ar' ? 'تحتاج مساعدة؟' : 'Need Help?'}
               </p>
@@ -528,7 +492,7 @@ export default function BillingPage() {
 
           </div>
         </div>
-           </main>
+      </main>
     </>
   )
 }

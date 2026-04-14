@@ -9,7 +9,7 @@ import { useLanguage } from '@/context/LanguageContext'
 import {
   Zap, MessageSquare, Link as LinkIcon, BarChart2,
   Users, Radio, Repeat, CreditCard, Settings,
-  Grid, TrendingUp, Link2, Bot,
+  Grid, TrendingUp, Link2,
 } from 'lucide-react'
 
 export default function Dashboard() {
@@ -83,18 +83,17 @@ export default function Dashboard() {
   }, [router])
 
   const quickActions = [
-    { href: '/dashboard/accounts',       icon: LinkIcon,      color: 'bg-blue-500/10 text-blue-400',    label: lang === 'ar' ? 'الحسابات' : 'Accounts',         desc: lang === 'ar' ? 'ربط Instagram / Facebook' : 'Connect Instagram / Facebook' },
-    { href: '/dashboard/automations/new',icon: Zap,           color: 'bg-cyan-500/10 text-cyan-400',    label: lang === 'ar' ? 'أتمتة جديدة' : 'New Automation', desc: lang === 'ar' ? 'رد آلي على الرسائل' : 'Auto-reply to DMs', highlight: true },
-    { href: '/dashboard/flows',          icon: Grid,          color: 'bg-purple-500/10 text-purple-400', label: lang === 'ar' ? 'كل الأتمتات' : 'All Automations', desc: lang === 'ar' ? 'إدارة وعرض جميع المسارات' : 'Manage all flows' },
-    { href: '/dashboard/subscribers',    icon: Users,         color: 'bg-green-500/10 text-green-400',  label: lang === 'ar' ? 'المشتركون' : 'Subscribers',      desc: lang === 'ar' ? 'إدارة جمهورك' : 'Manage your audience' },
-    { href: '/dashboard/broadcast',      icon: Radio,         color: 'bg-orange-500/10 text-orange-400', label: lang === 'ar' ? 'البث الجماعي' : 'Broadcast',    desc: lang === 'ar' ? 'إرسال رسائل جماعية' : 'Send bulk messages' },
-    { href: '/dashboard/sequences',      icon: Repeat,        color: 'bg-pink-500/10 text-pink-400',    label: lang === 'ar' ? 'التسلسلات' : 'Sequences',        desc: lang === 'ar' ? 'رسائل متسلسلة تلقائية' : 'Automated message series' },
-    { href: '/dashboard/inbox',          icon: MessageSquare, color: 'bg-teal-500/10 text-teal-400',    label: lang === 'ar' ? 'صندوق الوارد' : 'Inbox',          desc: lang === 'ar' ? 'محادثات مباشرة' : 'Live conversations' },
-    { href: '/dashboard/growth',         icon: Link2,         color: 'bg-cyan-500/10 text-cyan-400',    label: lang === 'ar' ? 'أدوات النمو' : 'Growth Tools',    desc: lang === 'ar' ? 'روابط وQR Code' : 'Links & QR Codes' },
-    { href: '/dashboard/ai',             icon: Bot,           color: 'bg-purple-500/10 text-purple-400',    label: lang === 'ar' ? 'ردود AI' : 'AI Replies',          desc: lang === 'ar' ? 'ردود آلية على الرسائل' : 'AI replies to messages' },
-    { href: '/dashboard/analytics',      icon: BarChart2,     color: 'bg-yellow-500/10 text-yellow-400', label: lang === 'ar' ? 'التحليلات' : 'Analytics',       desc: lang === 'ar' ? 'عرض تقارير الأداء' : 'View performance reports' },
-    { href: '/dashboard/settings',       icon: Settings,      color: 'bg-gray-500/10 text-gray-400',    label: lang === 'ar' ? 'الإعدادات' : 'Settings',         desc: lang === 'ar' ? 'إدارة حسابك' : 'Manage account' },
-    { href: '/dashboard/billing',        icon: CreditCard,    color: 'bg-violet-500/10 text-violet-400', label: lang === 'ar' ? 'الفوترة' : 'Billing',           desc: lang === 'ar' ? 'إدارة اشتراكك' : 'Manage subscription' },
+    { href: '/dashboard/accounts',        icon: LinkIcon,       color: 'bg-blue-500/10 text-blue-400',    label: lang === 'ar' ? 'الحسابات' : 'Accounts',          desc: lang === 'ar' ? 'ربط Instagram / Facebook' : 'Connect Instagram / Facebook' },
+    { href: '/dashboard/automations/new', icon: Zap,            color: 'bg-cyan-500/10 text-cyan-400',    label: lang === 'ar' ? 'أتمتة جديدة' : 'New Automation',  desc: lang === 'ar' ? 'رد آلي على الرسائل' : 'Auto-reply to DMs', highlight: true },
+    { href: '/dashboard/flows',           icon: Grid,           color: 'bg-purple-500/10 text-purple-400', label: lang === 'ar' ? 'كل الأتمتات' : 'All Automations', desc: lang === 'ar' ? 'إدارة وعرض جميع المسارات' : 'Manage all flows' },
+    { href: '/dashboard/subscribers',     icon: Users,          color: 'bg-green-500/10 text-green-400',  label: lang === 'ar' ? 'المشتركون' : 'Subscribers',       desc: lang === 'ar' ? 'إدارة جمهورك' : 'Manage your audience' },
+    { href: '/dashboard/broadcast',       icon: Radio,          color: 'bg-orange-500/10 text-orange-400', label: lang === 'ar' ? 'البث الجماعي' : 'Broadcast',     desc: lang === 'ar' ? 'إرسال رسائل جماعية' : 'Send bulk messages' },
+    { href: '/dashboard/sequences',       icon: Repeat,         color: 'bg-pink-500/10 text-pink-400',    label: lang === 'ar' ? 'التسلسلات' : 'Sequences',         desc: lang === 'ar' ? 'رسائل متسلسلة تلقائية' : 'Automated message series' },
+    { href: '/dashboard/inbox',           icon: MessageSquare,  color: 'bg-teal-500/10 text-teal-400',    label: lang === 'ar' ? 'صندوق الوارد' : 'Inbox',           desc: lang === 'ar' ? 'محادثات مباشرة' : 'Live conversations' },
+    { href: '/dashboard/growth',          icon: Link2,          color: 'bg-cyan-500/10 text-cyan-400',    label: lang === 'ar' ? 'أدوات النمو' : 'Growth Tools',     desc: lang === 'ar' ? 'روابط وQR Code' : 'Links & QR Codes' },
+    { href: '/dashboard/analytics',       icon: BarChart2,      color: 'bg-yellow-500/10 text-yellow-400', label: lang === 'ar' ? 'التحليلات' : 'Analytics',        desc: lang === 'ar' ? 'عرض تقارير الأداء' : 'View performance reports' },
+    { href: '/dashboard/settings',        icon: Settings,       color: 'bg-gray-500/10 text-gray-400',    label: lang === 'ar' ? 'الإعدادات' : 'Settings',          desc: lang === 'ar' ? 'إدارة حسابك' : 'Manage account' },
+    { href: '/dashboard/billing',         icon: CreditCard,     color: 'bg-violet-500/10 text-violet-400', label: lang === 'ar' ? 'الفوترة' : 'Billing',            desc: lang === 'ar' ? 'إدارة اشتراكك' : 'Manage subscription' },
   ]
 
   const stagger = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.07 } } }
@@ -121,9 +120,9 @@ export default function Dashboard() {
 
       <motion.div initial="hidden" animate="visible" variants={stagger} className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
         {[
-          { icon: Zap,          color: 'bg-cyan-500/10 text-cyan-400',    value: stats.activeAutomations, label: t.activeAutomations, sub: `${t.fromTotal} ${stats.totalAutomations}` },
-          { icon: MessageSquare,color: 'bg-purple-500/10 text-purple-400', value: stats.totalLogs,         label: t.totalReplies,       sub: t.totalOps },
-          { icon: LinkIcon,     color: 'bg-green-500/10 text-green-400',  value: stats.connectedAccounts, label: t.connectedAccounts,  sub: 'Instagram / Facebook' },
+          { icon: Zap,           color: 'bg-cyan-500/10 text-cyan-400',    value: stats.activeAutomations, label: t.activeAutomations, sub: `${t.fromTotal} ${stats.totalAutomations}` },
+          { icon: MessageSquare, color: 'bg-purple-500/10 text-purple-400', value: stats.totalLogs,         label: t.totalReplies,       sub: t.totalOps },
+          { icon: LinkIcon,      color: 'bg-green-500/10 text-green-400',  value: stats.connectedAccounts, label: t.connectedAccounts,  sub: 'Instagram / Facebook' },
         ].map((stat, i) => {
           const Icon = stat.icon
           return (
@@ -144,7 +143,7 @@ export default function Dashboard() {
           <TrendingUp size={18} className="text-cyan-400" />
           {t.quickActions}
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {quickActions.map((action) => {
             const Icon = action.icon
             return (
