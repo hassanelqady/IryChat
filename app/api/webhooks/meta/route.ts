@@ -42,7 +42,6 @@ export async function POST(request: NextRequest) {
         await handleNewComment(change.value, supabase)
       }
 
-      // Instagram Mentions in stories / posts
       if (change.field === 'mentions') {
         // placeholder — يمكن توسيعه لاحقاً
       }
@@ -56,7 +55,6 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  // Meta expects 200 OK fast
   return new Response('OK')
 }
 
@@ -184,7 +182,6 @@ async function handleNewComment(comment: any, supabase: any) {
     console.error('[Webhook] Unexpected error in handleNewComment:', err)
   }
 
-  // ── Log the action
   await supabase.from('automation_logs').insert({
     automation_id:  automation.id,
     commenter_id:   from?.id   ?? null,
@@ -196,8 +193,6 @@ async function handleNewComment(comment: any, supabase: any) {
     event_type:     'comment',
   })
 
-  // ── 🔔 Trigger outgoing webhooks — comment_received + automation_triggered
-  // بنعمل fire-and-forget عشان متأخرش الـ response على Meta
   triggerWebhooks({
     userId: automation.user_id,
     event: 'comment_received',
@@ -236,6 +231,15 @@ async function handleDirectMessage(messaging: any, pageId: string, supabase: any
 
   if (!senderId || !messageText) return
 
+  // ✅ الإصلاح — نجيب user_id من connected_accounts أولاً
+  const { data: account } = await supabase
+    .from('connected_accounts')
+    .select('user_id')
+    .eq('account_id', pageId)
+    .single()
+
+  if (!account) return
+
   const { data: automations } = await supabase
     .from('automations')
     .select(`
@@ -248,19 +252,19 @@ async function handleDirectMessage(messaging: any, pageId: string, supabase: any
       )
     `)
     .eq('is_active', true)
-    .eq('connected_accounts.account_id', pageId)
+    .eq('user_id', account.user_id)
 
   if (!automations || automations.length === 0) return
 
   const automation = automations.find((a: any) => matchesKeywords(messageText, a))
   if (!automation) return
 
-  const account = automation.connected_accounts
-  if (!account?.access_token) return
+  const connectedAccount = automation.connected_accounts
+  if (!connectedAccount?.access_token) return
 
   let pageToken: string
   try {
-    pageToken = decrypt(account.access_token)
+    pageToken = decrypt(connectedAccount.access_token)
   } catch {
     console.error('[Webhook] Failed to decrypt token for DM automation:', automation.id)
     return
@@ -300,7 +304,6 @@ async function handleDirectMessage(messaging: any, pageId: string, supabase: any
     console.error('[Webhook] Unexpected error in handleDirectMessage:', err)
   }
 
-  // ── Log the action
   await supabase.from('automation_logs').insert({
     automation_id:  automation.id,
     commenter_id:   senderId,
@@ -312,11 +315,10 @@ async function handleDirectMessage(messaging: any, pageId: string, supabase: any
     event_type:     'dm',
   })
 
-  // ── 🔔 Trigger outgoing webhooks — dm_received + automation_triggered
   triggerWebhooks({
     userId: automation.user_id,
     event: 'dm_received',
-    accountName: account.account_name,
+    accountName: connectedAccount.account_name,
     data: {
       sender_id:    senderId,
       message_text: messageText,
@@ -327,7 +329,7 @@ async function handleDirectMessage(messaging: any, pageId: string, supabase: any
     triggerWebhooks({
       userId: automation.user_id,
       event: 'automation_triggered',
-      accountName: account.account_name,
+      accountName: connectedAccount.account_name,
       data: {
         automation_id:   automation.id,
         automation_name: automation.name ?? null,

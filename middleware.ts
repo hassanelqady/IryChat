@@ -28,7 +28,10 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
-  // استثناء مؤقت لصفحة dev-bypass - احذف هذا قبل production
+  // ✅ Admin check
+  const isAdmin = user?.app_metadata?.is_admin === true
+
+  // استثناء dev-bypass
   if (pathname.startsWith('/dashboard/dev-bypass')) {
     return supabaseResponse
   }
@@ -43,7 +46,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  return supabaseResponse
+  // نضيف header يحمل is_admin
+  const response = supabaseResponse
+  response.headers.set('x-is-admin', isAdmin ? 'true' : 'false')
+  response.headers.set('x-user-id', user?.id ?? '')
+
+  return response
 }
 
 export const config = {

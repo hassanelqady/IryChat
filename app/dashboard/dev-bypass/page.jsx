@@ -1,54 +1,42 @@
-// ⚠️ DEV ONLY - احذف هذا الملف قبل الـ production
-// ضعه في: app/dashboard/dev-bypass/page.jsx
-// الرابط: /dashboard/dev-bypass
-
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
-// ⛔ هذه الصفحة للتطوير فقط - تسمح بتجاوز تسجيل الدخول
-// لا ترفعها على production أبداً
 export default function DevBypass() {
-  const router = useRouter()
+  const [status, setStatus] = useState('جاري تسجيل الدخول...')
 
   useEffect(() => {
-    const check = async () => {
+    const login = async () => {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
 
       if (user) {
-        // المستخدم مسجل دخول فعلاً
-        router.push('/dashboard')
+        window.location.href = '/dashboard'
         return
       }
 
-      // ⚠️ تسجيل دخول تجريبي بإيميل وهمي
-      // تأكد إن هذا الإيميل موجود في Supabase > Authentication > Users
       const { error } = await supabase.auth.signInWithPassword({
-        email: process.env.NEXT_PUBLIC_DEV_EMAIL || 'test@irychat.com',
-        password: process.env.NEXT_PUBLIC_DEV_PASSWORD || 'test123456',
+        email: process.env.NEXT_PUBLIC_DEV_EMAIL || 'hassan@irychat.com',
+        password: process.env.NEXT_PUBLIC_DEV_PASSWORD || '',
       })
 
       if (error) {
-        console.error('Dev bypass failed:', error.message)
-        document.getElementById('status').textContent = '❌ فشل: ' + error.message
+        setStatus('❌ فشل: ' + error.message)
         return
       }
 
-      router.push('/dashboard')
+      window.location.href = '/dashboard'
     }
 
-    check()
+    login()
   }, [])
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">
       <div className="text-center">
-        <div className="text-2xl text-cyan-400 mb-4 animate-pulse">⚠️ Dev Bypass</div>
-        <p id="status" className="text-gray-400">جاري تسجيل الدخول التجريبي...</p>
-        <p className="text-red-400/60 text-xs mt-6">احذف هذه الصفحة قبل الـ production</p>
+        <div className="text-2xl text-cyan-400 mb-4 animate-pulse">⚡ Admin Login</div>
+        <p className="text-gray-400">{status}</p>
       </div>
     </div>
   )

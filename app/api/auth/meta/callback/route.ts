@@ -22,7 +22,11 @@ export async function GET(request: NextRequest) {
       `code=${code}`
     )
     const tokenData = await tokenRes.json()
-    const shortToken = tokenData.access_token
+if (!tokenData.access_token) {
+  console.error('Meta token error:', tokenData)
+  return Response.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard/accounts?error=token_failed`)
+}
+const shortToken = tokenData.access_token
 
     const longTokenData = await exchangeForLongLivedToken(shortToken)
     const longToken = longTokenData.access_token
