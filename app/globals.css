@@ -43,8 +43,10 @@ html {
 
 body {
   font-family: 'Tajawal', 'Outfit', sans-serif;
-  background: var(--black);
-  color: var(--white);
+ body {
+  font-family: 'Tajawal', 'Outfit', sans-serif;
+  overflow-x: hidden;
+}
   overflow-x: hidden;
 }
 
@@ -928,4 +930,56 @@ h1 {
   .stat-number  { font-size: 1.2rem; }
   .pricing-card { padding: 1.5rem; }
   .plan-price   { font-size: 2.5rem; }
+}
+/* ============================================================
+   DASHBOARD COLOR SYSTEM
+   ============================================================ */
+[data-theme="dashboard"] {
+  --db-bg:          #F5F5F7;
+  --db-surface:     #FFFFFF;
+  --db-surface-2:   #F9FAFB;
+  --db-border:      #D1D5DB;
+  --db-border-2:    #9CA3AF;
+
+  --db-text-h:      #111827;
+  --db-text:        #374151;
+  --db-text-2:      #6B7280;
+  --db-text-3:      #9CA3AF;
+
+  --db-primary:     #3B82F6;
+  --db-primary-h:   #2563EB;
+  --db-primary-a:   #1D4ED8;
+  --db-primary-bg:  #EFF6FF;
+
+  --db-active-bg:   #E8E8EC;
+  --db-hover-bg:    #EFEFEF;
+  --db-icon-bg:     #EEEEEF;
+
+  --db-shadow:      0 1px 2px rgba(0,0,0,0.04);
+  --db-shadow-md:   0 4px 12px rgba(0,0,0,0.08);
+}
+
+.dark [data-theme="dashboard"] {
+  --db-bg:          #0F0F12;
+  --db-surface:     #1A1A1F;
+  --db-surface-2:   #222228;
+  --db-border:      #1F1F27;
+  --db-border-2:    #2A2A32;
+
+  --db-text-h:      #F9FAFB;
+  --db-text:        #E5E7EB;
+  --db-text-2:      #9CA3AF;
+  --db-text-3:      #6B7280;
+
+  --db-primary:     #3B82F6;
+  --db-primary-h:   #60A5FA;
+  --db-primary-a:   #93C5FD;
+  --db-primary-bg:  #1E3A8A20;
+
+  --db-active-bg:   #2E2E38;
+  --db-hover-bg:    #252530;
+  --db-icon-bg:     #2A2A32;
+
+  --db-shadow:      0 1px 3px rgba(0,0,0,0.3);
+  --db-shadow-md:   0 4px 12px rgba(0,0,0,0.4);
 }

@@ -36,7 +36,7 @@ const PLANS = {
     color: 'from-cyan-500 to-blue-500',
     bgColor: 'bg-cyan-500/10',
     borderColor: 'border-cyan-500/30',
-    textColor: 'text-cyan-400',
+    textColor: 'text-blue-600 dark:text-blue-400',
     price: { monthly: 19, yearly: 15 },
     limits: {
       accounts: 5,
@@ -72,7 +72,7 @@ function UsageBar({ label, used, limit, icon: Icon, color = 'bg-cyan-500' }) {
   const isDanger = pct >= 95 && !isUnlimited
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+    <div className="bg-white dark:bg-[#111111] border border-gray-200 dark:border-[#27272a] rounded-xl p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Icon size={15} className="text-gray-400" />
@@ -139,14 +139,14 @@ function PlanOption({ plan, planKey, currentPlan, lang, onSelect }) {
             onClick={() => onSelect(planKey)}
             className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
               planKey === 'free'
-                ? 'bg-white/5 hover:bg-white/10 text-gray-400 border border-white/10'
+                ? 'bg-white/5 hover:bg-white/10 text-gray-400 border border-gray-200 dark:border-[#27272a]'
                 : `bg-gradient-to-r ${plan.color} text-white shadow-lg`
             }`}
           >
             {planKey === 'free' ? content.downgrade : content.upgrade}
           </button>
         )}
-        {isCurrent && <CheckCircle2 size={20} className="text-cyan-400" />}
+        {isCurrent && <CheckCircle2 size={20} className="text-blue-600 dark:text-blue-400" />}
       </div>
     </div>
   )
@@ -300,7 +300,7 @@ export default function BillingPage() {
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="flex items-center gap-3 text-cyan-400 animate-pulse">
+      <div className="flex items-center gap-3 text-blue-600 dark:text-blue-400 animate-pulse">
         <CreditCard className="w-6 h-6" />
         <span className="text-xl font-medium">{t.loading}</span>
       </div>
@@ -309,15 +309,15 @@ export default function BillingPage() {
 
   return (
     <>
-      <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+      <main className="py-6 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
 
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-1">{t.title}</h1>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{t.title}</h1>
             <p className="text-gray-400 text-sm">{t.desc}</p>
           </div>
-          <Link href="/dashboard/settings" className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all">
+          <Link href="/dashboard/settings" className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-gray-200 dark:border-[#27272a] rounded-lg text-white text-sm font-medium transition-all">
             {isRTL ? <ArrowRight size={16} /> : <ArrowLeft size={16} />}
             {t.back}
           </Link>
@@ -338,7 +338,7 @@ export default function BillingPage() {
                       <PlanIcon size={24} className="text-white" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold text-white">{planNames[lang][currentPlan]}</h2>
+                      <h2 className="text-lg font-bold text-gray-900 dark:text-white">{planNames[lang][currentPlan]}</h2>
                       <p className={`text-sm font-bold ${plan.textColor}`}>
                         {plan.price.monthly === 0
                           ? (lang === 'ar' ? 'مجاناً' : 'Free')
@@ -380,7 +380,7 @@ export default function BillingPage() {
                   </div>
                   <Link
                     href="/pricing"
-                    className="flex items-center gap-1.5 px-4 py-2 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full text-sm transition-all flex-shrink-0 whitespace-nowrap"
+                    className="flex items-center gap-1.5 px-4 py-2 bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 font-bold rounded-full text-sm transition-all flex-shrink-0 whitespace-nowrap"
                   >
                     <Sparkles size={14} />
                     {t.upgradeNow}
@@ -397,7 +397,7 @@ export default function BillingPage() {
             </motion.div>
 
             {/* Usage */}
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white/5 border border-white/10 rounded-3xl p-6">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white dark:bg-[#111111] border border-gray-200 dark:border-[#27272a] rounded-2xl p-6">
               <p className="text-gray-400 text-xs uppercase tracking-widest mb-5">{t.usage}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {usageItems.map(item => (
@@ -414,7 +414,7 @@ export default function BillingPage() {
             </motion.div>
 
             {/* Billing History */}
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white/5 border border-white/10 rounded-3xl p-6">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white dark:bg-[#111111] border border-gray-200 dark:border-[#27272a] rounded-2xl p-6">
               <p className="text-gray-400 text-xs uppercase tracking-widest mb-5">{t.billingHistory}</p>
               {currentPlan === 'free' ? (
                 <div className="text-center py-8">
@@ -450,7 +450,7 @@ export default function BillingPage() {
           <div className="space-y-6">
 
             {/* Change Plan */}
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-white/5 border border-white/10 rounded-3xl p-6">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-white dark:bg-[#111111] border border-gray-200 dark:border-[#27272a] rounded-2xl p-6">
               <p className="text-gray-400 text-xs uppercase tracking-widest mb-4">{t.changePlan}</p>
               <div className="space-y-3">
                 {Object.entries(PLANS).map(([key, planData]) => (
@@ -474,16 +474,16 @@ export default function BillingPage() {
             </motion.div>
 
             {/* Support */}
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white/5 border border-white/10 rounded-3xl p-6">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white dark:bg-[#111111] border border-gray-200 dark:border-[#27272a] rounded-2xl p-6">
               <p className="text-gray-400 text-xs uppercase tracking-widest mb-4">
                 {lang === 'ar' ? 'تحتاج مساعدة؟' : 'Need Help?'}
               </p>
               <Link
                 href="/contact"
-                className="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white text-sm transition-all"
+                className="flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 border border-gray-200 dark:border-[#27272a] rounded-xl text-white text-sm transition-all"
               >
                 <div className="flex items-center gap-2">
-                  <Shield size={16} className="text-cyan-400" />
+                  <Shield size={16} className="text-blue-600 dark:text-blue-400" />
                   {t.contactSupport}
                 </div>
                 <ChevronRight size={15} className={`text-gray-500 ${isRTL ? 'rotate-180' : ''}`} />

@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { User, Link as LinkIcon, CheckCircle, Save, RefreshCw, ExternalLink, Facebook, ArrowLeft, ArrowRight, CreditCard } from 'lucide-react'
+import { User, Link as LinkIcon, CheckCircle, Save, ExternalLink, Facebook, CreditCard, Loader2 } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 import { createClient } from '@/lib/supabase/client'
 
@@ -16,58 +15,35 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false)
   const [activeTab, setActiveTab] = useState('profile')
   const [profile, setProfile] = useState({ name: '', email: '' })
-
   const { lang } = useLanguage()
   const isRTL = lang === 'ar'
 
-  const content = {
-    en: {
-      settings: "Settings",
-      subtitle: "Manage your account preferences",
-      profile: "Profile",
-      connectedAccounts: "Connected Accounts",
-      nameLabel: "Display Name",
-      emailLabel: "Email Address",
-      emailNote: "Email is managed by your Meta account and cannot be changed here.",
-      saveBtn: "Save Changes",
-      saved: "Changes saved successfully!",
-      loading: "Loading...",
-      manageAccountsDesc: "Add or remove your Instagram and Facebook accounts from the Accounts page.",
-      goToAccounts: "Go to Accounts",
-      noAccounts: "No accounts connected yet.",
-      connectedAs: "Connected via Meta",
-      deleteAccount: "Delete My Data",
-      deleteAccountDesc: "Request deletion of all your data from IryChat.",
-      deleteAccountLink: "Submit Deletion Request",
-      instagram: "Instagram Business",
-      facebook: "Facebook Page",
-      back: "Back",
-    },
+  const t = {
     ar: {
-      settings: "الإعدادات",
-      subtitle: "إدارة تفضيلات حسابك",
-      profile: "الملف الشخصي",
-      connectedAccounts: "الحسابات المتصلة",
-      nameLabel: "اسم العرض",
-      emailLabel: "البريد الإلكتروني",
-      emailNote: "البريد الإلكتروني مرتبط بحساب Meta ولا يمكن تغييره من هنا.",
-      saveBtn: "حفظ التغييرات",
-      saved: "تم حفظ التغييرات بنجاح!",
-      loading: "جاري التحميل...",
-      manageAccountsDesc: "أضف أو احذف حسابات إنستجرام وفيسبوك من صفحة الحسابات.",
-      goToAccounts: "الذهاب للحسابات",
-      noAccounts: "لا توجد حسابات متصلة بعد.",
-      connectedAs: "متصل عبر Meta",
-      deleteAccount: "حذف بياناتي",
-      deleteAccountDesc: "طلب حذف جميع بياناتك من منصة IryChat.",
-      deleteAccountLink: "تقديم طلب الحذف",
-      instagram: "Instagram Business",
-      facebook: "Facebook Page",
-      back: "رجوع",
+      title: 'الإعدادات', subtitle: 'إدارة تفضيلات حسابك',
+      profile: 'الملف الشخصي', connectedAccounts: 'الحسابات', billing: 'الفوترة',
+      nameLabel: 'اسم العرض', emailLabel: 'البريد الإلكتروني',
+      emailNote: 'البريد الإلكتروني مرتبط بحساب Meta ولا يمكن تغييره.',
+      saveBtn: 'حفظ التغييرات', saved: 'تم الحفظ بنجاح!',
+      loading: 'جاري التحميل...', manageAccountsDesc: 'أضف أو احذف الحسابات من صفحة الحسابات.',
+      goToAccounts: 'إدارة الحسابات', noAccounts: 'لا توجد حسابات متصلة.',
+      connectedAs: 'متصل عبر Meta', deleteAccount: 'حذف بياناتي',
+      deleteAccountDesc: 'طلب حذف جميع بياناتك من IryChat.',
+      deleteAccountLink: 'تقديم طلب الحذف', instagram: 'Instagram Business', facebook: 'Facebook Page',
+    },
+    en: {
+      title: 'Settings', subtitle: 'Manage your account preferences',
+      profile: 'Profile', connectedAccounts: 'Accounts', billing: 'Billing',
+      nameLabel: 'Display Name', emailLabel: 'Email Address',
+      emailNote: 'Email is managed by your Meta account and cannot be changed here.',
+      saveBtn: 'Save Changes', saved: 'Changes saved successfully!',
+      loading: 'Loading...', manageAccountsDesc: 'Add or remove your Instagram and Facebook accounts.',
+      goToAccounts: 'Manage Accounts', noAccounts: 'No accounts connected yet.',
+      connectedAs: 'Connected via Meta', deleteAccount: 'Delete My Data',
+      deleteAccountDesc: 'Request deletion of all your data from IryChat.',
+      deleteAccountLink: 'Submit Deletion Request', instagram: 'Instagram Business', facebook: 'Facebook Page',
     }
-  }
-
-  const t = content[lang]
+  }[lang]
 
   useEffect(() => {
     const init = async () => {
@@ -75,10 +51,7 @@ export default function SettingsPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
       setUser(user)
-      setProfile({
-        name: user.user_metadata?.full_name || user.user_metadata?.name || '',
-        email: user.email || '',
-      })
+      setProfile({ name: user.user_metadata?.full_name || user.user_metadata?.name || '', email: user.email || '' })
       const { data } = await supabase.from('connected_accounts').select('*').eq('user_id', user.id)
       setAccounts(data || [])
       setLoading(false)
@@ -95,165 +68,133 @@ export default function SettingsPage() {
   }
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-black">
-      <div className="flex items-center gap-3 text-cyan-400">
-        <RefreshCw className="w-6 h-6 animate-spin" />
-        <span className="text-xl font-medium">{t.loading}</span>
+    <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--db-bg)' }}>
+      <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--db-text-3)' }}>
+        <Loader2 className="w-4 h-4 animate-spin" style={{ color: 'var(--db-primary)' }} /> {t.loading}
       </div>
     </div>
   )
 
+  const tabs = [
+    { id: 'profile',   label: t.profile,           icon: User },
+    { id: 'accounts',  label: t.connectedAccounts,  icon: LinkIcon },
+    { id: 'billing',   label: t.billing,            icon: CreditCard },
+  ]
+
+  const inp = `w-full px-3 py-2.5 border rounded-xl text-sm focus:outline-none transition-colors`
+
   return (
-    <>
-
-      <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4">
-          <div>
-            <h1 className="text-4xl font-bold text-white mb-2">{t.settings}</h1>
-            <p className="text-gray-400">{t.subtitle}</p>
-          </div>
-          {/* Back Button */}
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white text-sm font-medium transition-all"
-          >
-            {isRTL ? <ArrowRight size={18} /> : <ArrowLeft size={18} />}
-            {t.back}
-          </Link>
+    <div className="min-h-screen" dir={isRTL ? 'rtl' : 'ltr'} style={{ backgroundColor: 'var(--db-bg)' }}>
+      <div className="border-b" style={{ borderColor: 'var(--db-border)' }}>
+        <div className="max-w-3xl mx-auto px-6 py-6">
+          <h1 className="text-xl font-bold" style={{ color: 'var(--db-text-h)' }}>{t.title}</h1>
+          <p className="text-sm mt-0.5" style={{ color: 'var(--db-text-2)' }}>{t.subtitle}</p>
         </div>
-
-        {/* Success Alert */}
-        {saved && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-green-500/10 border border-green-500/20 rounded-2xl p-4 mb-8 flex items-center gap-3 text-green-400"
-          >
-            <CheckCircle size={20} />
-            {t.saved}
-          </motion.div>
-        )}
-
-        {/* Tabs */}
-        <div className="flex gap-4 border-b border-white/10 mb-8">
-          {[
-            { id: 'profile', label: t.profile, icon: User },
-            { id: 'accounts', label: t.connectedAccounts, icon: LinkIcon },
-            { id: 'billing', label: lang === 'ar' ? 'الفوترة' : 'Billing', icon: CreditCard }
-
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-1 pb-3 text-sm font-medium transition-colors ${
-                activeTab === tab.id
-                  ? 'text-cyan-400 border-b-2 border-cyan-400'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <tab.icon size={18} />
-              {tab.label}
+        <div className="max-w-3xl mx-auto px-6 flex gap-1">
+          {tabs.map(tab => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors"
+              style={{
+                borderBottomColor: activeTab === tab.id ? 'var(--db-primary)' : 'transparent',
+                color: activeTab === tab.id ? 'var(--db-text-h)' : 'var(--db-text-2)',
+              }}>
+              <tab.icon size={14} /> {tab.label}
             </button>
           ))}
         </div>
+      </div>
 
-        {/* Profile Tab */}
+      <div className="max-w-3xl mx-auto px-6 py-6">
+
         {activeTab === 'profile' && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8 mb-6">
-              <div className="flex items-center gap-2 mb-6 px-4 py-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl w-fit">
-                <Facebook size={16} className="text-blue-400" />
-                <span className="text-blue-400 text-sm font-medium">{t.connectedAs}</span>
+          <div className="space-y-4">
+            {saved && (
+              <div className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-xl text-sm text-green-700 dark:text-green-400">
+                <CheckCircle size={15} /> {t.saved}
               </div>
-              <form onSubmit={handleProfileUpdate} className="space-y-6 max-w-xl">
+            )}
+            <div className="rounded-2xl p-6" style={{ backgroundColor: 'var(--db-surface)', border: '1px solid var(--db-border)' }}>
+              <div className="flex items-center gap-2 mb-5 px-3 py-2 rounded-xl w-fit"
+                style={{ backgroundColor: 'var(--db-primary-bg)', border: '1px solid var(--db-primary)' }}>
+                <Facebook size={13} style={{ color: 'var(--db-primary)' }} />
+                <span className="text-sm font-medium" style={{ color: 'var(--db-primary)' }}>{t.connectedAs}</span>
+              </div>
+              <form onSubmit={handleProfileUpdate} className="space-y-4 max-w-md">
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">{t.nameLabel}</label>
-                  <input
-                    type="text"
-                    value={profile.name}
-                    onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                    className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
-                  />
+                  <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--db-text-2)' }}>{t.nameLabel}</label>
+                  <input type="text" value={profile.name} onChange={e => setProfile({ ...profile, name: e.target.value })}
+                    className={inp} style={{ backgroundColor: 'var(--db-bg)', borderColor: 'var(--db-border)', color: 'var(--db-text-h)' }} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">{t.emailLabel}</label>
-                  <input
-                    type="email"
-                    value={profile.email}
-                    disabled
-                    className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-gray-500 cursor-not-allowed"
-                  />
-                  <p className="text-xs text-gray-600 mt-2">{t.emailNote}</p>
+                  <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--db-text-2)' }}>{t.emailLabel}</label>
+                  <input type="email" value={profile.email} disabled
+                    className={inp + ' opacity-50 cursor-not-allowed'}
+                    style={{ backgroundColor: 'var(--db-bg)', borderColor: 'var(--db-border)', color: 'var(--db-text-h)' }} />
+                  <p className="text-xs mt-1" style={{ color: 'var(--db-text-3)' }}>{t.emailNote}</p>
                 </div>
-                <button
-                  type="submit"
-                  className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full transition-all duration-200 flex items-center justify-center gap-2"
-                >
-                  <Save size={18} />
-                  {t.saveBtn}
+                <button type="submit"
+                  className="flex items-center gap-2 px-4 py-2.5 text-white text-sm font-semibold rounded-xl transition-colors"
+                  style={{ backgroundColor: 'var(--db-primary)' }}
+                  onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--db-primary-h)'}
+                  onMouseLeave={e => e.currentTarget.style.backgroundColor = 'var(--db-primary)'}>
+                  <Save size={14} /> {t.saveBtn}
                 </button>
               </form>
             </div>
-
-            <div className="bg-red-500/5 border border-red-500/10 rounded-3xl p-6">
-              <h3 className="text-white font-bold mb-1">{t.deleteAccount}</h3>
-              <p className="text-gray-500 text-sm mb-4">{t.deleteAccountDesc}</p>
-              <Link
-                href="/data-deletion"
-                className="inline-flex items-center gap-2 text-red-400 hover:text-red-300 text-sm font-medium transition-colors"
-              >
-                <ExternalLink size={14} />
-                {t.deleteAccountLink}
+            <div className="rounded-2xl p-5" style={{ backgroundColor: '#FEF2F2', border: '1px solid #FECACA' }}>
+              <h3 className="text-sm font-semibold mb-1" style={{ color: 'var(--db-text-h)' }}>{t.deleteAccount}</h3>
+              <p className="text-xs mb-3" style={{ color: 'var(--db-text-2)' }}>{t.deleteAccountDesc}</p>
+              <Link href="/data-deletion"
+                className="inline-flex items-center gap-1.5 text-sm font-medium transition-colors"
+                style={{ color: '#DC2626' }}>
+                <ExternalLink size={13} /> {t.deleteAccountLink}
               </Link>
             </div>
-          </motion.div>
+          </div>
         )}
 
-        {/* Connected Accounts Tab */}
         {activeTab === 'accounts' && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-8 mb-6">
-              <p className="text-gray-400 text-sm mb-6">{t.manageAccountsDesc}</p>
+          <div className="space-y-4">
+            <div className="rounded-2xl p-6" style={{ backgroundColor: 'var(--db-surface)', border: '1px solid var(--db-border)' }}>
+              <p className="text-sm mb-4" style={{ color: 'var(--db-text-2)' }}>{t.manageAccountsDesc}</p>
               {accounts.length === 0 ? (
-                <p className="text-gray-600 text-sm mb-6">{t.noAccounts}</p>
+                <p className="text-sm mb-4" style={{ color: 'var(--db-text-3)' }}>{t.noAccounts}</p>
               ) : (
-                <div className="space-y-3 mb-6">
+                <div className="space-y-2 mb-4">
                   {accounts.map(account => (
-                    <div key={account.id} className="flex items-center gap-3 p-4 bg-black/20 border border-white/10 rounded-2xl">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${
-                        account.account_type === 'instagram'
-                          ? 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400'
-                          : 'bg-blue-600'
-                      }`}>
+                    <div key={account.id} className="flex items-center gap-3 p-3 rounded-xl border"
+                      style={{ backgroundColor: 'var(--db-bg)', borderColor: 'var(--db-border)' }}>
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-base flex-shrink-0 ${account.account_type === 'instagram' ? 'bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400' : 'bg-blue-600'}`}>
                         {account.account_type === 'instagram' ? '📸' : '📘'}
                       </div>
-                      <div>
-                        <p className="text-white text-sm font-medium">{account.account_name}</p>
-                        <p className="text-gray-500 text-xs">
-                          {account.account_type === 'instagram' ? t.instagram : t.facebook}
-                        </p>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold" style={{ color: 'var(--db-text-h)' }}>{account.account_name}</p>
+                        <p className="text-xs" style={{ color: 'var(--db-text-3)' }}>{account.account_type === 'instagram' ? t.instagram : t.facebook}</p>
                       </div>
-                      <div className="ms-auto">
-                        <span className="text-xs text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-1 rounded-full">✓</span>
-                      </div>
+                      <span className="text-xs text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 px-2 py-0.5 rounded-full font-medium">✓</span>
                     </div>
                   ))}
                 </div>
               )}
-              <Link
-                href="/dashboard/accounts"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full transition-all text-sm"
-              >
-                <ExternalLink size={16} />
-                {t.goToAccounts}
+              <Link href="/dashboard/accounts"
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-white text-sm font-semibold rounded-xl transition-colors"
+                style={{ backgroundColor: 'var(--db-primary)' }}>
+                <ExternalLink size={14} /> {t.goToAccounts}
               </Link>
             </div>
-          </motion.div>
+          </div>
         )}
 
-      </main>
-    </>
+        {activeTab === 'billing' && (
+          <div className="rounded-2xl p-6" style={{ backgroundColor: 'var(--db-surface)', border: '1px solid var(--db-border)' }}>
+            <Link href="/dashboard/billing"
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-white text-sm font-semibold rounded-xl transition-colors"
+              style={{ backgroundColor: 'var(--db-primary)' }}>
+              <CreditCard size={14} /> {lang === 'ar' ? 'إدارة الاشتراك' : 'Manage Subscription'}
+            </Link>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }

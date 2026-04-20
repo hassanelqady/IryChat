@@ -29,7 +29,7 @@ const FEATURES = {
       tag: 'أتمتة التعليقات',
       headline: 'تعليق واحد\nيشعل رحلة البيع',
       body: 'أي تعليق يحتوي كلمة مفتاحية — "السعر" أو "رابط" — يُحوَّل فوراً لرسالة خاصة.',
-      bgGradient: 'linear-gradient(135deg, #CCFF00 0%, #CCFF00 100%)', 
+      bgGradient: 'linear-gradient(135deg, #FFF200 0%, #FFF200 100%)', 
       textColor: '#000000',
       messages: [
         { from: 'user', text: '🔥🔥 محتاج البرنامج ده!', delay: 400 },
@@ -44,7 +44,7 @@ const FEATURES = {
       tag: 'إشارات القصص',
       headline: 'كل منشن\nعميل محتمل',
       body: 'حين يذكرك أحد في قصته، يصله رد تلقائي فوري — شكر حقيقي وعرض ذو قيمة.',
-      bgGradient: 'linear-gradient(135deg, #e040fb 0%, #e040fb  100%)', 
+      bgGradient: 'linear-gradient(135deg, #FFF200 0%, #FFF200  100%)', 
       textColor: '#000000',
       messages: [
         { from: 'bot',  text: 'شكراً جزيلاً على المنشن! يسعدنا ثقتك بينا', delay: 400 },
@@ -60,7 +60,7 @@ const FEATURES = {
       tag: 'البث الجماعي',
       headline: 'رسالة واحدة\nلآلاف العملاء',
       body: 'أرسل حملاتك وعروضك لجميع المشتركين دفعةً واحدة — مع تخصيص بالاسم والاهتمام.',
-      bgGradient: 'linear-gradient(135deg, #3B82F6 0%, #3B82F6 100%)', 
+      bgGradient: 'linear-gradient(135deg, #FFF200 0%, #FFF200 100%)', 
       textColor: '#000000',
       messages: [
         { from: 'bot',  text: 'أهلاً يا أحمد!\nعروض الجمعة البيضاء وصلتك قبل الكل', delay: 400 },
@@ -92,7 +92,7 @@ const FEATURES = {
       tag: 'Comment Automation',
       headline: 'One Comment\nStarts the Sale',
       body: 'Any comment with a keyword — "price", "link", or even a 🔥 emoji — instantly triggers a private message.',
-      bgGradient: 'linear-gradient(135deg, #CCFF00 0%, #CCFF00 100%)',
+      bgGradient: 'linear-gradient(135deg, #FFF200 0%, #FFF200 100%)',
       textColor: '#000000',
       messages: [
         { from: 'user', text: '🔥🔥 I need this program!', delay: 400 },
@@ -107,7 +107,7 @@ const FEATURES = {
       tag: 'Story Mentions',
       headline: 'Every Mention\na Potential Client',
       body: 'When someone mentions you in their story, they instantly get a genuine thank-you and a value offer.',
-      bgGradient: 'linear-gradient(135deg, #e040fb 0%, #e040fb 100%)',
+      bgGradient: 'linear-gradient(135deg, #FFF200 0%, #FFF200 100%)',
       textColor: '#000000',
       messages: [
         { from: 'bot',  text: 'Thank you so much for the mention! Really means a lot', delay: 400 },
@@ -123,7 +123,7 @@ const FEATURES = {
       tag: 'Broadcast',
       headline: 'One Message\nThousands of Sales',
       body: 'Send campaigns to all your subscribers at once — personalized by name and interest.',
-      bgGradient: 'linear-gradient(135deg, #3B82F6 0%, #3B82F6 100%)',
+      bgGradient: 'linear-gradient(135deg, #FFF200 0%, #FFF200 100%)',
       textColor: '#000000',
       messages: [
         { from: 'bot',  text: 'Hey Ahmed!\nYou get early access to Black Friday deals', delay: 400 },
@@ -264,7 +264,7 @@ function MobileView({ features, isRTL, lang }) {
         <div
           key={feature.id}
           style={{
-            minHeight: '100vh', 
+            minHeight: '0vh', 
             width: '100%',
             background: feature.bgGradient,
             display: 'flex',
@@ -332,11 +332,11 @@ function MobileView({ features, isRTL, lang }) {
                       padding: '16px 40px', backgroundColor: '#000000', color: '#ffffff',
                       borderRadius: '50px', fontSize: '1rem', fontWeight: 700,
                       textDecoration: 'none', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.3)',
-                      width: '100%', maxWidth: 300
+                      width: '100%', maxWidth: 500
                   }}>
-                    {isRTL ? 'ابدأ مجاناً' : 'Get Started Free'}
+                    {isRTL ? 'ابدأ ' : 'Get Started '}
                     <span style={{ fontSize: 18, display:'flex', alignItems:'center', marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }}>
-                      {isRTL ? '←' : '→'}
+                      
                     </span>
                   </Link>
                </div>
@@ -443,8 +443,8 @@ function DesktopView({ features, isRTL, lang }) {
           </div>
           <div style={{ width: '100%', marginTop: 'auto', marginBottom: '40px' }}>
              <Link href="/signup" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '16px 32px', backgroundColor: buttonBg, color: buttonText, border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', textDecoration: 'none', transition: 'all 0.3s ease', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.2)' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)'; e.currentTarget.style.boxShadow = '0 20px 30px -5px rgba(0,0,0,0.3)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(0,0,0,0.2)'; }}>
-              {isRTL ? 'ابدأ مجاناً' : 'Get Started Free'}
-              <span style={{ fontSize: 18, display:'flex', alignItems:'center', marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }}>{isRTL ? '←' : '→'}</span>
+              {isRTL ? 'ابدأ ' : 'Get Started '}
+              <span style={{ fontSize: 18, display:'flex', alignItems:'center', marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }}></span>
             </Link>
           </div>
         </div>

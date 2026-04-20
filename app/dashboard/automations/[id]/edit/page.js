@@ -26,7 +26,7 @@ export default function EditAutomationPage() {
   const { lang } = useLanguage()
   const isRTL = lang === 'ar'
 
-  const content = {
+  const t = {
     en: {
       editAutomationTitle: "Edit Automation",
       editAutomationSubtitle: "Update your automation settings and responses.",
@@ -73,9 +73,7 @@ export default function EditAutomationPage() {
       backToAutomations: "العودة للأتمتات",
       loading: "جاري التحميل...",
     }
-  }
-
-  const t = content[lang]
+  }[lang]
 
   useEffect(() => {
     const init = async () => {
@@ -88,7 +86,7 @@ export default function EditAutomationPage() {
         supabase.from('connected_accounts').select('*').eq('user_id', user.id)
       ])
 
-      if (!automation) { router.push('/dashboard/flows'); return }
+      if (!automation) { router.push('/dashboard/automations'); return }
 
       setForm({
         name: automation.name || '',
@@ -125,157 +123,251 @@ export default function EditAutomationPage() {
     }).eq('id', id)
 
     if (error) { setError(t.genericError); setSaving(false); return }
-    router.push('/dashboard/flows')
+    router.push('/dashboard/automations')
   }
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-black text-white">
-      <div className="flex items-center gap-3 text-cyan-400">
-        <Loader2 className="w-6 h-6 animate-spin" />
-        <span className="text-xl font-medium">{t.loading}</span>
+    <div
+      className="min-h-screen flex items-center justify-center"
+      style={{ backgroundColor: 'var(--db-bg)' }}
+    >
+      <div className="flex items-center gap-3">
+        <Loader2 className="w-5 h-5 animate-spin" style={{ color: 'var(--db-primary)' }} />
+        <span className="text-sm font-medium" style={{ color: 'var(--db-text-2)' }}>{t.loading}</span>
       </div>
     </div>
   )
 
+  const inp = `w-full p-3.5 border rounded-xl text-sm focus:outline-none transition-all`
+
   return (
+    <main
+      className="min-h-screen py-8 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto"
+      dir={isRTL ? 'rtl' : 'ltr'}
+      style={{ backgroundColor: 'var(--db-bg)' }}
+    >
 
-      <main className="pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
-
-        {/* Header */}
-        <div className="mb-8">
-          <Link href="/dashboard/flows" className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition-colors">
-            {isRTL ? <ArrowRight size={16} /> : <ArrowLeft size={16} />}
-            {t.backToAutomations}
-          </Link>
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">{t.editAutomationTitle}</h1>
-          <p className="text-gray-400">{t.editAutomationSubtitle}</p>
-        </div>
-
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 mb-6 flex items-center gap-3 text-red-400">
-            <X size={20} />
-            {error}
-          </div>
-        )}
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 md:p-8 flex flex-col gap-8"
+      {/* ── Header ── */}
+      <div className="mb-8">
+        <Link
+          href="/dashboard/automations"
+          className="inline-flex items-center gap-2 text-sm mb-5 transition-colors"
+          style={{ color: 'var(--db-text-2)' }}
+          onMouseEnter={e => { e.currentTarget.style.color = 'var(--db-text-h)' }}
+          onMouseLeave={e => { e.currentTarget.style.color = 'var(--db-text-2)' }}
         >
+          {isRTL ? <ArrowRight size={16} /> : <ArrowLeft size={16} />}
+          {t.backToAutomations}
+        </Link>
+        <h1 className="text-2xl font-bold mb-1" style={{ color: 'var(--db-text-h)' }}>
+          {t.editAutomationTitle}
+        </h1>
+        <p className="text-sm" style={{ color: 'var(--db-text-2)' }}>
+          {t.editAutomationSubtitle}
+        </p>
+      </div>
 
-          {/* Section 1: Basic Info */}
-          <div>
-            <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-6">
-              <Zap size={16} /> {t.basicInfo}
-            </div>
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">{t.automationName}</label>
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={e => update('name', e.target.value)}
-                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">{t.linkedAccount}</label>
-                <select
-                  value={form.account_id}
-                  onChange={e => update('account_id', e.target.value)}
-                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 cursor-pointer appearance-none"
-                >
-                  <option value="">{t.selectAccount}</option>
-                  {accounts.map(acc => (
-                    <option key={acc.id} value={acc.id}>
-                      {acc.account_name} ({acc.account_type === 'instagram' ? 'Instagram' : 'Facebook'})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">{t.postUrl}</label>
-                <input
-                  type="text"
-                  value={form.post_url}
-                  onChange={e => update('post_url', e.target.value)}
-                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
-                />
-              </div>
-            </div>
+      {/* ── Error ── */}
+      {error && (
+        <div
+          className="rounded-xl p-4 mb-6 flex items-center gap-3 text-sm"
+          style={{ backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626' }}
+        >
+          <X size={16} /> {error}
+        </div>
+      )}
+
+      {/* ── Form Card ── */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl p-6 md:p-8 flex flex-col gap-8"
+        style={{
+          backgroundColor: 'var(--db-surface)',
+          border: '1px solid var(--db-border)',
+          boxShadow: 'var(--db-shadow-md)',
+        }}
+      >
+
+        {/* ── Section 1: Basic Info ── */}
+        <div>
+          <div
+            className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest mb-5"
+            style={{ color: 'var(--db-primary)' }}
+          >
+            <Zap size={15} /> {t.basicInfo}
           </div>
-
-          <div className="h-px bg-white/10 w-full" />
-
-          {/* Section 2: Trigger */}
-          <div>
-            <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-6">
-              <Zap size={16} /> {t.triggerWord}
-            </div>
+          <div className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">{t.triggerKeyword}</label>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--db-text-2)' }}>
+                {t.automationName}
+              </label>
               <input
                 type="text"
-                value={form.trigger_keyword}
-                onChange={e => update('trigger_keyword', e.target.value)}
-                className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+                value={form.name}
+                onChange={e => update('name', e.target.value)}
+                className={inp}
+                style={{
+                  backgroundColor: 'var(--db-bg)',
+                  borderColor: 'var(--db-border)',
+                  color: 'var(--db-text-h)',
+                }}
               />
-              <p className="text-gray-500 text-xs mt-2">{t.triggerHint}</p>
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--db-text-2)' }}>
+                {t.linkedAccount}
+              </label>
+              <select
+                value={form.account_id}
+                onChange={e => update('account_id', e.target.value)}
+                className={inp}
+                style={{
+                  backgroundColor: 'var(--db-bg)',
+                  borderColor: 'var(--db-border)',
+                  color: 'var(--db-text-h)',
+                }}
+              >
+                <option value="">{t.selectAccount}</option>
+                {accounts.map(acc => (
+                  <option key={acc.id} value={acc.id}>
+                    {acc.account_name} ({acc.account_type === 'instagram' ? 'Instagram' : 'Facebook'})
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--db-text-2)' }}>
+                {t.postUrl}
+              </label>
+              <input
+                type="text"
+                value={form.post_url}
+                onChange={e => update('post_url', e.target.value)}
+                className={inp}
+                style={{
+                  backgroundColor: 'var(--db-bg)',
+                  borderColor: 'var(--db-border)',
+                  color: 'var(--db-text-h)',
+                }}
+              />
             </div>
           </div>
+        </div>
 
-          <div className="h-px bg-white/10 w-full" />
+        {/* Divider */}
+        <div className="h-px w-full" style={{ backgroundColor: 'var(--db-border)' }} />
 
-          {/* Section 3: Responses */}
+        {/* ── Section 2: Trigger ── */}
+        <div>
+          <div
+            className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest mb-5"
+            style={{ color: 'var(--db-primary)' }}
+          >
+            <Zap size={15} /> {t.triggerWord}
+          </div>
           <div>
-            <div className="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase tracking-widest mb-6">
-              <MessageSquare size={16} /> {t.responses}
+            <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--db-text-2)' }}>
+              {t.triggerKeyword}
+            </label>
+            <input
+              type="text"
+              value={form.trigger_keyword}
+              onChange={e => update('trigger_keyword', e.target.value)}
+              className={inp}
+              style={{
+                backgroundColor: 'var(--db-bg)',
+                borderColor: 'var(--db-border)',
+                color: 'var(--db-text-h)',
+              }}
+            />
+            <p className="text-xs mt-1.5" style={{ color: 'var(--db-text-3)' }}>
+              {t.triggerHint}
+            </p>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="h-px w-full" style={{ backgroundColor: 'var(--db-border)' }} />
+
+        {/* ── Section 3: Responses ── */}
+        <div>
+          <div
+            className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest mb-5"
+            style={{ color: 'var(--db-primary)' }}
+          >
+            <MessageSquare size={15} /> {t.responses}
+          </div>
+          <div className="space-y-5">
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--db-text-2)' }}>
+                {t.commentReply}
+              </label>
+              <textarea
+                value={form.comment_reply}
+                onChange={e => update('comment_reply', e.target.value)}
+                rows={4}
+                className={inp + ' resize-vertical'}
+                style={{
+                  backgroundColor: 'var(--db-bg)',
+                  borderColor: 'var(--db-border)',
+                  color: 'var(--db-text-h)',
+                }}
+              />
             </div>
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">{t.commentReply}</label>
-                <textarea
-                  value={form.comment_reply}
-                  onChange={e => update('comment_reply', e.target.value)}
-                  rows={4}
-                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all resize-vertical"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">{t.dmMessage}</label>
-                <textarea
-                  value={form.dm_message}
-                  onChange={e => update('dm_message', e.target.value)}
-                  rows={4}
-                  className="w-full p-4 bg-black/20 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all resize-vertical"
-                />
-              </div>
+            <div>
+              <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--db-text-2)' }}>
+                {t.dmMessage}
+              </label>
+              <textarea
+                value={form.dm_message}
+                onChange={e => update('dm_message', e.target.value)}
+                rows={4}
+                className={inp + ' resize-vertical'}
+                style={{
+                  backgroundColor: 'var(--db-bg)',
+                  borderColor: 'var(--db-border)',
+                  color: 'var(--db-text-h)',
+                }}
+              />
             </div>
           </div>
+        </div>
 
-          {/* Action Buttons */}
-          <div className="flex gap-4">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleSave}
-              disabled={saving}
-              className="flex-1 py-4 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-full transition-all duration-200 shadow-lg shadow-cyan-500/20 disabled:opacity-70 flex items-center justify-center gap-2"
-            >
-              {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save size={20} />}
-              {saving ? t.saving : t.saveBtn}
-            </motion.button>
+        {/* ── Buttons ── */}
+        <div className="flex gap-3">
+          <motion.button
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+            onClick={handleSave}
+            disabled={saving}
+            className="flex-1 py-3 text-white font-semibold rounded-xl transition-all disabled:opacity-70 flex items-center justify-center gap-2 text-sm"
+            style={{ backgroundColor: 'var(--db-primary)' }}
+            onMouseEnter={e => { if (!saving) e.currentTarget.style.backgroundColor = 'var(--db-primary-h)' }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'var(--db-primary)' }}
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save size={16} />}
+            {saving ? t.saving : t.saveBtn}
+          </motion.button>
 
-            <Link
-              href="/dashboard/flows"
-              className="flex-1 py-4 bg-white/5 hover:bg-white/10 text-white font-bold rounded-full transition-all duration-200 flex items-center justify-center gap-2"
-            >
-              <X size={20} />
-              {t.cancelBtn}
-            </Link>
-          </div>
-        </motion.div>
-      </main>
+          <Link
+            href="/dashboard/automations"
+            className="flex-1 py-3 font-semibold rounded-xl transition-all flex items-center justify-center gap-2 text-sm border"
+            style={{ borderColor: 'var(--db-border)', color: 'var(--db-text-2)' }}
+            onMouseEnter={e => {
+              e.currentTarget.style.backgroundColor = 'var(--db-hover-bg)'
+              e.currentTarget.style.color = 'var(--db-text-h)'
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = 'var(--db-text-2)'
+            }}
+          >
+            <X size={16} /> {t.cancelBtn}
+          </Link>
+        </div>
+
+      </motion.div>
+    </main>
   )
 }
