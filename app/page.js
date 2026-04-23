@@ -62,106 +62,138 @@ export default function Home() {
     <PageLayoutWith3D dir={isRTL ? 'rtl' : 'ltr'}>
       <Navbar />
       
-      {/* Hero Section */}
-{/* Hero Section */}
-<main className="pt-[72px] md:pt-[80px] pb-20 px-5">
+     {/* Hero Section - Pinned to Top, Compact Side-by-Side Buttons on Mobile */}
+<main className="relative w-full min-h-[100dvh] flex flex-col justify-start overflow-hidden pt-20 sm:pt-24 md:pt-28 px-4 sm:px-8 md:px-12 lg:px-20 xl:px-24">
+  
+  {/* Background Ambience */}
+  <div className="absolute inset-0 pointer-events-none">
+    <div className="absolute -top-1/4 left-1/2 -translate-x-1/2 w-[80vw] h-[80vw] bg-cyan-500/10 rounded-full blur-[180px] opacity-20" />
+    <div className="absolute top-1/2 right-0 translate-x-1/3 w-[60vw] h-[60vw] bg-purple-500/10 rounded-full blur-[150px] opacity-15" />
+  </div>
 
-  <div className="max-w-6xl mx-auto">
-    <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="text-center max-w-4xl mx-auto">
+  {/* 🟢 Content Wrapper */}
+  <motion.div 
+    initial="hidden" 
+    animate="visible" 
+    variants={staggerContainer}
+    className="relative z-10 w-full max-w-7xl text-start"
+  >
+    <div className="space-y-4 sm:space-y-6 md:space-y-8 lg:space-y-10">
       
       {/* Badge */}
-      <motion.div
-        variants={fadeUp}
-        className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 backdrop-blur-md border border-white/10 rounded-full text-[10px] md:text-xs font-semibold mb-6 shadow-lg shadow-black/50 tracking-widest uppercase"
-      >
-        <span className="relative flex h-2 w-2 shrink-0">
+      <motion.div variants={fadeUp} className="inline-flex items-center gap-2 text-cyan-400 text-[10px] sm:text-xs md:text-sm font-semibold tracking-widest uppercase">
+        <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2 shrink-0">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+          <span className="relative inline-flex rounded-full h-full w-full bg-cyan-500"></span>
         </span>
-        <span className="text-cyan-400 leading-tight">
+        <span className="whitespace-nowrap">
           {lang === 'ar' ? 'الجيل الجديد من التسويق الرقمي' : 'Next-gen conversational marketing'}
         </span>
       </motion.div>
 
-      {/* Heading */}
-      <motion.h1 variants={fadeUp} className="mb-6 tracking-tight text-white">
-        {lang === 'ar' ? (
-          <>
-            <span className="block text-[2.6rem] leading-[1.15] md:text-7xl lg:text-8xl font-extrabold mb-3">
-              المنصة العربية الأولى
-            </span>
-            <span className="block text-xl leading-[1.6] md:text-3xl lg:text-4xl font-light text-gray-400">
-              لأتمتة المحادثات وتحويل
-              <br className="hidden md:block" />
-              {' '}متابعيك إلى عملاء حقيقيين
-            </span>
-          </>
-        ) : (
-          <>
-            <span className="block text-[2.8rem] leading-[1.1] md:text-7xl lg:text-8xl font-black mb-3">
-              The #1 Arabic Platform
-            </span>
-            <span className="block text-xl leading-[1.6] md:text-3xl lg:text-4xl font-light text-gray-400">
-              for chat automation & turning
-              <br className="hidden md:block" />
-              {' '}followers into customers
-            </span>
-          </>
-        )}
+      {/* 🎯 Typography */}
+      <motion.h1 variants={fadeUp} className="text-white font-black tracking-tight leading-[1.1] space-y-2 sm:space-y-3">
+        <span className="block text-balance" style={{ fontSize: 'clamp(2.5rem, 5.5vw, 7rem)' }}>
+          {lang === 'ar' ? 'المنصة العربية الأولى' : 'The #1 Arabic Platform'}
+        </span>
+        <span className="block text-gray-300 font-normal text-balance" style={{ fontSize: 'clamp(1.2rem, 2.5vw, 3rem)' }}>
+          {lang === 'ar' ? 'لأتمتة المحادثات وتحويل متابعيك إلى عملاء حقيقيين' : 'for chat automation & turning followers into customers'}
+        </span>
       </motion.h1>
 
       {/* Subtitle */}
-      <motion.p variants={fadeUp} className="text-sm md:text-base text-gray-500 mb-8 max-w-sm md:max-w-xl mx-auto leading-relaxed font-normal px-2">
+      <motion.p variants={fadeUp} className="text-gray-400 font-normal leading-relaxed max-w-[95%] sm:max-w-[80%] lg:max-w-[65%]"
+                style={{ fontSize: 'clamp(0.85rem, 1.2vw, 1.25rem)' }}>
         {lang === 'ar'
           ? 'IryChat هو فريق مبيعاتك الذي لا ينام — يرد، يقنع، ويغلق الصفقة تلقائياً.'
           : 'IryChat is your sales team that never sleeps — it replies, persuades, and closes deals.'}
       </motion.p>
 
-      {/* CTAs */}
-      <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-3 justify-center px-4 sm:px-0">
-        <Link
-          href="/login"
-          className="w-full sm:w-auto px-8 py-3.5 bg-white text-black rounded-full font-bold hover:scale-105 transition-all duration-200 shadow-lg shadow-white/10 text-center text-sm tracking-wide"
-        >
+      {/* CTAs - Side-by-Side & Compact on Mobile */}
+      <motion.div variants={fadeUp} className="flex flex-row flex-nowrap gap-3 pt-2 sm:gap-4">
+        <Link href="/login" className="w-auto px-4 py-2.5 sm:px-7 sm:py-3.5 bg-white text-black rounded-full font-semibold hover:opacity-90 transition-all text-center whitespace-nowrap"
+              style={{ fontSize: 'clamp(0.8rem, 2.2vw, 1.1rem)' }}>
           {lang === 'ar' ? 'ابدأ مجاناً' : 'GET STARTED FREE'}
         </Link>
-        <button
-          onClick={() => scrollTo('how')}
-          className="w-full sm:w-auto px-8 py-3.5 bg-transparent border border-white/20 text-gray-300 rounded-full font-normal hover:border-white hover:text-white transition-all duration-200 text-center text-sm tracking-wide"
-        >
+        <button onClick={() => scrollTo('how')} className="w-auto px-4 py-2.5 sm:px-7 sm:py-3.5 border border-white/20 text-gray-300 rounded-full font-normal hover:border-white hover:text-white transition-all text-center whitespace-nowrap"
+                style={{ fontSize: 'clamp(0.8rem, 2.2vw, 1.1rem)' }}>
           {lang === 'ar' ? 'اكتشف آلية العمل ▶' : 'Discover How It Works ▶'}
         </button>
       </motion.div>
 
-    </motion.div>
+    </div>
+  </motion.div>
+
+         {/* ✨ CHAT ANIMATION - Step 12: Balanced Entry Speed ✨ */}
+  
+  {/* تم ضبط سرعة ظهور الرد لتتوازن مع الرسالة الأولى */}
+  <div className="absolute bottom-6 md:bottom-10 left-0 w-full flex justify-center z-10 pointer-events-none">
+    
+    <div className="pointer-events-auto w-full max-w-md h-[260px] relative overflow-hidden flex flex-col items-center justify-end px-4 pb-4">
+      
+      {/* تعديلات الأنيميشن */}
+      <style jsx>{`
+        @keyframes msg1AnimFixed {
+          0% { opacity: 0; transform: translateY(30px) scale(0.95); max-height: 0; margin-bottom: 0; }
+          30% { opacity: 1; transform: translateY(0) scale(1); max-height: 60px; margin-bottom: 12px; } 
+          60% { opacity: 1; transform: translateY(0) scale(1); max-height: 60px; margin-bottom: 12px; }
+          
+          /* تلاشي ثم طي الارتفاع */
+          65% { opacity: 0; transform: translateY(0) scale(1); max-height: 60px; margin-bottom: 12px; }
+          70% { opacity: 0; transform: translateY(0) scale(1); max-height: 0; margin-bottom: 0; }
+          100% { opacity: 0; max-height: 0; margin-bottom: 0; }
+        }
+        @keyframes msg2AnimFixed {
+          0%, 30% { opacity: 0; transform: translateY(30px) scale(0.95); max-height: 0; margin-bottom: 0; }
+          
+          /* تعديل: تم زيادة فترة الظهور من 40% إلى 45% لجعل الحركة أبطأ وأكثر توازناً */
+          45% { opacity: 1; transform: translateY(0) scale(1); max-height: 200px; margin-bottom: 12px; } 
+          
+          70% { opacity: 1; transform: translateY(0) scale(1); max-height: 200px; margin-bottom: 12px; }
+          
+          /* تلاشي ثم طي الارتفاع */
+          75% { opacity: 0; transform: translateY(0) scale(1); max-height: 200px; margin-bottom: 12px; }
+          80% { opacity: 0; transform: translateY(0) scale(1); max-height: 0; margin-bottom: 0; }
+          100% { opacity: 0; max-height: 0; margin-bottom: 0; }
+        }
+        
+        /* المدة ثابتة 4 ثواني */
+        .anim-msg-1 { animation: msg1AnimFixed 4s infinite ease-in-out; }
+        .anim-msg-2 { animation: msg2AnimFixed 4s infinite ease-in-out; }
+      `}</style>
+
+      {/* الرسالة 1 (فوق - يسار) - User */}
+      <div className={`w-full flex anim-msg-1 z-10 ${isRTL ? 'justify-end' : 'justify-start'} ml-20 items-center gap-2`}>
+        
+        {/* صورة الأفاتار */}
+        <div className={`w-10 h-10 rounded-full bg-gray-600 border-2 border-white flex-shrink-0 flex items-center justify-center text-gray-300 ${isRTL ? 'order-last' : 'order-first'}`}>
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+        </div>
+
+        {/* البوكس */}
+        <div className="bg-gray-700 text-white px-5 py-3 rounded-2xl shadow-lg text-sm md:text-base font-medium max-w-[90%]">
+          Awesome! I need this!
+        </div>
+      </div>
+
+      {/* الرسالة 2 (تحت - يمين) - Bot Reply */}
+      <div className={`w-full flex anim-msg-2 z-20 ${isRTL ? 'justify-start' : 'justify-end'} mr-20`}>
+        <div className="bg-purple-600 text-white px-4 py-3 rounded-2xl shadow-lg flex flex-col gap-2 max-w-[95%] text-sm md:text-base">
+          <p>Hi there!</p>
+          <p>Thank you for your interest!</p>
+          <p>Here is link to register:</p>
+          
+          <button onClick={() => scrollTo('pricing')} className="mt-1 w-full text-center px-5 py-2 bg-purple-500 text-white text-xs md:text-sm font-bold rounded-full transition-colors shadow-sm hover:bg-purple-400">
+            Get the link
+          </button>
+        </div>
+      </div>
+
+    </div>
   </div>
+  {/* ✨ END CHAT ANIMATION ✨ */}
 </main>
 
-
-      {/* How It Works */}
-      <section id="how" className="py-20 px-4 bg-black/20">
-        <div className="max-w-6xl mx-auto">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={fadeUp} className="text-center mb-16">
-            <div className="text-cyan-400 text-sm font-bold tracking-widest uppercase mb-2">{lang === 'ar' ? 'اكتشف آلية العمل' : 'Discover How It Works'}</div>
-            <h2 className="text-4xl font-bold mb-4 text-white">{lang === 'ar' ? 'حول متابعيك إلى عملاء    ' : 'Turn your followers into customers'}</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">{lang === 'ar' ? 'من ربط الحساب لأول بيع تلقائي — في أقل من 10 دقايق' : 'From account connection to your first automated sale — in under 10 minutes'}</p>
-          </motion.div>
-
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.2 }} variants={staggerContainer} className="grid md:grid-cols-3 gap-8">
-            {[
-              { num: '01', ar: ['وصّل انستجرامك', 'ربط حسابك عن طريق Meta API الرسمي — آمن 100% ومتوافق مع سياسات ميتا.'], en: ['Connect Instagram', 'Connect via the official Meta API — 100% secure & fully compliant with Meta policies.'] },
-              { num: '02', ar: ['صمّم الـ Flow', 'استخدم الـ Visual Builder لتحديد الردود التلقائية على DMs والكومنتات بكلمات مفتاحية.'], en: ['Build Your Flow', 'Use the Visual Builder to create automated replies for DMs and comments with keywords.'] },
-              { num: '03', ar: ['شغّل وشوف النتيجة', 'IryChat يشتغل 24/7 وإنت بتتابع المبيعات والتحويلات على الداشبورد بالريال تايم.'], en: ['Launch & See Results', 'IryChat runs 24/7 while you track sales and conversions on your real-time dashboard.'] },
-            ].map((step) => (
-              <motion.div key={step.num} variants={fadeUp} className="p-8 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all">
-                <div className="text-4xl font-bold text-gray-700 mb-4">{step.num}</div>
-                <h3 className="text-xl font-bold mb-2 text-white">{lang === 'ar' ? step.ar[0] : step.en[0]}</h3>
-                <p className="text-gray-400">{lang === 'ar' ? step.ar[1] : step.en[1]}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
 
       {/* NEW SECTION: Introduction to Features (Corrected Order) */}
       <section className="py-24 px-4 bg-white text-center relative">
