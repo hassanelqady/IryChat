@@ -146,11 +146,10 @@ function PhoneMockup({ feature, isRTL }) {
     timersRef.current = []
     setMessages([])
 
-    const BUBBLE_GROW_DURATION = 500
-    const CHAR_DELAY = 45
+    const BUBBLE_GROW_DURATION = 400 
+    const CHAR_DELAY = 15 
 
     feature.messages.forEach((msg, i) => {
-      // الخطوة 1: ظهور الفقاعة فاضية بحجمها الكامل
       const t1 = setTimeout(() => {
         setMessages(prev => [...prev, {
           ...msg,
@@ -161,7 +160,6 @@ function PhoneMockup({ feature, isRTL }) {
       }, msg.delay)
       timersRef.current.push(t1)
 
-      // الخطوة 2: بداية الكتابة بعد اكتمال تكبير الفقاعة
       const chars = msg.text.split('')
       chars.forEach((_, charIdx) => {
         const t2 = setTimeout(() => {
@@ -176,7 +174,6 @@ function PhoneMockup({ feature, isRTL }) {
         timersRef.current.push(t2)
       })
 
-      // الخطوة 3: إخفاء الـ cursor بعد انتهاء الكتابة
       const typingDuration = chars.length * CHAR_DELAY
       const t3 = setTimeout(() => {
         setMessages(prev =>
@@ -184,11 +181,10 @@ function PhoneMockup({ feature, isRTL }) {
             m.key?.startsWith(`${i}-`) ? { ...m, typingDone: true } : m
           )
         )
-      }, msg.delay + BUBBLE_GROW_DURATION + typingDuration + 400)
+      }, msg.delay + BUBBLE_GROW_DURATION + typingDuration + 200)
       timersRef.current.push(t3)
     })
 
-    // إعادة الأنيميشن من الأول
     const lastMsg = feature.messages[feature.messages.length - 1]
     const lastTypingDuration = lastMsg.text.length * CHAR_DELAY
     const total = lastMsg.delay + BUBBLE_GROW_DURATION + lastTypingDuration + 3000
@@ -206,58 +202,71 @@ function PhoneMockup({ feature, isRTL }) {
       width: '100%',
       height: '100%',
       borderRadius: 28,
-      background: '#000000',
-      border: '1px solid rgba(255,255,255,0.1)',
+      background: '#0a0a0a',
+      border: '1px solid rgba(255,255,255,0.08)',
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden',
       position: 'relative',
       flexShrink: 0,
       zIndex: 10,
-      boxShadow: '0 25px 50px rgba(0, 0, 0, 0.15)',
+      boxShadow: '0 25px 60px rgba(0,0,0,0.4)',
     }}>
       <div style={{
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-end',
-        padding: '24px 20px',
+        padding: '24px 16px',
         overflowY: 'hidden',
-        background: '#000000',
+        background: '#0a0a0a',
       }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {messages.map((msg) => {
-            const isBot = msg.from === 'bot'
-            const alignRight = isBot
-              ? (isRTL ? true : false)
-              : (isRTL ? false : true)
+            const isUser = msg.from === 'user'
+            
+            // Fix Logic for Visual Alignment
+            const alignRight = isRTL ? 'flex-start' : 'flex-end'
+            const alignLeft = isRTL ? 'flex-end' : 'flex-start'
+            const justifyContent = isUser ? alignRight : alignLeft
+
+            const radius = isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px'
+            const textAlign = isRTL ? 'right' : 'left'
+            const textRight = isRTL ? '16px' : 'auto'
+            const textLeft = isRTL ? 'auto' : '16px'
 
             return (
               <div
                 key={msg.key}
                 style={{
                   display: 'flex',
-                  justifyContent: alignRight ? 'flex-end' : 'flex-start',
+                  justifyContent: justifyContent,
                   width: '100%',
-                  animation: 'bubbleAppear 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+                  // ✅ Change: Ease-Out (Fast Start, Slow End) + Shorter Duration (0.7s)
+                  animation: 'rowExpandSnappy 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
                 }}
               >
-                <div style={{
-                  maxWidth: '75%',
-                  padding: '12px 18px',
-                  borderRadius: 20,
-                  background: isBot ? '#262626' : '#8B5CF6',
-                  color: '#ffffff',
-                  position: 'relative',
-                }}>
-                  {/* النص الكامل invisible — يحجز المساحة الصح من الأول */}
+                <div
+                  style={{
+                    maxWidth: '78%',
+                    padding: '12px 16px',
+                    borderRadius: radius,
+                    background: isUser ? '#7c3aed' : '#1e1e1e',
+                    color: '#ffffff',
+                    position: 'relative',
+                    transformOrigin: isUser ? 'bottom right' : 'bottom left',
+                    // ✅ Revert to Clean Animation (No Bounce)
+                    animation: 'bubbleSoftIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both',
+                  }}
+                >
+                  {/* Invisible full text */}
                   <span style={{
-                    fontSize: 14,
-                    lineHeight: 1.6,
+                    fontSize: 13,
+                    lineHeight: 1.65,
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-word',
                     direction: isRTL ? 'rtl' : 'ltr',
-                    textAlign: isRTL ? 'right' : 'left',
+                    textAlign: textAlign,
                     display: 'block',
                     visibility: 'hidden',
                     userSelect: 'none',
@@ -266,35 +275,24 @@ function PhoneMockup({ feature, isRTL }) {
                     {msg.text}
                   </span>
 
-                  {/* النص اللي بيتكتب فوقه بالضبط */}
+                  {/* Visible typing text */}
                   <span style={{
-                    fontSize: 14,
-                    lineHeight: 1.6,
+                    fontSize: 13,
+                    lineHeight: 1.65,
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-word',
                     direction: isRTL ? 'rtl' : 'ltr',
-                    textAlign: isRTL ? 'right' : 'left',
+                    textAlign: textAlign,
                     display: 'block',
                     position: 'absolute',
                     top: '12px',
-                    right: isRTL ? '18px' : 'auto',
-                    left: isRTL ? 'auto' : '18px',
+                    right: textRight,
+                    left: textLeft,
                     color: '#ffffff',
-                    width: 'calc(100% - 36px)',
+                    width: 'calc(100% - 32px)',
+                    animation: 'textSoftBlur 0.8s ease-out forwards',
                   }}>
                     {msg.displayText}
-                    {!msg.typingDone && (
-                      <span style={{
-                        display: 'inline-block',
-                        width: 2,
-                        height: '1em',
-                        background: 'rgba(255,255,255,0.8)',
-                        marginRight: isRTL ? 0 : 2,
-                        marginLeft: isRTL ? 2 : 0,
-                        verticalAlign: 'text-bottom',
-                        animation: 'cursorBlink 0.7s step-end infinite',
-                      }} />
-                    )}
                   </span>
                 </div>
               </div>
@@ -315,7 +313,6 @@ function MobileView({ features, isRTL, lang }) {
         <div
           key={feature.id}
           style={{
-            minHeight: '0vh',
             width: '100%',
             background: feature.bgGradient,
             display: 'flex',
@@ -328,16 +325,16 @@ function MobileView({ features, isRTL, lang }) {
           }}
         >
           <div style={{
-            position: 'absolute', inset: 0, zIndex: 0, opacity: 0.40,
+            position: 'absolute', inset: 0, zIndex: 0, opacity: 0.35,
             backgroundSize: '150px 150px',
-            backgroundImage: `linear-gradient(rgba(0,0,0,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px)`
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.12) 1px, transparent 1px)`
           }} />
 
           <div style={{ zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
             <div style={{ textAlign: 'center', marginBottom: 40, width: '100%' }}>
               <div style={{
                 fontSize: '0.75rem', fontWeight: 800, letterSpacing: '2px', textTransform: 'uppercase',
-                color: 'rgba(0,0,0,0.6)', marginBottom: 20
+                color: 'rgba(0,0,0,0.5)', marginBottom: 20
               }}>
                 {lang === 'ar' ? 'المميزات' : 'Features'} {index + 1}
               </div>
@@ -353,9 +350,9 @@ function MobileView({ features, isRTL, lang }) {
                 {feature.headline}
               </h2>
               <p style={{
-                color: 'rgba(0,0,0,0.8)',
-                fontSize: '1.1rem',
-                lineHeight: 1.6,
+                color: 'rgba(0,0,0,0.75)',
+                fontSize: '1.05rem',
+                lineHeight: 1.65,
                 maxWidth: 500,
                 margin: '0 auto',
               }}>
@@ -363,12 +360,7 @@ function MobileView({ features, isRTL, lang }) {
               </p>
             </div>
 
-            <div style={{
-              width: '100%',
-              maxWidth: 320,
-              height: 480,
-              transform: 'scale(0.9)'
-            }}>
+            <div style={{ width: '100%', maxWidth: 300, height: 460 }}>
               <PhoneMockup feature={feature} isRTL={isRTL} />
             </div>
 
@@ -384,8 +376,6 @@ function MobileView({ features, isRTL, lang }) {
                     width: '100%', maxWidth: 500
                   }}>
                   {isRTL ? 'ابدأ ' : 'Get Started '}
-                  <span style={{ fontSize: 18, display: 'flex', alignItems: 'center', marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }}>
-                  </span>
                 </Link>
               </div>
             )}
@@ -404,7 +394,6 @@ function DesktopView({ features, isRTL, lang }) {
   const [textVisible, setTextVisible] = useState(true)
   const [phoneVisible, setPhoneVisible] = useState(true)
   const [scrollDir, setScrollDir] = useState('next')
-
   const isProgrammaticScrollRef = useRef(false)
 
   const triggerTransition = useCallback((newIndex) => {
@@ -422,7 +411,6 @@ function DesktopView({ features, isRTL, lang }) {
   useEffect(() => {
     const section = sectionRef.current
     if (!section) return
-
     const onScroll = () => {
       if (isProgrammaticScrollRef.current) return
       const rect = section.getBoundingClientRect()
@@ -431,12 +419,8 @@ function DesktopView({ features, isRTL, lang }) {
       const scrolled = Math.max(0, -rect.top)
       const progress = Math.min(1, scrolled / totalScroll)
       const newIndex = Math.min(features.length - 1, Math.floor(progress * features.length))
-
-      if (newIndex !== activeIndex) {
-        triggerTransition(newIndex)
-      }
+      if (newIndex !== activeIndex) triggerTransition(newIndex)
     }
-
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [activeIndex, features.length, triggerTransition])
@@ -454,37 +438,35 @@ function DesktopView({ features, isRTL, lang }) {
 
   const active = features[activeIndex]
   const isDarkBg = active.id === 'story' || active.id === 'broadcast'
-  const buttonBg = '#000000'
-  const buttonText = '#ffffff'
 
   return (
     <div ref={sectionRef} style={{ height: `${features.length * 100}vh`, position: 'relative' }} dir={isRTL ? 'rtl' : 'ltr'}>
       <div style={{
         position: 'sticky', top: 0, height: '100vh', display: 'flex', overflow: 'hidden',
-        background: active.bgGradient, transition: 'background 0.8s ease-in-out',
+        background: active.bgGradient, transition: 'background 0.9s ease-in-out',
       }}>
         {/* TEXT SIDE */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '5%', position: 'relative' }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <div style={{ fontSize: '0.75rem', fontWeight: 800, letterSpacing: '3px', textTransform: 'uppercase', color: isDarkBg ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.6)', marginBottom: 28 }}>
+            <div style={{ fontSize: '0.7rem', fontWeight: 800, letterSpacing: '3px', textTransform: 'uppercase', color: 'rgba(0,0,0,0.5)', marginBottom: 28 }}>
               {lang === 'ar' ? 'المميزات' : 'Features'}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 36 }}>
               {features.map((f, i) => (
                 <button key={f.id} onClick={() => goTo(i)} style={{
                   display: 'flex', alignItems: 'center', gap: 10, background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0',
-                  opacity: activeIndex === i ? 1 : 0.4, transition: 'opacity 0.3s', textAlign: isRTL ? 'right' : 'left',
+                  opacity: activeIndex === i ? 1 : 0.35, transition: 'opacity 0.35s', textAlign: isRTL ? 'right' : 'left',
                 }}>
-                  <div style={{ width: activeIndex === i ? 24 : 6, height: 6, borderRadius: 3, background: active.textColor, transition: 'all 0.3s ease', flexShrink: 0 }} />
-                  <span style={{ color: active.textColor, fontSize: 12, fontWeight: activeIndex === i ? 800 : 400, transition: 'color 0.3s', whiteSpace: 'nowrap' }}>{f.tag}</span>
+                  <div style={{ width: activeIndex === i ? 24 : 6, height: 6, borderRadius: 3, background: active.textColor, transition: 'all 0.35s ease', flexShrink: 0 }} />
+                  <span style={{ color: active.textColor, fontSize: 12, fontWeight: activeIndex === i ? 800 : 400, transition: 'all 0.35s', whiteSpace: 'nowrap' }}>{f.tag}</span>
                 </button>
               ))}
             </div>
-            <div key={active.id} className="text-panel-in" style={{ opacity: textVisible ? 1 : 0, transition: 'opacity 0.2s', maxWidth: 480 }}>
+            <div key={active.id} className="text-panel-in" style={{ opacity: textVisible ? 1 : 0, transition: 'opacity 0.25s', maxWidth: 480 }}>
               <h2 style={{ color: active.textColor, fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: 20, whiteSpace: 'pre-line', fontFamily: isRTL ? 'Tajawal, sans-serif' : 'Inter, sans-serif' }}>
                 {active.headline}
               </h2>
-              <p style={{ color: isDarkBg ? 'rgba(0,0,0,0.85)' : 'rgba(0,0,0,0.7)', fontSize: 'clamp(1rem, 1.3vw, 1.2rem)', lineHeight: 1.6, maxWidth: 420 }}>
+              <p style={{ color: isDarkBg ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.65)', fontSize: 'clamp(1rem, 1.3vw, 1.2rem)', lineHeight: 1.7, maxWidth: 420 }}>
                 {active.body}
               </p>
             </div>
@@ -492,29 +474,24 @@ function DesktopView({ features, isRTL, lang }) {
           <div style={{ width: '100%', marginTop: 'auto', marginBottom: '40px' }}>
             <Link
               href="/signup"
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '16px 32px', backgroundColor: buttonBg, color: buttonText, border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', textDecoration: 'none', transition: 'all 0.3s ease', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.2)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)'; e.currentTarget.style.boxShadow = '0 20px 30px -5px rgba(0,0,0,0.3)'; }}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '16px 32px', backgroundColor: '#000', color: '#fff', border: 'none', borderRadius: '50px', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', textDecoration: 'none', transition: 'all 0.3s ease', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.2)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-3px) scale(1.02)'; e.currentTarget.style.boxShadow = '0 20px 30px -5px rgba(0,0,0,0.28)'; }}
               onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(0,0,0,0.2)'; }}
             >
-              {isRTL ? 'ابدأ ' : 'Get Started '}
-              <span style={{ fontSize: 18, display: 'flex', alignItems: 'center', marginRight: isRTL ? 0 : 8, marginLeft: isRTL ? 8 : 0 }}></span>
+              {isRTL ? 'ابدأ الآن' : 'Get Started'}
             </Link>
           </div>
         </div>
 
         {/* CHAT FRAME SIDE */}
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: '5%', backgroundSize: '100px 100px', backgroundImage: `linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)` }}>
-          <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 80% 70% at 50% 50%, rgba(0,0,0,0.05) 0%, transparent 65%)`, pointerEvents: 'none', zIndex: 1 }} />
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: '5%', backgroundSize: '100px 100px', backgroundImage: `linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px)` }}>
+          <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 80% 70% at 50% 50%, rgba(0,0,0,0.04) 0%, transparent 65%)`, pointerEvents: 'none', zIndex: 1 }} />
           <div style={{
-            width: 320,
-            height: 480,
+            width: 320, height: 500,
             opacity: phoneVisible ? 1 : 0,
-            transform: `translateY(${phoneVisible ? '0%' : (scrollDir === 'next' ? '-150%' : '150%')})`,
-            transition: phoneVisible ? 'none' : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease',
+            transform: `translateY(${phoneVisible ? '0%' : (scrollDir === 'next' ? '-120%' : '120%')})`,
+            transition: phoneVisible ? 'none' : 'transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease',
             zIndex: 10,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center'
           }}>
             <PhoneMockup key={active.id} feature={active} isRTL={isRTL} />
           </div>
@@ -542,20 +519,56 @@ function FeatureShowcase() {
   return (
     <>
       <style>{`
-        @keyframes bubbleAppear {
-          0%   { transform: scale(0.4) translateY(8px); opacity: 0; }
-          60%  { transform: scale(1.05) translateY(-2px); opacity: 1; }
-          100% { transform: scale(1) translateY(0); opacity: 1; }
+
+        /* ── Row wrapper: Snappy Start, Smooth End (Ease Out) ── */
+        @keyframes rowExpandSnappy {
+          0%   { 
+            opacity: 0; 
+            max-height: 0; 
+          }
+          100% { 
+            opacity: 1; 
+            max-height: 180px; 
+          }
         }
-        @keyframes cursorBlink {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: 0; }
+
+        /* ── Bubble: Clean Soft In (Reverted to better version) ── */
+        @keyframes bubbleSoftIn {
+          0% {
+            opacity: 0;
+            transform: scale(0.4) translateY(8px);
+            filter: blur(8px);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            filter: blur(0px);
+          }
         }
+
+        /* Right-aligned bubble: origin bottom-right */
+        .bubble-right {
+          transform-origin: bottom right !important;
+        }
+
+        /* Left-aligned bubble: origin bottom-left */
+        .bubble-left {
+          transform-origin: bottom left !important;
+        }
+
+        /* ── Text: Soft Blur Fade In ── */
+        @keyframes textSoftBlur {
+          0%   { opacity: 0; filter: blur(4px); }
+          100% { opacity: 1; filter: blur(0px); }
+        }
+
+        /* ── Page text panel ── */
         @keyframes fadeSlideUp {
-          from { opacity: 0; transform: translateY(20px); }
+          from { opacity: 0; transform: translateY(18px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        .text-panel-in { animation: fadeSlideUp 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+        .text-panel-in { animation: fadeSlideUp 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
